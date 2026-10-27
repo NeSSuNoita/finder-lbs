@@ -2724,11 +2724,11 @@ function caricaFonti() {
   })).then(Object.fromEntries).catch(() => { fontiP = null; return null; });
 }
 // la fresa del logo, stilizzata: lama con i denti a uncino, anello e foro con la cava della chiavetta in alto
-function lamaLbs(doc, cx, cy, R) {
+function lamaLbs(doc, cx, cy, R, col = LBS.blu) {
   const Z = 16, phi = 2 * Math.PI / Z, Rg = R * 0.8, P = (r, a) => [cx + r * Math.cos(a), cy + r * Math.sin(a)], pts = [];
   for (let k = 0; k < Z; k++) { const a0 = k * phi - Math.PI / 2; pts.push(P(R, a0), P(R * 0.965, a0 + 0.10 * phi), P(Rg * 1.05, a0 + 0.70 * phi), P(Rg, a0 + 0.83 * phi), P(Rg * 1.04, a0 + 0.94 * phi)); }
   const chiudi = q => doc.lines(q.slice(1).map((p, i) => [p[0] - q[i][0], p[1] - q[i][1]]), q[0][0], q[0][1], [1, 1], "S", true);
-  doc.setDrawColor(...LBS.blu); try { doc.setLineJoin("round"); } catch (e) {}
+  doc.setDrawColor(...col); try { doc.setLineJoin("round"); } catch (e) {}
   doc.setLineWidth(R * 0.07); chiudi(pts);
   doc.setLineWidth(R * 0.08); doc.circle(cx, cy, R * 0.55, "S");
   const r = R * 0.34, w = r * 0.26, nh = r * 0.24, d = Math.asin(w / r), foro = [];
@@ -2767,30 +2767,37 @@ function puntiTracciato(d) {
   return pts;
 }
 // disegna L.B.S. con la parte alta delle lettere in (x, y) e altezza h mm; restituisce la larghezza
-function scrittaLbs(doc, x, y, h) {
+function scrittaLbs(doc, x, y, h, col = LBS.blu) {
   const k = h / 32;
   for (const [c, d] of LBS_SCRITTA) {
     const q = puntiTracciato(d).map(([px, py]) => [x + (px - 4.6) * k, y + (py - 5.6) * k]);
-    if (c === "b") doc.setFillColor(...LBS.blu); else doc.setFillColor(255, 255, 255);
+    if (c === "b") doc.setFillColor(...col); else doc.setFillColor(255, 255, 255);
     doc.lines(q.slice(1).map((p, i) => [p[0] - q[i][0], p[1] - q[i][1]]), q[0][0], q[0][1], [1, 1], "F", true);
   }
   return 131 * k;
 }
-function testataLbs(doc, T) {
-  const blu = LBS.blu;
-  lamaLbs(doc, 28, 24, 12.5);
-  scrittaLbs(doc, 45, 19.5, 11);
-  T("i", 9, [70, 90, 110]); doc.text(LBS.ditta, 46, 35.8);
-  doc.setFillColor(...blu); doc.rect(15, 40, 92, 6.5, "F");
-  T("b", 9.5, [255, 255, 255]); doc.text(LBS.motto, 61, 44.4, { align: "center", maxWidth: 88 });
+// carta intestata nel colore del lavoro (verde ordine, giallo preventivo)
+function testataLbs(doc, T, col = LBS.blu) {
+  lamaLbs(doc, 28, 24, 12.5, col);
+  scrittaLbs(doc, 45, 19.5, 11, col);
+  T("i", 10.5, [80, 84, 90]); doc.text(LBS.ditta, 46, 36.2);
+  doc.setFillColor(...col); doc.rect(15, 40, 94, 7.5, "F");
+  T("b", 10.5, [255, 255, 255]); doc.text(LBS.motto, 62, 45.2, { align: "center", maxWidth: 90 });
   // a destra: nome della ditta in grassetto, sotto telefono e mail
   const [nomeR, ...altriR] = LBS.recapiti;
-  T("b", 8.6, [45, 60, 75]); const w0 = doc.getTextWidth(nomeR);
-  T("n", 8.6, [60, 75, 90]); const wR = Math.max(w0, ...altriR.map(s => doc.getTextWidth(s)));
-  T("b", 8.6, [45, 60, 75]); doc.text(nomeR, 195 - wR, 19);
-  T("n", 8.6, [60, 75, 90]); doc.text(altriR, 195 - wR, 24, { lineHeightFactor: 1.5 });
-  doc.setDrawColor(...blu); doc.setLineWidth(0.5); doc.line(15, 52, 195, 52);
+  T("b", 10.5, [40, 44, 50]); const w0 = doc.getTextWidth(nomeR);
+  T("n", 10.5, [70, 74, 80]); const wR = Math.max(w0, ...altriR.map(s => doc.getTextWidth(s)));
+  T("b", 10.5, [40, 44, 50]); doc.text(nomeR, 195 - wR, 20);
+  T("n", 10.5, [70, 74, 80]); doc.text(altriR, 195 - wR, 26, { lineHeightFactor: 1.5 });
+  doc.setDrawColor(...col); doc.setLineWidth(0.6); doc.line(15, 53, 195, 53);
 }
+// colori dei PDF come nell'app: ordine verde, preventivo giallo, appunto grigio, importante rosso (col forte, chiaro per gli sfondi)
+const COLORI_PDF = {
+  ordine: { col: [59, 109, 17], chiaro: [234, 243, 222] },
+  preventivo: { col: [186, 117, 23], chiaro: [250, 238, 218] },
+  appunto: { col: [95, 94, 90], chiaro: [241, 239, 232] },
+  importante: { col: [163, 45, 45], chiaro: [252, 235, 235] }
+};
 async function pdfLavoro(n, foto = []) {
   const [{ jsPDF }, ff] = await Promise.all([caricaJsPdf(), caricaFonti()]), doc = new jsPDF({ unit: "mm", format: "a4" });
   if (ff) {
@@ -2799,34 +2806,64 @@ async function pdfLavoro(n, foto = []) {
   }
   // T(stile, punti, colore): n normale, b grassetto, i corsivo, k nerissimo (per L.B.S. e il titolo)
   const T = (s, pt, col) => { if (s === "k") doc.setFont(ff ? "BarlowBlack" : "helvetica", ff ? "normal" : "bold"); else doc.setFont(ff ? "Barlow" : "helvetica", { n: "normal", b: "bold", i: "italic" }[s]); doc.setFontSize(pt); doc.setTextColor(...col); };
-  const a = n.az && BYID.get(n.az), blu = LBS.blu, nero = [28, 30, 33], col = n.tipo === "ordine" ? [59, 109, 17] : [186, 117, 23];
-  const TOP = 60, FONDO = 238, nuova = () => { doc.addPage(); return TOP; };
-  T("k", 22, col); doc.text(TIPI[n.tipo].toUpperCase(), 15, 89);
-  doc.setDrawColor(...col); doc.setLineWidth(0.8); doc.line(15, 92, 195, 92);
-  // intestazione della tabella del materiale
-  doc.setFillColor(232, 241, 249); doc.rect(15, 97, 180, 7, "F");
-  T("b", 8, blu); doc.text("Q.TÀ", 17, 101.6); doc.text("MATERIALE", 38, 101.6);
-  let y = 111;
-  for (const r of n.righe) {
-    T("n", 12, nero); const righe = doc.splitTextToSize(r.t, 155);
-    if (y + righe.length * 5.5 > FONDO) y = nuova() + 4;
-    T("b", 12, nero); doc.text(r.q || "", 17, y);
-    T("n", 12, nero); doc.text(righe, 38, y, { lineHeightFactor: 1.3 });
-    y += righe.length * 5.5 + 1; doc.setDrawColor(218, 225, 232); doc.setLineWidth(0.2); doc.line(15, y - 2.5, 195, y - 2.5); y += 4;
+  // ordini e preventivi su carta intestata LBS; appunti e importanti con una fascia colorata in alto.
+  // Tutto nel colore del tipo, come nell'app; caratteri grandi, che si leggano bene anche sul telefono.
+  const k = tipoDi(n), { col, chiaro } = COLORI_PDF[k], mat = isMateriale(k), bianco = [255, 255, 255];
+  const a = n.az && BYID.get(n.az), cli = clienteDi(n), nero = [28, 30, 33], grigio = [70, 74, 80];
+  const titolo = (k === "importante" ? "! " : "") + TIPI[k].toUpperCase();
+  const TOP = mat ? 62 : 30, FONDO = mat || cli ? 228 : 268, nuova = () => { doc.addPage(); return TOP; };
+  const etichetta = (s, yy) => { T("b", 11, col); doc.text(s, 15, yy); };
+  // testo a righe che va a capo da solo e passa al foglio dopo quando serve
+  let y;
+  const paragrafo = (testo, x, pt, colore, barra) => {
+    T("n", pt, colore); const lh = pt * 0.3528 * 1.25;
+    for (const riga of doc.splitTextToSize(testo, 195 - x)) {
+      if (y > FONDO) { y = nuova() + 6; T("n", pt, colore); }
+      if (barra) { doc.setFillColor(...col); doc.rect(15, y - lh * 0.78, 1.8, lh, "F"); }
+      doc.text(riga, x, y); y += lh;
+    }
+  };
+  if (mat) {
+    T("k", 30, col); doc.text(titolo, 15, 99);
+    doc.setDrawColor(...col); doc.setLineWidth(1); doc.line(15, 102.5, 195, 102.5);
+    // intestazione della tabella del materiale
+    doc.setFillColor(...chiaro); doc.rect(15, 107, 180, 9, "F");
+    T("b", 11, col); doc.text("Q.TÀ", 17, 113); doc.text("MATERIALE", 42, 113);
+    y = 126;
+    for (const r of n.righe) {
+      T("n", 20, nero); const righe = doc.splitTextToSize(r.t, 153);
+      if (y + (righe.length - 1) * 8.5 > FONDO) y = nuova() + 8;
+      T("b", 20, nero); doc.text(r.q || "", 17, y);
+      T("n", 20, nero); doc.text(righe, 42, y, { lineHeightFactor: 1.2 });
+      y += (righe.length - 1) * 8.5 + 4.5; doc.setDrawColor(222, 224, 226); doc.setLineWidth(0.25); doc.line(15, y, 195, y); y += 9;
+    }
+    y += 2;
+  } else {
+    // fascia colorata con il tipo e il giorno in cui è stato scritto
+    doc.setFillColor(...col); doc.rect(0, 0, 210, 44, "F");
+    T("k", 34, bianco); doc.text(titolo, 15, 24);
+    T("n", 14, bianco); doc.text("Scritto il " + new Date(n.t || Date.now()).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" }), 15, 35);
+    y = 62;
+    if (cli) { T("b", 22, nero); doc.text(doc.splitTextToSize(cli, 180)[0], 15, y); y += 13; }
+    if (n.quando) {
+      const q = "Quando: " + new Date(n.quando + "T12:00").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      T("b", 17, col); const w = doc.getTextWidth(q) + 10;
+      doc.setFillColor(...chiaro); doc.roundedRect(15, y - 7.5, w, 11.5, 2.5, 2.5, "F"); doc.text(q, 20, y + 0.6); y += 17;
+    }
+    const testo = n.testo || (n.lista || []).map(x => "• " + x.t).join("\n") || n.titolo || "";
+    if (testo) { etichetta("DA RICORDARE", y); y += 10; paragrafo(testo, 22, 20, nero, true); y += 6; }
   }
-  // note sotto il materiale
+  // note
   if (n.note) {
-    T("n", 11.5, nero); const nr = doc.splitTextToSize(n.note, 180);
-    if (y + 10 + nr.length * 5.3 > FONDO) y = nuova();
-    T("b", 8, blu); doc.text("NOTE", 15, y + 4); y += 10;
-    T("n", 11.5, [45, 48, 52]); doc.text(nr, 15, y, { lineHeightFactor: 1.3 }); y += nr.length * 5.3 + 6;
+    if (y + 18 > FONDO) y = nuova();
+    etichetta("NOTE", y); y += 9; paragrafo(n.note, 15, 17, grigio); y += 6;
   }
-  // foto sotto il materiale: larghe al massimo 180 mm e alte 110 mm, su più fogli se servono
+  // foto: larghe al massimo 180 mm e alte 110 mm, su più fogli se servono
   // (se in fondo al foglio c'è almeno 6 cm la foto si rimpicciolisce e ci sta, altrimenti va sul foglio dopo)
-  const misura = (f, spazio) => { let k = Math.min(180 / f.w, 110 / f.h); if (f.h * k > spazio && spazio >= 60) k = spazio / f.h; return [f.w * k, f.h * k]; };
+  const misura = (f, spazio) => { let s = Math.min(180 / f.w, 110 / f.h); if (f.h * s > spazio && spazio >= 60) s = spazio / f.h; return [f.w * s, f.h * s]; };
   if (foto.length) {
-    if (misura(foto[0], FONDO - y - 9)[1] > FONDO - y - 9) y = nuova();
-    T("b", 8, blu); doc.text("FOTO", 15, y + 4); y += 9;
+    if (misura(foto[0], FONDO - y - 6)[1] > FONDO - y - 6) y = nuova();
+    etichetta("FOTO", y); y += 5;
     for (const f of foto) {
       let [w, h] = misura(f, FONDO - y);
       if (y + h > FONDO) { y = nuova(); [w, h] = misura(f, FONDO - y); }
@@ -2834,42 +2871,47 @@ async function pdfLavoro(n, foto = []) {
       y += h + 6;
     }
   }
-  // recapiti del cliente: solo nel PDF, per ricontattarlo
-  const yr = 250; doc.setDrawColor(...blu); doc.setLineWidth(0.2); doc.line(15, yr - 6, 195, yr - 6);
-  T("b", 8, blu); doc.text("RIFERIMENTI CLIENTE", 15, yr);
-  T("n", 10, [60, 64, 70]);
-  const ref = a ? [a.nome + (a.indirizzo ? " · " + a.indirizzo : a.comune ? " · " + a.comune : ""), a.telefono ? "Tel. " + a.telefono : "", (emailList(a)[0] || {}).e ? "Email " + emailList(a)[0].e : ""].filter(Boolean) : [clienteDi(n)];
-  ref.forEach((s, i) => doc.text(doc.splitTextToSize(s, 180)[0], 15, yr + 5.5 * (i + 1)));
-  // su ogni foglio: carta intestata e piede con il numero del foglio; i campi solo sul primo
+  // recapiti del cliente, in fondo all'ultimo foglio, per ricontattarlo
+  if (cli) {
+    const yr = 240; doc.setDrawColor(...col); doc.setLineWidth(0.3); doc.line(15, yr - 7, 195, yr - 7);
+    T("b", 11, col); doc.text("RIFERIMENTI CLIENTE", 15, yr);
+    T("n", 14, grigio);
+    const ref = a ? [a.nome + (a.indirizzo ? " · " + a.indirizzo : a.comune ? " · " + a.comune : ""), a.telefono ? "Tel. " + a.telefono : "", (emailList(a)[0] || {}).e ? "Email " + emailList(a)[0].e : ""].filter(Boolean) : [cli];
+    ref.forEach((s, i) => doc.text(doc.splitTextToSize(s, 180)[0], 15, yr + 7 * (i + 1)));
+  }
+  // su ogni foglio: testata (carta intestata o fascia colorata) e piede con il numero del foglio
   const tot = doc.getNumberOfPages(), data = new Date(n.t || Date.now()).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
-  const campo = (x, y, w, et, val) => {
-    T("b", 7, blu); doc.text(et, x, y);
-    T("b", 11.5, nero); doc.text(doc.splitTextToSize(val || "", w - 31)[0] || "", x + 30, y);
-    doc.setDrawColor(...blu); doc.setLineWidth(0.2); doc.line(x + 29, y + 1.6, x + w, y + 1.6);
+  const campo = (x, yy, w, et, val) => {
+    T("b", 9.5, col); doc.text(et, x, yy); const lw = doc.getTextWidth(et) + 3;
+    T("b", 16, nero); doc.text(doc.splitTextToSize(val || "", w - lw - 1)[0] || "", x + lw, yy);
+    doc.setDrawColor(...col); doc.setLineWidth(0.25); doc.line(x + lw - 1, yy + 2, x + w, yy + 2);
   };
   for (let p = 1; p <= tot; p++) {
-    doc.setPage(p); testataLbs(doc, T);
-    if (p === 1) {
-      campo(15, 63, 102, "DESTINATARIO", clienteDi(n) || "—"); campo(125, 63, 70, "DATA", data);
-      campo(15, 72, 102, "OGGETTO", TIPI[n.tipo]); campo(125, 72, 70, "FOGLIO N.", `${p} di ${tot}`);
-    }
-    doc.setDrawColor(...blu); doc.setLineWidth(0.3); doc.line(15, 283, 195, 283);
-    T("n", 7.5, [110, 120, 130]); doc.text(LBS.piede, 15, 287.5); doc.text(`Foglio ${p} di ${tot}`, 195, 287.5, { align: "right" });
+    doc.setPage(p);
+    if (mat) {
+      testataLbs(doc, T, col);
+      if (p === 1) {
+        campo(15, 66, 180, "DESTINATARIO", cli || "—");
+        campo(15, 80, 55, "OGGETTO", TIPI[k]); campo(75, 80, 70, "DATA", data); campo(150, 80, 45, "FOGLIO N.", `${p} di ${tot}`);
+      }
+    } else if (p > 1) { doc.setFillColor(...col); doc.rect(0, 0, 210, 16, "F"); T("k", 15, bianco); doc.text(titolo, 15, 10.5); }
+    doc.setDrawColor(...col); doc.setLineWidth(0.3); doc.line(15, 281, 195, 281);
+    T("n", 9, [110, 116, 124]); doc.text(mat ? LBS.piede : "Finder · " + data, 15, 286.5); doc.text(`Foglio ${p} di ${tot}`, 195, 286.5, { align: "right" });
   }
-  const nome = `${TIPI[n.tipo]}-${(clienteDi(n) || "cliente").replace(/[^\w àèéìòù]+/gi, " ").trim().replace(/\s+/g, "-").slice(0, 40)}-${new Date().toISOString().slice(0, 10)}.pdf`;
+  const nome = `${TIPI[k]}-${(cli || primaRiga(n.testo) || "lavoro").replace(/[^\w àèéìòù]+/gi, " ").trim().replace(/\s+/g, "-").slice(0, 40)}-${new Date().toISOString().slice(0, 10)}.pdf`;
   return new File([doc.output("blob")], nome, { type: "application/pdf" });
 }
 // sul telefono si apre "Condividi" con il PDF allegato (WhatsApp, Gmail…); altrove il PDF si scarica e si apre WhatsApp o la mail
 async function inviaPdf(n, dove, foto, file) {
   if (!file) try { file = await pdfLavoro(n, foto); } catch (e) { toast("Non riesco a creare il PDF (serve internet la prima volta)."); return; }
-  const a = n.az && BYID.get(n.az), testo = `${TIPI[n.tipo]} LBS Affilature per ${clienteDi(n)}`;
+  const a = n.az && BYID.get(n.az), k = tipoDi(n), testo = `${TIPI[k]} LBS Affilature${clienteDi(n) ? " per " + clienteDi(n) : ""}`;
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try { await navigator.share({ files: [file], title: testo, text: testo }); toast(`${etichettaLavoro(n)}: salvato e pronto da inviare.`); return; }
     catch (e) { if (e && e.name === "AbortError") { toast("Invio annullato: il lavoro è comunque salvato."); return; } }
   }
   await salvaFile(file.name, file);
   if (dove === "wa") { const num = a ? waNum(a.telefono) : ""; window.open(`https://wa.me/${num}?text=${encodeURIComponent(testo + ": te lo allego qui.")}`, "_blank", "noopener"); }
-  else { const mail = a ? ((emailList(a)[0] || {}).e || "") : ""; window.open(`mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(testo)}&body=${encodeURIComponent("Buongiorno,\nin allegato " + TIPI[n.tipo].toLowerCase() + ".\n\nLBS Affilature")}`, "_blank", "noopener"); }
+  else { const mail = a ? ((emailList(a)[0] || {}).e || "") : ""; window.open(`mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(testo)}&body=${encodeURIComponent("Buongiorno,\nin allegato " + TIPI[k].toLowerCase() + ".\n\nLBS Affilature")}`, "_blank", "noopener"); }
   toast("PDF scaricato: allegalo al messaggio che si è aperto.");
 }
 
@@ -2926,8 +2968,8 @@ $("#pdfV").addEventListener("click", async e => {
   else { b.disabled = true; await inviaPdf(pv.n, a, pv.foto, pv.file); b.disabled = false; }
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#pdfV").hidden) chiudiPdf(); });
-// ordini e preventivi si aprono come PDF; appunti e importanti nel modulo per modificarli
-const apriLavoro = n => isMateriale(tipoDi(n)) && righeDi(n).length ? apriPdf(n) : apriEditor(n);
+// ogni lavoro si apre come PDF; da lì "Modifica" porta al modulo
+const apriLavoro = n => isMateriale(tipoDi(n)) && !righeDi(n).length ? apriEditor(n) : apriPdf(n);
 
 /* ---------- dettatura: ogni campo ha il suo microfonino; un tocco acceso, un tocco spento ----------
    Scrive solo in quel campo, nel punto del cursore. Una frase alla volta (su Android l'ascolto "continuo" ripete
