@@ -15,8 +15,7 @@
 #main { grid-template-areas: "head gps" "list map"; }
 .gps-box { grid-area: gps; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; min-width: 0; }
 @media (max-width: 980px) { #main { grid-template-areas: "head" "gps" "map" "list"; } }
-.gps-r { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.gps-r .btn[aria-pressed="true"] { background: #1a73e8; border-color: #1a73e8; color: #fff; }
+.gps-box .near { flex: 1 1 auto; }
 .gps-share { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
 .gps-share input { width: 18px; height: 18px; }
 .gps-st { font-size: 12.5px; color: var(--muted); flex-basis: 100%; }

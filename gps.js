@@ -5,7 +5,6 @@
 (function () {
   const { rt, me, utenti, auth } = window.FB;
   const uid = me();
-  const RAGGI = [1, 2.5, 5, 10, 15];
   const km = k => String(k).replace(".", ",") + " km";
   const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
   let pos = null, watch = 0, R = +(ls("gps-r") || 5), segui = false, vaiAppena = false;
@@ -20,21 +19,36 @@
   box.className = "gps-box";
   box.innerHTML =
     `<button type="button" class="btn primary" id="gpsGo">📍 Dove sono</button>` +
-    `<span class="gps-r" role="group" aria-label="Raggio attorno a me">${RAGGI.map(k => `<button type="button" class="btn" data-r="${k}" aria-pressed="${k === R}">${km(k)}</button>`).join("")}</span>` +
     `<label class="gps-share"><input type="checkbox" id="gpsShare" ${condividi ? "checked" : ""}> condividi la mia posizione</label>` +
     `<span class="gps-st" id="gpsSt" aria-live="polite"></span>`;
   document.querySelector(".res-head").after(box);
+  // "da <comune> entro <km>" della pagina sta qui, sopra la mappa, accanto a "Dove sono":
+  // la distanza si calcola dal comune scritto o dalla mia posizione, quello usato per ultimo
+  box.insertBefore(document.getElementById("nearBox"), box.querySelector(".gps-share"));
   const st = t => { document.getElementById("gpsSt").textContent = t || ""; };
 
   document.getElementById("gpsGo").addEventListener("click", () => {
+    if (radius) { R = radius; ls("gps-r", String(R)); } // tiene il raggio già scelto (anche quello usato per un comune)
     avviaGps();
     if (pos) applica(true); else { vaiAppena = true; st("Cerco la posizione…"); }
   });
-  box.querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => {
-    R = +b.dataset.r; ls("gps-r", String(R));
-    box.querySelectorAll("[data-r]").forEach(x => x.setAttribute("aria-pressed", String(+x.dataset.r === R)));
+  // tasti del raggio: dal comune li gestisce la pagina; dalla posizione (o senza punto di partenza) il GPS.
+  // Ritoccando il tasto acceso il filtro si toglie e la mappa torna a tutte le aziende
+  document.getElementById("raggi").addEventListener("click", e => {
+    const b = e.target.closest("[data-r]"); if (!b || (ref && !ref.geo)) return;
+    e.stopImmediatePropagation();
+    const k = +b.dataset.r;
+    if (ref && radius === k) { spegni(); return; }
+    R = k; ls("gps-r", String(R));
     if (pos) applica(true); else document.getElementById("gpsGo").click();
-  }));
+  }, true);
+  function spegni() {
+    segui = false; vaiAppena = false;
+    setRef(null); radius = 0; document.getElementById("radius").value = "0";
+    if (sortBy === "dist") { sortBy = "prio"; document.getElementById("sort").value = "prio"; }
+    nearVisible(); changed(); st("");
+    if (GL.ready) document.getElementById("mapFit").click();
+  }
   document.getElementById("gpsShare").addEventListener("change", e => {
     condividi = e.target.checked; ls("gps-share", condividi ? "1" : "0");
     if (!condividi) rt.ref("posizioni/" + uid).remove().catch(() => {});
@@ -57,7 +71,7 @@
     disegnaMe();
     st(`Posizione aggiornata · precisione ${pos.acc < 1000 ? pos.acc + " m" : (pos.acc / 1000).toFixed(1) + " km"}`);
     if (vaiAppena) { vaiAppena = false; applica(true); }
-    else if (segui && ref && ref.geo) {
+    else if (segui && ref && ref.geo && radius) { // non se il filtro è stato tolto o si è passati a un comune
       // mentre ci si sposta, distanze e aziende vicine si ricalcolano (al massimo ogni 20 s o dopo 200 m)
       const d = ultimoRef ? dist(ultimoRef, pos) : 99;
       if (d > 0.2 && Date.now() - ultimoRefT > 20000) applica(false);

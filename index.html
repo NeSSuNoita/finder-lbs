@@ -198,6 +198,8 @@ button.link { border: 0; background: none; color: var(--steel); padding: 4px 6px
 .tools select, .tools input { padding: 0 8px; color: var(--ink); }
 .tools input { width: 150px; }
 .near { display: inline-flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.raggi { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.raggi .btn[aria-pressed="true"] { background: var(--steel); border-color: var(--steel); color: var(--on-steel); font-weight: 600; }
 .results { grid-area: list; display: grid; gap: 8px; min-width: 0; }
 #cards { display: grid; gap: 8px; min-width: 0; }
 .more { justify-self: center; }
@@ -491,9 +493,9 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
         <span class="near" id="nearBox" hidden>
           <label class="field">da <input id="near" list="comuniList" placeholder="Comune" autocomplete="off"></label>
           <button type="button" class="btn" id="geo" hidden>Mia posizione</button>
-          <label class="field">entro
-            <select id="radius"><option value="0">ovunque</option><option value="1">1 km</option><option value="2.5">2,5 km</option><option value="5">5 km</option><option value="10">10 km</option><option value="15">15 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option></select>
-          </label>
+          <span class="field">entro</span>
+          <span class="raggi" id="raggi" role="group" aria-label="Raggio attorno al punto di partenza"><button type="button" class="btn" data-r="1" aria-pressed="false">1 km</button><button type="button" class="btn" data-r="2.5" aria-pressed="false">2,5 km</button><button type="button" class="btn" data-r="5" aria-pressed="false">5 km</button><button type="button" class="btn" data-r="10" aria-pressed="false">10 km</button><button type="button" class="btn" data-r="15" aria-pressed="false">15 km</button></span>
+          <select id="radius" hidden aria-hidden="true" tabindex="-1"><option value="0">ovunque</option><option value="1">1 km</option><option value="2.5">2,5 km</option><option value="5">5 km</option><option value="10">10 km</option><option value="15">15 km</option></select>
         </span>
         <button type="button" class="btn narrow-only" id="mapToggle" aria-expanded="false" aria-controls="mapbox">Mostra mappa</button>
         <button type="button" class="btn" id="export">Esporta CSV</button>
@@ -820,7 +822,7 @@ $("#active").addEventListener("click", e => {
 });
 $("#fToggle").addEventListener("click", () => { const on = $("#bar").classList.toggle("open"); $("#fToggle").setAttribute("aria-expanded", on); });
 function changed() {
-  shown = PAGE; MS.forEach(updateMsBtn); renderQuick(); renderActive(); refresh();
+  shown = PAGE; MS.forEach(updateMsBtn); renderQuick(); renderActive(); syncRaggi(); refresh();
   if (openMs) { openMs.c = counts(openMs.m); drawPop(); }
 }
 
@@ -1460,7 +1462,8 @@ $("#mapToggle").addEventListener("click", () => {
 
 /* ---------- distanza ---------- */
 function setRef(r) { ref = r; for (const a of AZ) a._d = ref && a._ok ? km(ref, a) : Infinity; $("#near").value = ref ? ref.label : ""; savePref(); }
-function nearVisible() { $("#nearBox").hidden = sortBy !== "dist" && !ref; }
+// "da <comune> entro <km>" resta sempre a vista: è la ricerca per distanza anche da lontano
+function nearVisible() { $("#nearBox").hidden = false; }
 function applyNear(strict) {
   const v = $("#near").value.trim();
   if (!v) { if (ref) { setRef(null); changed(); } return; }
@@ -1484,10 +1487,16 @@ $("#sort").addEventListener("change", () => {
   sortBy = $("#sort").value; nearVisible(); savePref(); shown = PAGE; refresh();
   if (sortBy === "dist" && !ref) { $("#near").focus(); toast("Scegli il comune di partenza."); }
 });
-$("#radius").addEventListener("change", () => {
-  radius = +$("#radius").value; savePref();
-  if (radius && !ref) { toast("Scegli prima il comune di partenza."); $("#near").focus(); }
-  changed();
+// tasti del raggio: un tocco accende "entro … km" dal punto di partenza (comune scritto o posizione), un secondo tocco lo spegne
+function syncRaggi() { document.querySelectorAll("#raggi [data-r]").forEach(b => b.setAttribute("aria-pressed", String(!!ref && radius === +b.dataset.r))); }
+$("#raggi").addEventListener("click", e => {
+  const b = e.target.closest("[data-r]"); if (!b) return;
+  const k = +b.dataset.r;
+  if (ref && radius === k) { radius = 0; $("#radius").value = "0"; savePref(); changed(); fitResults(); return; }
+  radius = k; $("#radius").value = String(k); savePref();
+  if (!ref) { syncRaggi(); toast("Scrivi il comune di partenza."); $("#near").focus(); return; }
+  if (sortBy !== "dist") { sortBy = "dist"; $("#sort").value = "dist"; }
+  changed(); fitResults();
 });
 
 /* ---------- salvataggio stato e note (contratto condiviso) ---------- */
@@ -1660,7 +1669,7 @@ $("#cards").addEventListener("focusout", e => { if (pendingRender && e.target.ma
   else useCanvas(window.maplibregl ? "Questo dispositivo non supporta la mappa interattiva (WebGL): mostro lo schema semplificato." : "La libreria della mappa non si è caricata: mostro lo schema semplificato.");
   const pref = loadPref();
   if (SORTS[pref.sortBy] && [...$("#sort").options].some(o => o.value === pref.sortBy)) { sortBy = pref.sortBy; $("#sort").value = sortBy; }
-  if ([1, 2.5, 5, 10, 15, 20, 30, 50].includes(pref.radius)) { radius = pref.radius; $("#radius").value = String(radius); }
+  if ([1, 2.5, 5, 10, 15].includes(pref.radius)) { radius = pref.radius; $("#radius").value = String(radius); }
   try {
     // i concorrenti sono facoltativi: se il file manca o non è valido la pagina va avanti senza
     const concP = fetch("dati/concorrenti.json").then(r => r.ok ? r.json() : []).then(j => Array.isArray(j) ? j : []).catch(() => []);
