@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#23292e">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/logo-192.png">
+<link rel="apple-touch-icon" href="icons/logo-192.png">
 <title>Finder Clienti Utensili</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -2598,7 +2598,9 @@ $("#wzScelto").addEventListener("click", e => { if (e.target.closest("[data-togl
 const NUMERI = { un: 1, uno: 1, una: 1, due: 2, tre: 3, quattro: 4, cinque: 5, sei: 6, sette: 7, otto: 8, nove: 9, dieci: 10, undici: 11, dodici: 12, tredici: 13, quattordici: 14, quindici: 15, venti: 20, trenta: 30 };
 function rigaDaFrase(s) {
   s = pulisciVoce(s);
-  let m = s.match(/^(\d+(?:[.,]\d+)?)\s*(?:x\s+|pezzi\s+|pz\.?\s+)?(.+)$/i);
+  // la quantità è un numero all'inizio seguito da uno spazio (o da "x", "pz", "pezzi"):
+  // così un codice come 800.0825.75 resta intero nella descrizione
+  let m = s.match(/^(\d+(?:[.,]\d+)?)(?:\s*(?:x|pezzi|pz\.?)\s+|\s+)(.+)$/i);
   if (m) return { q: m[1], t: m[2][0].toUpperCase() + m[2].slice(1) };
   m = s.match(/^(\S+)\s+(.+)$/);
   if (m && NUMERI[m[1].toLowerCase()]) return { q: String(NUMERI[m[1].toLowerCase()]), t: m[2][0].toUpperCase() + m[2].slice(1) };
@@ -2616,7 +2618,9 @@ $("#wzRighe").addEventListener("input", e => { const i = e.target.dataset.i; if 
 $("#wzRighe").addEventListener("click", e => { const i = e.target.closest("[data-rx]"); if (i) { W.righe.splice(+i.dataset.rx, 1); disegnaRighe(); } });
 function aggiungiRiga() {
   const t = $("#wzT").value.trim(); if (!t) return false;
-  const r = rigaDaFrase(t); if ($("#wzQ").value.trim()) r.q = $("#wzQ").value.trim();
+  // con la quantità già scritta nel suo riquadro, il testo resta com'è
+  const q = $("#wzQ").value.trim(), tp = pulisciVoce(t);
+  const r = q ? { q, t: tp[0].toUpperCase() + tp.slice(1) } : rigaDaFrase(t);
   W.righe.push(r); $("#wzQ").value = ""; $("#wzT").value = ""; disegnaRighe(); return true;
 }
 $("#wzAdd").addEventListener("click", () => { aggiungiRiga(); $("#wzT").focus(); });
