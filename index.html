@@ -282,6 +282,11 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 .ap.riep { background: none; }
 .ap.riep .ap-in { cursor: default; }
 .seg2 { flex-wrap: wrap; }
+.seg2.chi button { font-weight: 600; min-width: 92px; }
+.chi-l { display: flex; flex-wrap: wrap; gap: 6px; flex-basis: 100%; }
+.chi-l[hidden] { display: none; }
+.chi-l button { font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--panel); color: var(--ink); cursor: pointer; }
+.chi-l button[aria-pressed="true"] { background: var(--steel); border-color: var(--steel); color: var(--on-steel); font-weight: 600; }
 .ap h3 { margin: 0; font-size: 15px; color: var(--kf, var(--ink)); }
 .ap-in > p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
 .ap .meta { font-size: 12px; opacity: .75; }
@@ -735,6 +740,10 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
     <div class="ap-bar">
       <button type="button" class="btn primary" id="apNuovo">+ Nuovo lavoro</button>
       <div class="in-mic grow"><input type="search" id="apCerca" placeholder="Cerca nei lavori" aria-label="Cerca nei lavori"><button type="button" class="mc" data-mic="apCerca" aria-label="Detta la ricerca"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
+      <span class="seg2 chi" role="group" aria-label="Di chi sono i lavori">
+        <button type="button" data-chi="miei" aria-pressed="true">Miei</button><button type="button" data-chi="altri" aria-pressed="false">Collaboratori</button>
+      </span>
+      <div class="chi-l" id="apChiL" role="group" aria-label="Quale collaboratore" hidden></div>
       <span class="seg2" role="group" aria-label="Quali lavori">
         <button type="button" data-apf="tutti" aria-pressed="true">Tutti</button><button type="button" data-apf="ordine" aria-pressed="false">Ordini</button><button type="button" data-apf="preventivo" aria-pressed="false">Preventivi</button><button type="button" data-apf="appunto" aria-pressed="false">Appunti</button><button type="button" data-apf="importante" aria-pressed="false">Importanti</button>
       </span>
@@ -2376,21 +2385,42 @@ function apCardHtml(n) {
       </div>
     </article>`;
 }
+// Miei / Collaboratori: con "Collaboratori" si vedono solo i lavori degli altri, di tutti o di uno scelto
+let apChi = "miei", apAltro = "";
+const mio = n => !n.da || !apMio || n.da === apMio;
+async function disegnaChi() {
+  const box = $("#apChiL"); box.hidden = apChi !== "altri"; if (box.hidden) return;
+  const ids = [...new Set(Object.values(AP).filter(n => !mio(n)).map(n => n.da))], nomi = {};
+  if (ids.length && userNs && userNs.profiles) { try { const ps = await userNs.profiles(ids) || {}; ids.forEach(id => { nomi[id] = (ps[id] && ps[id].name) || ""; }); } catch (e) {} }
+  if (apAltro && !ids.includes(apAltro)) apAltro = "";
+  box.innerHTML = ids.length
+    ? [`<button type="button" data-alt="" aria-pressed="${!apAltro}">Tutti</button>`].concat(ids.sort((x, y) => coll.compare(nomi[x] || "", nomi[y] || "")).map(id => `<button type="button" data-alt="${esc(id)}" aria-pressed="${apAltro === id}">${esc(nomi[id] || "Collega")}</button>`)).join("")
+    : `<span class="v-sub">I collaboratori non hanno ancora lavori.</span>`;
+}
+document.querySelector("#vAppunti .chi").addEventListener("click", e => {
+  const b = e.target.closest("[data-chi]"); if (!b) return;
+  apChi = b.dataset.chi; apAltro = "";
+  document.querySelectorAll("[data-chi]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  renderAppunti();
+});
+$("#apChiL").addEventListener("click", e => { const b = e.target.closest("[data-alt]"); if (!b) return; apAltro = b.dataset.alt; renderAppunti(); });
 function renderAppunti() {
   if ($("#vAppunti").hidden) return;
   const q = norm($("#apCerca").value.trim()).split(/\s+/).filter(Boolean);
   let l = Object.values(AP);
+  l = l.filter(n => apChi === "miei" ? mio(n) : !mio(n) && (!apAltro || n.da === apAltro));
+  disegnaChi();
   if (apFiltro !== "tutti") l = l.filter(n => tipoDi(n) === apFiltro);
   if (q.length) l = l.filter(n => { const t = norm([etichettaLavoro(n), n.testo, n.titolo, ...righeDi(n).map(x => x.t)].join(" ")); return q.every(w => t.includes(w)); });
   // dal più vecchio (in alto) al più nuovo (in basso)
   l.sort((x, y) => String(x.t || x.agg).localeCompare(String(y.t || y.agg)));
   $("#apList").innerHTML = l.map(apCardHtml).join("");
   const v = $("#apVuoto"); v.hidden = !!l.length;
-  v.textContent = !db ? "I lavori si salvano nell'app e nella pagina pubblicata su claude.ai." : Object.keys(AP).length ? "Nessun lavoro con questa ricerca." : "Ancora nessun lavoro: tocca \"+ Nuovo lavoro\".";
+  v.textContent = !db ? "I lavori si salvano nell'app e nella pagina pubblicata su claude.ai." : apChi === "altri" ? "Nessun lavoro dei collaboratori con questi filtri." : Object.values(AP).some(mio) ? "Nessun lavoro con questa ricerca." : "Ancora nessun lavoro: tocca \"+ Nuovo lavoro\".";
   nomiIn($("#apList"));
 }
 $("#apCerca").addEventListener("input", renderAppunti);
-document.querySelector("#vAppunti .seg2").addEventListener("click", e => {
+document.querySelector("#vAppunti .seg2:not(.chi)").addEventListener("click", e => {
   const b = e.target.closest("[data-apf]"); if (!b) return;
   apFiltro = b.dataset.apf;
   document.querySelectorAll("[data-apf]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
@@ -2456,6 +2486,7 @@ const PASSI = ["1", "2", "3", "4"];
 function apriEditor(n, pre = {}) {
   if (document.body.dataset.vista !== "appunti") vista("appunti", { resta: true });
   fermaDettatura();
+  if (!n && apChi !== "miei") document.querySelector('#vAppunti [data-chi="miei"]').click(); // un lavoro nuovo è mio
   W = n ? { id: n.id, priv: !!n._priv, tipo: tipoDi(n), az: n.az || "", cliente: n.cliente || "", righe: righeDi(n).map(x => ({ q: x.q || "", t: x.t })), testo: n.testo || "", quando: n.quando || "", t: n.t, da: n.da, foto: (n.foto || []).slice() }
     : { id: null, priv: false, tipo: "", az: pre.az || "", cliente: "", righe: [], testo: "", quando: "", foto: [] };
   W.nuove = []; W.via = []; W.cache = {}; // foto nuove {img, w, h}, foto salvate da togliere, foto salvate già scaricate
