@@ -270,16 +270,71 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 #apDetta.on { background: var(--conc); border-color: var(--conc); color: var(--panel); }
 .vista .in-detta { outline: 3px solid var(--conc); outline-offset: 1px; }
 .ap-list { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); align-items: start; }
-.ap { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--steel); border-radius: var(--radius); padding: 10px 12px; display: grid; gap: 6px; cursor: pointer; min-width: 0; }
-.ap.priv { border-left-color: var(--muted); }
-.ap-invio { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.ap-invio .btn { min-height: 34px; font-size: 13px; }
-.ap.t-preventivo { border-left-color: #1a73e8; }
-.ap.t-ordine { border-left-color: #1d9e75; }
+/* lavoro: verde ordini, giallo preventivi, grigio appunti, rosso importanti */
+.k-ordine { --kb: #eaf3de; --kf: #27500a; --kl: #3b6d11; }
+.k-preventivo { --kb: #faeeda; --kf: #633806; --kl: #ba7517; }
+.k-appunto { --kb: #f1efe8; --kf: #444441; --kl: #888780; }
+.k-importante { --kb: #fcebeb; --kf: #791f1f; --kl: #a32d2d; }
+.ap { position: relative; overflow: hidden; border-radius: var(--radius); min-width: 0; color: var(--kf, var(--ink)); background: #e24b4a; touch-action: pan-y; }
+.ap .ap-in { position: relative; z-index: 1; background: var(--kb, var(--panel)); border-left: 6px solid var(--kl, var(--steel)); border-radius: var(--radius); padding: 10px 12px; display: grid; gap: 4px; transition: transform .2s ease; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.ap .ap-trash { position: absolute; left: 0; top: 0; bottom: 0; width: 68px; background: #e24b4a; color: #fff; border: 0; display: grid; place-items: center; cursor: pointer; }
+.ap .ap-trash svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ap.riep { background: none; }
+.ap.riep .ap-in { cursor: default; }
 .seg2 { flex-wrap: wrap; }
-.ap h3 { margin: 0; font-size: 15px; }
-.ap > p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
-.ap .meta { font-size: 12px; color: var(--muted); }
+.ap h3 { margin: 0; font-size: 15px; color: var(--kf, var(--ink)); }
+.ap-in > p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.ap .meta { font-size: 12px; opacity: .75; }
+.ap-r { margin: 0; padding: 0; list-style: none; display: grid; gap: 1px; font-size: 14px; }
+.ap-r b { display: inline-block; min-width: 22px; }
+.ap-quando { font-size: 12.5px; font-weight: 700; }
+.vlist.lav li { border-left-color: var(--kl); }
+/* nuovo lavoro a passi */
+.wz { background: var(--panel); border: 2px solid var(--kl, var(--steel)); border-radius: var(--radius); padding: 12px; display: grid; gap: 10px; }
+.wz[hidden] { display: none; }
+.wz-h { display: flex; align-items: baseline; gap: 10px; }
+.wz-h b { flex: 1; font-size: 17px; }
+.wz-dots { display: flex; gap: 5px; justify-content: center; }
+.wz-dots span { width: 36px; height: 5px; border-radius: 3px; background: var(--line-2); }
+.wz-dots span.on { background: var(--kl, var(--steel)); }
+.wz-p { display: grid; gap: 8px; }
+.wz-p[hidden] { display: none; }
+.wz-q { font-size: 19px; font-weight: 700; }
+.wz-tipi { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+.wz-tipi button { font: inherit; font-size: 19px; font-weight: 700; padding: 24px 8px; border-radius: 14px; border: 2px solid var(--kl); background: var(--kb); color: var(--kf); cursor: pointer; }
+.wz-tipi button.sel { outline: 3px solid var(--kl); outline-offset: 2px; }
+.wz-sug { display: grid; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.wz-sug:empty { display: none; }
+.wz-sug button { text-align: left; font: inherit; font-size: 15px; padding: 11px 12px; border: 0; border-bottom: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.wz-sug button:last-child { border-bottom: 0; }
+.wz-sug button span { color: var(--muted); font-size: 13px; }
+.wz-sug button.libero { color: var(--muted); font-style: italic; }
+.wz-scelto { font-size: 15px; padding: 9px 11px; background: var(--steel-soft); border-radius: 8px; }
+.wz-righe { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.wz-righe li, .wz-nuova { display: flex; gap: 6px; align-items: center; }
+.wz .rq, #wzQ { width: 64px; flex: none; text-align: center; }
+.wz-f { display: flex; flex-wrap: wrap; gap: 8px; }
+.wz-f .btn { flex: 1 1 140px; justify-content: center; min-height: 46px; font-size: 15px; }
+.wa-b { background: #e1f5ee; border-color: #5dcaa5; color: #085041; font-weight: 600; }
+.wz-foto { display: grid; gap: 8px; }
+.wz-thumbs { display: flex; flex-wrap: wrap; gap: 8px; }
+.wz-thumbs:empty { display: none; }
+.wz-thumb { position: relative; width: 84px; height: 84px; border-radius: 8px; overflow: hidden; background: var(--line); }
+.wz-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wz-thumb button { position: absolute; top: 3px; right: 3px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, .65); color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
+.foto-b { justify-content: center; min-height: 46px; font-size: 15px; cursor: pointer; }
+/* microfonino in ogni campo di testo: un tocco acceso (rosso pieno), un tocco spento */
+.in-mic { position: relative; display: flex; align-items: center; min-width: 0; }
+.in-mic.grow { flex: 1 1 200px; }
+.in-mic > input, .in-mic > textarea { flex: 1; min-width: 0; width: 100%; padding-right: 42px !important; }
+.in-mic.area { align-items: flex-start; }
+.mc { position: absolute; right: 5px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: #faece7; color: #d85a30; display: grid; place-items: center; cursor: pointer; padding: 0; z-index: 1; }
+.in-mic.area .mc { top: 6px; }
+.mc svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.mc.on { background: #d85a30; color: #fff; animation: mcpulse 1.2s infinite; }
+@keyframes mcpulse { 50% { box-shadow: 0 0 0 7px rgba(216, 90, 48, .25); } }
+.search .mc-q { top: 6px; right: 6px; }
+.search input { padding-right: 46px; }
 .chk { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
 .chk li { display: flex; align-items: flex-start; gap: 6px; }
 .chk label { display: flex; gap: 7px; align-items: flex-start; font-size: 14px; flex: 1; cursor: pointer; }
@@ -594,6 +649,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <div class="search">
         <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
         <input type="search" id="q" placeholder="Cerca azienda, comune, macchinario, P.IVA, nota…" aria-label="Cerca" aria-describedby="qHint" autocomplete="off" enterkeyhint="search">
+        <button type="button" class="mc mc-q" data-mic="q" aria-label="Detta la ricerca"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       </div>
       <button type="button" class="btn only-narrow" id="fToggle" aria-expanded="false" aria-controls="filters">Filtri <span class="n" id="fCount" hidden></span></button>
     </div>
@@ -675,48 +731,69 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 
   <!-- APPUNTI: veloci, anche a voce; condivisi con i colleghi o solo per sé; collegabili a un'azienda -->
   <section class="vista" id="vAppunti" aria-labelledby="apT" hidden>
-    <div class="v-head"><h2 id="apT">Lavoro</h2><p>Preventivi, ordini e cose da fare, anche a voce. Collegali a un'azienda per ritrovarli nella sua scheda.</p></div>
+    <div class="v-head"><h2 id="apT">Lavoro</h2><p>Ordini, preventivi e appunti, dal più vecchio (in alto) al più nuovo (in basso). Per eliminarne uno trascinalo verso destra.</p></div>
     <div class="ap-bar">
       <button type="button" class="btn primary" id="apNuovo">+ Nuovo lavoro</button>
-      <button type="button" class="btn" id="apMic" aria-label="Nuovo lavoro dettato a voce" title="Detta un nuovo lavoro"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Detta</button>
-      <button type="button" class="btn" id="apCam" aria-label="Nuovo lavoro con foto" title="Nuovo lavoro con foto"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto</button>
-      <input type="search" id="apCerca" placeholder="Cerca nei lavori" aria-label="Cerca nei lavori">
+      <div class="in-mic grow"><input type="search" id="apCerca" placeholder="Cerca nei lavori" aria-label="Cerca nei lavori"><button type="button" class="mc" data-mic="apCerca" aria-label="Detta la ricerca"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
       <span class="seg2" role="group" aria-label="Quali lavori">
-        <button type="button" data-apf="tutti" aria-pressed="true">Tutti</button><button type="button" data-apf="Preventivo" aria-pressed="false">Preventivi</button><button type="button" data-apf="Ordine" aria-pressed="false">Ordini</button><button type="button" data-apf="fare" aria-pressed="false">Da fare</button><button type="button" data-apf="miei" aria-pressed="false">Solo miei</button>
+        <button type="button" data-apf="tutti" aria-pressed="true">Tutti</button><button type="button" data-apf="ordine" aria-pressed="false">Ordini</button><button type="button" data-apf="preventivo" aria-pressed="false">Preventivi</button><button type="button" data-apf="appunto" aria-pressed="false">Appunti</button><button type="button" data-apf="importante" aria-pressed="false">Importanti</button>
       </span>
     </div>
-    <form class="ap-ed" id="apEditor" hidden>
-      <div class="ap-ed-h"><b id="apEdT">Nuovo lavoro</b><button type="button" class="link" id="apChiudi">chiudi</button></div>
-      <div class="ap-row">
-        <label class="lab">Tipo <select id="apTipo"><option value="Preventivo">Preventivo</option><option value="Ordine">Ordine</option><option value="">Altro (scrivi il titolo)</option></select></label>
-        <input type="text" id="apTit" maxlength="120" placeholder="Titolo" aria-label="Titolo" hidden>
+    <!-- nuovo lavoro a 4 passi: 1 che cos'è, 2 cliente, 3 materiale (ordine, preventivo) o cosa ricordare (appunto), 4 salva o invia -->
+    <section class="wz" id="apWz" aria-labelledby="wzTit" hidden>
+      <div class="wz-h"><b id="wzTit">Nuovo lavoro</b><span class="v-sub" id="wzN">1 di 4</span><button type="button" class="link" id="wzChiudi">chiudi</button></div>
+      <div class="wz-dots" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div class="wz-p" data-p="1">
+        <div class="wz-q">Che cos'è?</div>
+        <div class="wz-tipi">
+          <button type="button" class="k-ordine" data-tipo="ordine">Ordine</button>
+          <button type="button" class="k-preventivo" data-tipo="preventivo">Preventivo</button>
+          <button type="button" class="k-appunto" data-tipo="appunto">Appunto</button>
+          <button type="button" class="k-importante" data-tipo="importante">! Importante</button>
+        </div>
       </div>
-      <textarea id="apTxt" placeholder="Scrivi o detta… es. Artigiana Serramenti: 20 lame Ø300 Z48 da affilare, consegna venerdì" aria-label="Descrizione del lavoro"></textarea>
-      <div class="ap-row"><button type="button" class="btn" id="apDetta"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Detta</button><span class="v-sub" id="apVoceSt" aria-live="polite"></span></div>
-      <div class="ap-lista">
-        <span class="lab">Cose da fare</span>
-        <ul class="chk" id="apLista"></ul>
-        <div class="ap-row"><input type="text" id="apItem" maxlength="200" placeholder="Aggiungi una cosa da fare" aria-label="Nuova cosa da fare"><button type="button" class="btn" id="apItemAdd">Aggiungi</button></div>
+      <div class="wz-p" data-p="2" hidden>
+        <div class="wz-q">Cliente</div>
+        <div class="in-mic"><input type="text" id="wzCli" autocomplete="off" placeholder="Scrivi 3-4 lettere o detta il nome" aria-label="Cliente"><button type="button" class="mc" data-mic="wzCli" aria-label="Detta il cliente"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
+        <div class="wz-sug" id="wzSug" role="listbox" aria-label="Ditte trovate"></div>
+        <div class="wz-scelto" id="wzScelto" hidden></div>
       </div>
-      <label class="lab">Azienda collegata <input type="text" id="apAz" list="azList" placeholder="Scrivi il nome dell'azienda (facoltativo)" autocomplete="off"></label>
-      <label class="ck"><input type="checkbox" id="apCond" checked> Condiviso con i colleghi <span class="v-sub">(se lo togli lo vedi solo tu)</span></label>
-      <div class="ap-row"><label class="vfile">Foto <input type="file" id="apFotoIn" accept="image/*" capture="environment"></label><span class="v-sub" id="apFotoSt"></span></div>
-      <div class="ap-row ap-invio" id="apInvio">
-        <span class="lab">Invia</span>
-        <button type="button" class="btn" data-inv="wa"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c.3 2 2.2 4.2 4.5 4.8l1-1.2 2 .9-.4 1.6c-3.3.4-7.4-3.2-7.6-6.8l1.6-.5.9 2z"/></svg>WhatsApp</button>
-        <button type="button" class="btn" data-inv="mail"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email</button>
-        <button type="button" class="btn" data-inv="share" hidden>Condividi</button>
+      <div class="wz-p" data-p="3m" hidden>
+        <div class="wz-q">Materiale</div>
+        <ul class="wz-righe" id="wzRighe"></ul>
+        <div class="wz-nuova">
+          <input type="text" id="wzQ" inputmode="decimal" placeholder="Q.tà" aria-label="Quantità della nuova riga">
+          <div class="in-mic grow"><input type="text" id="wzT" placeholder="Nuova riga: scrivi o detta" aria-label="Materiale della nuova riga"><button type="button" class="mc" data-mic="wzT" aria-label="Detta le righe"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
+          <button type="button" class="btn" id="wzAdd">Aggiungi</button>
+        </div>
+        <p class="v-sub">Dettando nella riga nuova ogni frase diventa una riga: "8 lame diametro 300 zeta 48".</p>
       </div>
-      <div class="ap-row">
-        <button type="submit" class="btn primary">Salva</button>
-        <button type="button" class="btn claude-b" id="apAI" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Riordina con Claude</button>
-        <button type="button" class="link vdel" id="apDel" hidden>elimina lavoro</button>
+      <div class="wz-p" data-p="3a" hidden>
+        <div class="wz-q">Cosa ricordare</div>
+        <div class="in-mic area"><textarea id="wzTxt" placeholder="Scrivi o detta… es. ritirare le lame affilate e portare il catalogo Freud" aria-label="Cosa ricordare"></textarea><button type="button" class="mc" data-mic="wzTxt" aria-label="Detta cosa ricordare"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
+        <label class="lab">Quando <span class="v-sub">(facoltativo)</span><input type="date" id="wzQuando"></label>
       </div>
-    </form>
+      <div class="wz-p" data-p="4" hidden>
+        <div id="wzRiep"></div>
+        <div class="wz-foto">
+          <div class="wz-thumbs" id="wzThumbs"></div>
+          <label class="btn foto-b"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Aggiungi foto<input type="file" id="wzFotoIn" accept="image/*" capture="environment" hidden></label>
+        </div>
+      </div>
+      <p class="v-sub" id="wzSt" aria-live="polite"></p>
+      <div class="wz-f" id="wzF"></div>
+    </section>
     <div class="ap-list" id="apList"></div>
     <p class="v-sub" id="apVuoto" hidden></p>
-    <button type="button" class="btn claude-b" id="apRiep" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Riordina con Claude</button>
   </section>
+  <!-- conferma di eliminazione di un lavoro -->
+  <div class="dlg-back" id="apConf" hidden>
+    <div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="apConfT" aria-describedby="apConfD">
+      <h2 id="apConfT">Eliminare questo lavoro?</h2>
+      <p id="apConfD"></p>
+      <div class="dlg-row"><button type="button" class="btn" id="apConfNo">Annulla</button><button type="button" class="btn danger" id="apConfSi">Elimina</button></div>
+    </div>
+  </div>
 
   <!-- DISEGNI: dalla foto e dalle misure al disegno tecnico quotato (PDF, DXF, SVG) -->
   <section class="vista" id="vDisegni" aria-labelledby="dzT" hidden>
@@ -748,9 +825,9 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
           <label>Lunghezza totale L<input name="FL" inputmode="decimal" placeholder="100"></label>
           <label>Taglienti Z<input name="FZ" inputmode="numeric" placeholder="2"></label>
         </fieldset>
-        <label class="lab">Nome del disegno <input name="nome" maxlength="80" placeholder="es. Lama Gorza 300×48"></label>
+        <label class="lab">Nome del disegno <span class="in-mic"><input name="nome" id="dzNome" maxlength="80" placeholder="es. Lama Gorza 300×48"><button type="button" class="mc" data-mic="dzNome" aria-label="Detta il nome"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></span></label>
         <label class="lab">Azienda <input name="az" list="azList" placeholder="facoltativo" autocomplete="off"></label>
-        <label class="lab">Note <input name="note" maxlength="200" placeholder="es. riaffilare, denti in widia, foro con cava"></label>
+        <label class="lab">Note <span class="in-mic"><input name="note" id="dzNote" maxlength="200" placeholder="es. riaffilare, denti in widia, foro con cava"><button type="button" class="mc" data-mic="dzNote" aria-label="Detta le note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></span></label>
         <button type="submit" class="btn crea-b">Crea disegno</button>
       </form>
       <div class="dz-out">
@@ -1287,7 +1364,7 @@ function detailHtml(a, s, k, id) {
         </fieldset>
         <div>
           <label class="lab" for="nt-${id}">Note</label>
-          <textarea id="nt-${id}" ${dis} placeholder="${a._c ? "Es. prezzi, servizi offerti, clienti in comune…" : "Es. parlato con il titolare, richiamare a marzo; usa frese Leitz…"}">${esc(s.nota || "")}</textarea>
+          <div class="in-mic area"><textarea id="nt-${id}" ${dis} placeholder="${a._c ? "Es. prezzi, servizi offerti, clienti in comune…" : "Es. parlato con il titolare, richiamare a marzo; usa frese Leitz…"}">${esc(s.nota || "")}</textarea>${dis ? "" : `<button type="button" class="mc" data-mic="nt-${id}" aria-label="Detta la nota">${MIC_SVG}</button>`}</div>
         </div>
         <div class="row"><button type="button" class="btn primary" id="sv-${id}" data-act="salva" ${dis}>Salva nota</button><span class="who" data-who="${esc(s.da || "")}">${s.agg ? "Aggiornato il " + new Date(s.agg).toLocaleDateString("it-IT") : ""}</span></div>
         ${!db ? `<p class="who">Stato e note si salvano solo nella pagina pubblicata su claude.ai.</p>` : !canWrite ? `<p class="who">Puoi solo leggere: per modificare chiedi al titolare l'accesso da Contributor in su.</p>` : ""}
@@ -1297,7 +1374,7 @@ function detailHtml(a, s, k, id) {
           ${s.richiamo && !dis ? `<button type="button" class="link" data-act="norich">togli promemoria</button>` : ""}
         </div>
         ${visiteHtml(a, id, dis)}
-        ${appuntiDi(a.id).length ? `<div class="visite"><h4>Lavori <span class="vn">${appuntiDi(a.id).length}</span></h4><ul class="vlist">${appuntiDi(a.id).map(n => `<li><span class="vd">${esc(fmtDataOra(n.agg || n.t))}${n._priv ? " · solo per te" : ""}</span><button type="button" class="link" data-act="apApri" data-ap="${esc(n.id)}">${esc(n.titolo || primaRiga(n.testo) || "Lavoro")}</button>${n.testo && n.titolo ? ` · ${esc(primaRiga(n.testo))}` : ""}</li>`).join("")}</ul></div>` : ""}
+        ${appuntiDi(a.id).length ? `<div class="visite"><h4>Lavori <span class="vn">${appuntiDi(a.id).length}</span></h4><ul class="vlist lav">${appuntiDi(a.id).map(n => `<li class="k-${tipoDi(n)}"><span class="vd">${esc(fmtDataOra(n.t || n.agg))}</span><button type="button" class="link" data-act="apApri" data-ap="${esc(n.id)}">${esc(etichettaLavoro(n))}</button>${isMateriale(tipoDi(n)) ? ` · ${esc(righeDi(n).map(x => (x.q ? x.q + " " : "") + x.t).slice(0, 2).join(", "))}` : n.testo ? ` · ${esc(primaRiga(n.testo))}` : ""}</li>`).join("")}</ul></div>` : ""}
       </div>
       <div>
         <h4>Contatti</h4>
@@ -1994,7 +2071,7 @@ function visiteHtml(a, id, dis) {
         <label>Esito <select id="ve-${id}">${Object.entries(ESITI).map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join("")}</select></label>
         <label>Giorno <input type="date" id="vg-${id}" value="${oggi()}"></label>
       </div>
-      <input type="text" id="vn-${id}" maxlength="300" placeholder="Com'è andata? Es. parlato con Marco, usano lame Freud, ripassare a gennaio">
+      <div class="in-mic"><input type="text" id="vn-${id}" maxlength="300" placeholder="Com'è andata? Es. parlato con Marco, usano lame Freud, ripassare a gennaio"><button type="button" class="mc" data-mic="vn-${id}" aria-label="Detta com'è andata">${MIC_SVG}</button></div>
       <div class="vr">
         <label class="vfile">Foto <input type="file" id="vf-${id}" accept="image/*" capture="environment"></label>
         <button type="button" class="btn primary" data-act="registra">Registra</button>
@@ -2186,6 +2263,7 @@ async function avviaGiro() {
 }
 // si sta scrivendo in una scheda (nota, visita, foto scelta): niente ridisegno fino all'uscita
 function scrive() {
+  if (typeof D !== "undefined" && D) return true; // si sta dettando: niente ridisegno
   const ae = document.activeElement;
   if (ae && ae.matches("#cards textarea, #cards input, #cards select")) return true;
   const f = document.querySelector(".card.open .vform");
@@ -2253,88 +2331,63 @@ function msgClaude(e) {
   if (c === "cancelled") return "Richiesta fermata.";
   return "Claude non ha risposto, riprova.";
 }
-function aggiornaClaude() {
-  $("#apAI").hidden = !SAMPLE; $("#apRiep").hidden = !SAMPLE || !Object.keys(AP).length;
-  $("#dzAI").hidden = !SAMPLE_IMG;
-}
+function aggiornaClaude() { $("#dzAI").hidden = !SAMPLE_IMG; }
 
-/* ---------- APPUNTI: condivisi (appunti/<id>) o solo per sé (data/users/<persona>/<id>) ---------- */
+/* ---------- LAVORO: ordini (verde), preventivi (giallo), appunti (grigio), importanti (rosso) in appunti/<id> ---------- */
+// { tipo, az (ditta del Finder) o cliente (nome libero), righe [{q, t}] per ordini e preventivi, testo e quando per gli
+// appunti, t (creato), agg, da, ultimo }. I vecchi lavori ("Preventivo", "Ordine", titolo libero) si leggono ancora.
 const AP = {};
-let apFiltro = "tutti", apMio = "", apEdit = null, rec = null;
+let apFiltro = "tutti", apMio = "", rec = null, W = null; // W = lavoro aperto nel modulo a passi
 const apColl = priv => priv ? "data/users/" + apMio : "appunti";
 const primaRiga = s => String(s || "").split("\n")[0].slice(0, 80);
-function appuntiDi(id) { return Object.values(AP).filter(n => n.az === id).sort((x, y) => String(y.agg).localeCompare(String(x.agg))); }
+const TIPI = { ordine: "Ordine", preventivo: "Preventivo", appunto: "Appunto", importante: "Importante" };
+const isMateriale = tipo => tipo === "ordine" || tipo === "preventivo";
+function tipoDi(n) { const t = String(n.tipo || n.titolo || "").toLowerCase(); return TIPI[t] ? t : "appunto"; }
+function righeDi(n) { return n.righe || (n.lista || []).map(x => ({ q: "", t: x.t })); }
+function clienteDi(n) { const a = n.az && BYID.get(n.az); return a ? a.nome : n.cliente || ""; }
+function etichettaLavoro(n) { const k = tipoDi(n), c = clienteDi(n); return (k === "importante" ? "! " : "") + (k === "importante" ? "Importante" : TIPI[k]) + (c ? " · " + c : ""); }
+function appuntiDi(id) { return Object.values(AP).filter(n => n.az === id).sort((x, y) => String(x.t).localeCompare(String(y.t))); }
 async function avviaAppunti() {
   apMio = await mioId();
   if (!db) { renderAppunti(); return; }
   const segui = (coll, priv) => db.collection(coll).onSnapshot(snap => {
     snap.docChanges().forEach(ch => { const id = ch.doc.id; if (ch.type === "removed") delete AP[id]; else AP[id] = Object.assign({}, ch.doc.data(), { id, _priv: priv }); });
-    aggiornaClaude();
-    if (!apEdit) renderAppunti();
+    if (!W) renderAppunti();
     if (document.body.dataset.vista === "finder" && !scrive()) refresh();
   }, () => {});
   segui("appunti", false);
-  if (apMio) segui("data/users/" + apMio, true);
+  if (apMio) segui("data/users/" + apMio, true); // appunti "solo miei" della versione precedente
+}
+const fmtGiornoLungo = g => { const d = new Date(g + "T12:00"); return isNaN(d) ? "" : d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "numeric" }); };
+function corpoLavoro(n, tutte) {
+  const k = tipoDi(n), r = righeDi(n), max = tutte ? 999 : 5;
+  const corpo = isMateriale(k) && r.length
+    ? `<ul class="ap-r">${r.slice(0, max).map(x => `<li>${x.q ? `<b>${esc(x.q)}</b> ` : ""}${esc(x.t)}</li>`).join("")}${r.length > max ? `<li class="v-sub">e altre ${r.length - max} righe</li>` : ""}</ul>`
+    : n.testo ? `<p>${esc(n.testo)}</p>` : "";
+  const nf = (n.foto || []).length;
+  return `<h3>${esc(etichettaLavoro(n))}</h3>${n.quando ? `<span class="ap-quando">${esc(fmtGiornoLungo(n.quando))}</span>` : ""}${corpo}${nf ? `<span class="ap-quando">📷 ${nf} ${nf === 1 ? "foto" : "foto"}</span>` : ""}`;
 }
 function apCardHtml(n) {
-  const a = n.az && BYID.get(n.az), li = n.lista || [];
-  const tipo = n.tipo || (["Preventivo", "Ordine"].includes(n.titolo) ? n.titolo : "");
-  return `<article class="ap${n._priv ? " priv" : ""}${tipo ? " t-" + tipo.toLowerCase() : ""}" data-ap="${esc(n.id)}">
-      <h3>${esc(n.titolo || primaRiga(n.testo) || "Lavoro")}</h3>
-      ${n.testo && n.titolo ? `<p>${esc(n.testo)}</p>` : n.testo && n.testo.includes("\n") ? `<p>${esc(n.testo.split("\n").slice(1).join("\n"))}</p>` : ""}
-      ${li.length ? `<ul class="chk">${li.map((x, i) => `<li class="${x.ok ? "ok" : ""}"><label><input type="checkbox" data-chk="${i}" ${x.ok ? "checked" : ""}><span>${esc(x.t)}</span></label></li>`).join("")}</ul>` : ""}
-      <div class="tags">${a ? `<button type="button" class="tag tag-az" data-apaz="${esc(a.id)}">${esc(a.nome)}</button>` : ""}<span class="tag${n._priv ? "" : " giro-t"}">${n._priv ? "solo per te" : "condiviso"}</span>${li.some(x => !x.ok) ? `<span class="tag rich">${li.filter(x => !x.ok).length} da fare</span>` : ""}</div>
-      ${(n.foto || []).length ? `<div><button type="button" class="link" data-act="vfoto" data-f="${esc(n.foto.join(","))}">vedi ${n.foto.length === 1 ? "la foto" : n.foto.length + " foto"}</button><span class="vfoto"></span></div>` : ""}
-      <div class="meta">${esc(fmtDataOra(n.agg || n.t))} · <span data-whon="${esc(n.ultimo || n.da || "")}"></span></div>
-      ${invioHtml(n)}
+  return `<article class="ap k-${tipoDi(n)}" data-ap="${esc(n.id)}">
+      <button type="button" class="ap-trash" data-del aria-label="Elimina ${esc(etichettaLavoro(n))}" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+      <div class="ap-in" tabindex="0" role="button" aria-label="Apri ${esc(etichettaLavoro(n))}">
+        ${corpoLavoro(n)}
+        <div class="meta">${esc(fmtDataOra(n.t || n.agg))} · <span data-whon="${esc(n.da || "")}"></span></div>
+      </div>
     </article>`;
 }
-// invio di un preventivo / ordine: testo pronto per WhatsApp, email e "Condividi" del telefono
-function testoLavoro(n) {
-  const a = n.az && BYID.get(n.az), titolo = n.titolo || n.tipo || "Lavoro";
-  const righe = [`LBS Affilature · ${titolo}`];
-  if (a) righe.push(`${a.nome}${a.comune ? " (" + a.comune + ")" : ""}`);
-  righe.push(`Data: ${new Date(n.agg || n.t || Date.now()).toLocaleDateString("it-IT")}`, "");
-  if (n.testo) righe.push(n.testo, "");
-  const li = (n.lista || []).filter(x => x.t);
-  if (li.length) { righe.push(n.tipo === "Ordine" || n.tipo === "Preventivo" ? "Dettaglio:" : "Da fare:"); li.forEach(x => righe.push(`- ${x.t}${x.ok ? " (fatto)" : ""}`)); righe.push(""); }
-  righe.push("LBS Affilature · Viserba di Rimini");
-  return righe.join("\n").replace(/\n{3,}/g, "\n\n").trim();
-}
-function linkInvio(n) {
-  const a = n.az && BYID.get(n.az), txt = testoLavoro(n), og = `${n.titolo || n.tipo || "Lavoro"} · LBS Affilature`;
-  const wa = a ? waNum(a.telefono) : "", mail = a ? ((emailList(a)[0] || {}).e || "") : "";
-  return { wa: `https://wa.me/${wa}?text=${encodeURIComponent(txt)}`, waA: !!wa, mail: `mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(og)}&body=${encodeURIComponent(txt)}`, mailA: !!mail, txt, og };
-}
-function invioHtml(n) {
-  const k = linkInvio(n);
-  return `<div class="ap-invio">
-      <a class="btn" href="${esc(k.wa)}" target="_blank" rel="noopener" title="${k.waA ? "Al cellulare dell'azienda collegata" : "Scegli tu il contatto su WhatsApp"}">${I.wa}WhatsApp</a>
-      <a class="btn" href="${esc(k.mail)}" target="_blank" rel="noopener" title="${k.mailA ? "All'email dell'azienda collegata" : "Scrivi tu l'indirizzo"}">${I.mail}Email</a>
-      ${navigator.share ? `<button type="button" class="btn" data-act="condividi">Condividi</button>` : ""}
-    </div>`;
-}
-async function condividi(n) {
-  const k = linkInvio(n);
-  try { await navigator.share({ title: k.og, text: k.txt }); }
-  catch (e) { if (e && e.name !== "AbortError") { const p = navigator.clipboard && navigator.clipboard.writeText(k.txt); if (p) p.then(() => toast("Testo copiato: incollalo dove vuoi."), () => toast("Condivisione non disponibile qui.")); else toast("Condivisione non disponibile qui."); } }
-}
-// il lavoro com'è nel modulo aperto (anche prima di salvarlo)
-function lavoroDalModulo() { const tipo = $("#apTipo").value; return { tipo, titolo: tipo || $("#apTit").value.trim(), testo: $("#apTxt").value.trim(), lista: apEdit ? apEdit.lista : [], az: azDaEtichetta($("#apAz").value), t: new Date().toISOString() }; }
 function renderAppunti() {
   if ($("#vAppunti").hidden) return;
   const q = norm($("#apCerca").value.trim()).split(/\s+/).filter(Boolean);
   let l = Object.values(AP);
-  if (apFiltro === "miei") l = l.filter(n => n._priv);
-  if (apFiltro === "Preventivo" || apFiltro === "Ordine") l = l.filter(n => (n.tipo || n.titolo) === apFiltro);
-  if (apFiltro === "fare") l = l.filter(n => (n.lista || []).some(x => !x.ok));
-  if (q.length) l = l.filter(n => { const a = n.az && BYID.get(n.az), t = norm([n.titolo, n.testo, ...(n.lista || []).map(x => x.t), a ? a.nome : ""].join(" ")); return q.every(w => t.includes(w)); });
-  l.sort((x, y) => String(y.agg || y.t).localeCompare(String(x.agg || x.t)));
+  if (apFiltro !== "tutti") l = l.filter(n => tipoDi(n) === apFiltro);
+  if (q.length) l = l.filter(n => { const t = norm([etichettaLavoro(n), n.testo, n.titolo, ...righeDi(n).map(x => x.t)].join(" ")); return q.every(w => t.includes(w)); });
+  // dal più vecchio (in alto) al più nuovo (in basso)
+  l.sort((x, y) => String(x.t || x.agg).localeCompare(String(y.t || y.agg)));
   $("#apList").innerHTML = l.map(apCardHtml).join("");
-  const v = $("#apVuoto");
-  v.hidden = !!l.length;
-  v.textContent = !db ? "I lavori si salvano nell'app e nella pagina pubblicata su claude.ai." : Object.keys(AP).length ? "Nessun lavoro con questa ricerca." : "Ancora nessun lavoro: tocca \"+ Nuovo lavoro\", \"Detta\" o \"Foto\".";
-  aggiornaClaude(); nomiIn($("#apList"));
+  const v = $("#apVuoto"); v.hidden = !!l.length;
+  v.textContent = !db ? "I lavori si salvano nell'app e nella pagina pubblicata su claude.ai." : Object.keys(AP).length ? "Nessun lavoro con questa ricerca." : "Ancora nessun lavoro: tocca \"+ Nuovo lavoro\".";
+  nomiIn($("#apList"));
 }
 $("#apCerca").addEventListener("input", renderAppunti);
 document.querySelector("#vAppunti .seg2").addEventListener("click", e => {
@@ -2343,77 +2396,325 @@ document.querySelector("#vAppunti .seg2").addEventListener("click", e => {
   document.querySelectorAll("[data-apf]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
   renderAppunti();
 });
-function disegnaLista() {
-  $("#apLista").innerHTML = apEdit.lista.map((x, i) => `<li class="${x.ok ? "ok" : ""}"><label><input type="checkbox" data-li="${i}" ${x.ok ? "checked" : ""}><span>${esc(x.t)}</span></label><button type="button" class="link" data-lx="${i}" aria-label="Togli ${esc(x.t)}">togli</button></li>`).join("");
+
+/* ---------- eliminare: si trascina il lavoro verso destra, compare il cestino, si conferma ---------- */
+let sw = null;
+const chiudiSw = (except) => document.querySelectorAll("#apList .ap.aperto").forEach(c => { if (c !== except) { c.classList.remove("aperto"); c.querySelector(".ap-in").style.transform = ""; } });
+$("#apList").addEventListener("pointerdown", e => {
+  const inn = e.target.closest(".ap-in"); if (!inn || e.button > 0) return;
+  sw = { inn, card: inn.closest(".ap"), x: e.clientX, y: e.clientY, dx: 0, base: inn.closest(".ap").classList.contains("aperto") ? 68 : 0, oriz: null };
+});
+$("#apList").addEventListener("pointermove", e => {
+  if (!sw) return;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (sw.oriz === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) sw.oriz = Math.abs(dx) > Math.abs(dy);
+  if (!sw.oriz) return;
+  sw.dx = dx; sw.inn.style.transition = "none";
+  sw.inn.style.transform = `translateX(${Math.max(0, Math.min(90, sw.base + dx))}px)`;
+});
+function fineSw() {
+  if (!sw) return;
+  const s = sw; sw = null; s.inn.style.transition = "";
+  if (!s.oriz) return;
+  const aperto = s.base + s.dx > 40;
+  chiudiSw(aperto ? s.card : null);
+  s.card.classList.toggle("aperto", aperto); s.inn.style.transform = aperto ? "translateX(68px)" : "";
+  s.card.dataset.trascinato = "1"; setTimeout(() => delete s.card.dataset.trascinato, 50);
 }
+$("#apList").addEventListener("pointerup", fineSw);
+$("#apList").addEventListener("pointercancel", fineSw);
+$("#apList").addEventListener("click", e => {
+  const card = e.target.closest(".ap"); if (!card) return;
+  if (card.dataset.trascinato) return;
+  if (e.target.closest("[data-del]")) { chiediElimina(card.dataset.ap); return; }
+  if (card.classList.contains("aperto")) { chiudiSw(); return; }
+  chiudiSw();
+  const n = AP[card.dataset.ap]; if (n) apriEditor(n);
+});
+$("#apList").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".ap-in")) { e.preventDefault(); const n = AP[e.target.closest(".ap").dataset.ap]; if (n) apriEditor(n); } if (e.key === "Delete" && e.target.matches(".ap-in")) chiediElimina(e.target.closest(".ap").dataset.ap); });
+let daEliminare = null;
+function chiediElimina(id) {
+  const n = AP[id]; if (!n) return;
+  daEliminare = id;
+  const r = righeDi(n);
+  $("#apConfD").textContent = etichettaLavoro(n) + (isMateriale(tipoDi(n)) && r.length ? " · " + r.map(x => (x.q ? x.q + " " : "") + x.t).slice(0, 3).join(", ") : n.testo ? " · " + primaRiga(n.testo) : "") + ". Non si può recuperare.";
+  $("#apConf").hidden = false; $("#apConfNo").focus();
+}
+$("#apConfNo").addEventListener("click", () => { $("#apConf").hidden = true; daEliminare = null; chiudiSw(); });
+$("#apConfSi").addEventListener("click", async () => {
+  const n = AP[daEliminare]; $("#apConf").hidden = true; daEliminare = null;
+  if (!n || !db) return;
+  try {
+    for (const fid of n.foto || []) await db.collection("foto").doc(fid).delete().catch(() => {});
+    await db.collection(apColl(n._priv)).doc(n.id).delete(); delete AP[n.id];
+    renderAppunti(); refresh(); toast("Lavoro eliminato.");
+  } catch (err) { toast("Eliminazione non riuscita."); }
+});
+
+/* ---------- nuovo lavoro a 4 passi ---------- */
+const PASSI = ["1", "2", "3", "4"];
 function apriEditor(n, pre = {}) {
   if (document.body.dataset.vista !== "appunti") vista("appunti", { resta: true });
-  preparaAzList();
-  apEdit = n ? { id: n.id, priv: !!n._priv, lista: (n.lista || []).map(x => ({ t: x.t, ok: !!x.ok })), foto: (n.foto || []).slice(), t: n.t, da: n.da }
-    : { id: null, priv: false, lista: [], foto: [] };
-  $("#apEdT").textContent = n ? "Modifica lavoro" : "Nuovo lavoro";
-  // tendina Preventivo / Ordine; "Altro" mostra il titolo libero
-  const tit = n ? n.titolo || "" : pre.titolo || "", tipo = n ? n.tipo || (["Preventivo", "Ordine"].includes(tit) ? tit : (tit ? "" : "Preventivo")) : pre.titolo ? "" : "Preventivo";
-  $("#apTipo").value = tipo; $("#apTit").value = tipo ? "" : tit; $("#apTit").hidden = !!tipo;
-  $("#apTxt").value = n ? n.testo || "" : pre.testo || "";
-  const az = BYID.get((n && n.az) || pre.az); $("#apAz").value = az ? azEtichetta(az) : "";
-  $("#apCond").checked = n ? !n._priv : true;
-  $("#apFotoIn").value = ""; $("#apFotoSt").textContent = apEdit.foto.length ? `${apEdit.foto.length} foto già salvate` : "";
-  $("#apVoceSt").textContent = ""; $("#apDel").hidden = !n; $("#apDel").textContent = "elimina lavoro"; $("#apDel").dataset.ok = ""; campoDetta = null;
-  disegnaLista(); aggiornaClaude();
-  $("#apEditor").hidden = false; $("#apEditor").scrollIntoView({ behavior: "smooth", block: "start" });
-  if (pre.foto) $("#apFotoIn").click();
-  else if (pre.detta) detta();
-  else setTimeout(() => $("#apTxt").focus({ preventScroll: true }), 300);
+  fermaDettatura();
+  W = n ? { id: n.id, priv: !!n._priv, tipo: tipoDi(n), az: n.az || "", cliente: n.cliente || "", righe: righeDi(n).map(x => ({ q: x.q || "", t: x.t })), testo: n.testo || "", quando: n.quando || "", t: n.t, da: n.da, foto: (n.foto || []).slice() }
+    : { id: null, priv: false, tipo: "", az: pre.az || "", cliente: "", righe: [], testo: "", quando: "", foto: [] };
+  W.nuove = []; W.via = []; W.cache = {}; // foto nuove {img, w, h}, foto salvate da togliere, foto salvate già scaricate
+  $("#wzTit").textContent = n ? "Modifica lavoro" : "Nuovo lavoro";
+  $("#wzCli").value = ""; $("#wzSug").innerHTML = ""; $("#wzQ").value = ""; $("#wzT").value = ""; $("#wzSt").textContent = "";
+  $("#wzTxt").value = W.testo; $("#wzQuando").value = W.quando;
+  $("#apWz").hidden = false;
+  passo(n ? "3" : "1");
+  $("#apWz").scrollIntoView({ behavior: "smooth", block: "start" });
 }
-function chiudiEditor() { fermaDettatura(); apEdit = null; $("#apEditor").hidden = true; renderAppunti(); }
-$("#apTipo").addEventListener("change", e => { $("#apTit").hidden = !!e.target.value; if (!e.target.value) $("#apTit").focus(); });
-// invio dal modulo aperto: WhatsApp e email in una nuova finestra, Condividi con il menu del telefono
-$("#apInvio [data-inv=share]").hidden = !navigator.share;
-$("#apInvio").addEventListener("click", e => {
-  const b = e.target.closest("[data-inv]"); if (!b) return;
-  const n = lavoroDalModulo();
-  if (!n.testo && !n.lista.length) { toast("Scrivi o detta prima il preventivo o l'ordine."); return; }
-  if (b.dataset.inv === "share") { condividi(n); return; }
-  const k = linkInvio(n);
-  window.open(b.dataset.inv === "wa" ? k.wa : k.mail, "_blank", "noopener");
-});
+function chiudiEditor() { fermaDettatura(); W = null; $("#apWz").hidden = true; renderAppunti(); }
 $("#apNuovo").addEventListener("click", () => apriEditor(null));
-$("#apMic").addEventListener("click", () => apriEditor(null, { detta: true }));
-$("#apCam").addEventListener("click", () => apriEditor(null, { foto: true }));
-$("#apChiudi").addEventListener("click", chiudiEditor);
-$("#apFotoIn").addEventListener("change", e => { const f = e.target.files[0]; $("#apFotoSt").textContent = f ? "Foto pronta: si salva con il lavoro." : ""; });
-$("#apLista").addEventListener("change", e => { const i = e.target.dataset.li; if (i != null) { apEdit.lista[i].ok = e.target.checked; disegnaLista(); } });
-$("#apLista").addEventListener("click", e => { const i = e.target.dataset.lx; if (i != null) { apEdit.lista.splice(+i, 1); disegnaLista(); } });
-function aggiungiVoce() { const v = $("#apItem").value.trim(); if (!v) return; apEdit.lista.push({ t: v, ok: false }); $("#apItem").value = ""; disegnaLista(); $("#apItem").focus(); }
-$("#apItemAdd").addEventListener("click", aggiungiVoce);
-$("#apItem").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); aggiungiVoce(); } });
-// dettatura con il riconoscimento vocale del browser (Chrome su Android); altrimenti il microfono della tastiera.
-// Una frase alla volta: su Android l'ascolto "continuo" ripete le parole ("8 lame 8 lame"). Ogni frase finita si
-// aggiunge al testo e l'ascolto riparte da solo finché non si tocca Ferma.
-// Il tasto resta acceso finché non lo si ritocca e scrive nel campo dove si era cliccato (Titolo, Descrizione,
-// Cose da fare), nel punto del cursore.
+$("#wzChiudi").addEventListener("click", chiudiEditor);
+function passo(p) {
+  fermaDettatura();
+  W.passo = p;
+  const vero = p === "3" ? (isMateriale(W.tipo) ? "3m" : "3a") : p;
+  document.querySelectorAll("#apWz .wz-p").forEach(x => x.hidden = x.dataset.p !== vero);
+  const i = PASSI.indexOf(p);
+  $("#wzN").textContent = `${i + 1} di 4`;
+  document.querySelectorAll("#apWz .wz-dots span").forEach((d, k) => d.classList.toggle("on", k <= i));
+  $("#apWz").className = "wz" + (W.tipo ? " k-" + W.tipo : "");
+  $("#wzSt").textContent = "";
+  const f = $("#wzF");
+  if (p === "1") { f.innerHTML = `<button type="button" class="btn" data-wz="chiudi">Annulla</button>`; document.querySelectorAll("#apWz [data-tipo]").forEach(b => b.classList.toggle("sel", b.dataset.tipo === W.tipo)); }
+  if (p === "2") { f.innerHTML = `<button type="button" class="btn" data-wz="indietro">Indietro</button><button type="button" class="btn primary" data-wz="avanti">${W.az || W.cliente || isMateriale(W.tipo) ? "Avanti" : "Salta"}</button>`; disegnaScelto(); setTimeout(() => { if (!W.az) $("#wzCli").focus({ preventScroll: true }); }, 250); }
+  if (p === "3") { f.innerHTML = `<button type="button" class="btn" data-wz="indietro">Indietro</button><button type="button" class="btn primary" data-wz="avanti">Avanti</button>`; if (isMateriale(W.tipo)) disegnaRighe(); }
+  if (p === "4") {
+    caricaJsPdf().catch(() => {}); // così il PDF è pronto al tocco
+    $("#wzRiep").innerHTML = `<div class="ap riep k-${W.tipo}"><div class="ap-in">${corpoLavoro(lavoroW(), true)}</div></div>`;
+    disegnaFoto(); caricaFotoSalvate();
+    f.innerHTML = `<button type="button" class="btn" data-wz="indietro">Indietro</button><button type="button" class="btn primary" data-wz="salva">Salva</button>` +
+      (isMateriale(W.tipo) ? `<button type="button" class="btn wa-b" data-wz="pdf-wa">Salva e invia PDF su WhatsApp</button><button type="button" class="btn" data-wz="pdf-mail">Salva e invia PDF per email</button>` : "");
+  }
+}
+// passo 1: il tipo, un tocco e si va avanti
+document.querySelector("#apWz .wz-tipi").addEventListener("click", e => {
+  const b = e.target.closest("[data-tipo]"); if (!b) return;
+  W.tipo = b.dataset.tipo; passo("2");
+});
+// passo 2: il cliente tra le ditte del Finder (bastano 3-4 lettere), oppure un nome libero
+function cercaDitte(q) {
+  // anche senza punti, spazi e apostrofi: "gpc" trova "G.P. Crea", "dambrosio" trova "D'Ambrosio"
+  const solo = s => s.replace(/[^a-z0-9]/g, "");
+  const t = norm(q).split(/\s+/).filter(Boolean); if (!t.length || solo(norm(q)).length < 2) return [];
+  const out = [];
+  for (const a of AZ) {
+    if (a._del) continue;
+    const n = norm(a.nome), nc = solo(n); if (!t.every(w => n.includes(w) || nc.includes(solo(w)))) continue;
+    out.push([n.startsWith(t[0]) || nc.startsWith(solo(t[0])) ? 0 : n.split(/[\s.'-]+/).some(p => p.startsWith(t[0])) ? 1 : 2, a]);
+  }
+  return out.sort((x, y) => x[0] - y[0] || coll.compare(x[1].nome, y[1].nome)).slice(0, 8).map(x => x[1]);
+}
+$("#wzCli").addEventListener("input", () => {
+  const v = $("#wzCli").value.trim(), l = cercaDitte(v);
+  $("#wzSug").innerHTML = l.map(a => `<button type="button" role="option" data-az="${esc(a.id)}"><b>${esc(a.nome)}</b> <span>${esc(a.comune || "")}${a.cliente_lbs ? " · cliente LBS" : ""}</span></button>`).join("") +
+    (v.length >= 3 ? `<button type="button" role="option" class="libero" data-libero="1">Usa "${esc(v)}" come nome (non è nel Finder)</button>` : "");
+});
+$("#wzSug").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.az) { W.az = b.dataset.az; W.cliente = ""; } else { W.az = ""; W.cliente = $("#wzCli").value.trim(); }
+  $("#wzCli").value = ""; $("#wzSug").innerHTML = ""; disegnaScelto();
+  passo("3");
+});
+function disegnaScelto() {
+  const a = W.az && BYID.get(W.az), nome = a ? a.nome : W.cliente;
+  $("#wzScelto").hidden = !nome;
+  $("#wzScelto").innerHTML = nome ? `Cliente: <b>${esc(nome)}</b>${a && a.comune ? " · " + esc(a.comune) : ""} <button type="button" class="link" data-togli>cambia</button>` : "";
+}
+$("#wzScelto").addEventListener("click", e => { if (e.target.closest("[data-togli]")) { W.az = ""; W.cliente = ""; disegnaScelto(); passo("2"); } });
+// passo 3 (ordine, preventivo): righe con quantità e materiale, ognuna con il suo microfonino
+const NUMERI = { un: 1, uno: 1, una: 1, due: 2, tre: 3, quattro: 4, cinque: 5, sei: 6, sette: 7, otto: 8, nove: 9, dieci: 10, undici: 11, dodici: 12, tredici: 13, quattordici: 14, quindici: 15, venti: 20, trenta: 30 };
+function rigaDaFrase(s) {
+  s = pulisciVoce(s);
+  let m = s.match(/^(\d+(?:[.,]\d+)?)\s*(?:x\s+|pezzi\s+|pz\.?\s+)?(.+)$/i);
+  if (m) return { q: m[1], t: m[2][0].toUpperCase() + m[2].slice(1) };
+  m = s.match(/^(\S+)\s+(.+)$/);
+  if (m && NUMERI[m[1].toLowerCase()]) return { q: String(NUMERI[m[1].toLowerCase()]), t: m[2][0].toUpperCase() + m[2].slice(1) };
+  return { q: "", t: s ? s[0].toUpperCase() + s.slice(1) : s };
+}
+const MIC_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+function disegnaRighe() {
+  $("#wzRighe").innerHTML = W.righe.map((r, i) => `<li>
+      <input type="text" inputmode="decimal" class="rq" data-i="${i}" value="${esc(r.q)}" aria-label="Quantità riga ${i + 1}">
+      <div class="in-mic grow"><input type="text" class="rt" id="wzR${i}" data-i="${i}" value="${esc(r.t)}" aria-label="Materiale riga ${i + 1}"><button type="button" class="mc" data-mic="wzR${i}" aria-label="Detta la riga ${i + 1}">${MIC_SVG}</button></div>
+      <button type="button" class="link vdel" data-rx="${i}" aria-label="Togli la riga ${i + 1}">×</button>
+    </li>`).join("");
+}
+$("#wzRighe").addEventListener("input", e => { const i = e.target.dataset.i; if (i == null || !W.righe[i]) return; W.righe[i][e.target.classList.contains("rq") ? "q" : "t"] = e.target.value; });
+$("#wzRighe").addEventListener("click", e => { const i = e.target.closest("[data-rx]"); if (i) { W.righe.splice(+i.dataset.rx, 1); disegnaRighe(); } });
+function aggiungiRiga() {
+  const t = $("#wzT").value.trim(); if (!t) return false;
+  const r = rigaDaFrase(t); if ($("#wzQ").value.trim()) r.q = $("#wzQ").value.trim();
+  W.righe.push(r); $("#wzQ").value = ""; $("#wzT").value = ""; disegnaRighe(); return true;
+}
+$("#wzAdd").addEventListener("click", () => { aggiungiRiga(); $("#wzT").focus(); });
+$("#wzT").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); aggiungiRiga(); } });
+$("#wzQ").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("#wzT").focus(); } });
+// passo 4: foto dalla fotocamera (una o più), salvate con il lavoro e messe nel PDF
+const dimImg = src => new Promise(r => { const im = new Image(); im.onload = () => r({ w: im.naturalWidth || 4, h: im.naturalHeight || 3 }); im.onerror = () => r({ w: 4, h: 3 }); im.src = src; });
+function disegnaFoto() {
+  const vecchie = W.foto.map(fid => `<div class="wz-thumb">${W.cache[fid] ? `<img src="${W.cache[fid].img}" alt="Foto salvata">` : ""}<button type="button" data-fx="${esc(fid)}" aria-label="Togli la foto">×</button></div>`);
+  const nuove = W.nuove.map((f, i) => `<div class="wz-thumb"><img src="${f.img}" alt="Foto nuova"><button type="button" data-nx="${i}" aria-label="Togli la foto">×</button></div>`);
+  $("#wzThumbs").innerHTML = vecchie.concat(nuove).join("");
+  $("#wzFotoIn").closest("label").lastChild.previousSibling.textContent = W.foto.length + W.nuove.length ? "Aggiungi un'altra foto" : "Aggiungi foto";
+}
+async function caricaFotoSalvate() {
+  if (!db) return;
+  for (const fid of W.foto) {
+    if (W.cache[fid]) continue;
+    try { const s = await db.collection("foto").doc(fid).get(), d = s && s.exists ? s.data() : null; if (d && d.img && W) { W.cache[fid] = Object.assign({ img: d.img }, await dimImg(d.img)); disegnaFoto(); } } catch (e) {}
+  }
+}
+$("#wzFotoIn").addEventListener("change", async e => {
+  const files = [...e.target.files]; e.target.value = "";
+  for (const f of files) {
+    $("#wzSt").textContent = "Preparo la foto…";
+    const img = await comprimi(f);
+    if (!img) { $("#wzSt").textContent = "Non riesco a leggere questa foto: riprova."; continue; }
+    W.nuove.push(Object.assign({ img }, await dimImg(img))); disegnaFoto(); $("#wzSt").textContent = "";
+  }
+});
+$("#wzThumbs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.nx != null) W.nuove.splice(+b.dataset.nx, 1);
+  if (b.dataset.fx) { W.foto = W.foto.filter(x => x !== b.dataset.fx); W.via.push(b.dataset.fx); }
+  disegnaFoto();
+});
+// pulsanti in fondo: indietro, avanti, salva, salva e invia
+function lavoroW() {
+  return isMateriale(W.tipo) ? { tipo: W.tipo, az: W.az, cliente: W.cliente, righe: W.righe.filter(r => r.t.trim()).map(r => ({ q: r.q.trim(), t: r.t.trim() })), t: W.t || new Date().toISOString(), da: W.da || apMio }
+    : { tipo: W.tipo, az: W.az, cliente: W.cliente, testo: $("#wzTxt").value.trim(), quando: $("#wzQuando").value, t: W.t || new Date().toISOString(), da: W.da || apMio };
+}
+$("#wzF").addEventListener("click", async e => {
+  const b = e.target.closest("[data-wz]"); if (!b) return;
+  const a = b.dataset.wz, p = W.passo;
+  if (a === "chiudi") { chiudiEditor(); return; }
+  if (a === "indietro") { passo(PASSI[Math.max(0, PASSI.indexOf(p) - 1)]); return; }
+  if (a === "avanti") {
+    if (p === "2") {
+      if (!W.az && !W.cliente && $("#wzCli").value.trim()) { $("#wzSt").textContent = "Tocca il nome giusto nell'elenco qui sopra."; return; }
+      if (!W.az && !W.cliente && isMateriale(W.tipo)) { $("#wzSt").textContent = "Scegli il cliente: scrivi 3-4 lettere e tocca il nome."; return; }
+    }
+    if (p === "3") {
+      if (isMateriale(W.tipo)) { aggiungiRiga(); if (!W.righe.some(r => r.t.trim())) { $("#wzSt").textContent = "Aggiungi almeno una riga di materiale."; return; } }
+      else if (!$("#wzTxt").value.trim()) { $("#wzSt").textContent = "Scrivi o detta cosa ricordare."; return; }
+    }
+    passo(PASSI[PASSI.indexOf(p) + 1]); return;
+  }
+  if (a === "salva" || a === "pdf-wa" || a === "pdf-mail") {
+    if (!db) { toast("I lavori si salvano nell'app o nella pagina pubblicata su claude.ai."); if (a === "salva") return; }
+    const n = lavoroW(), id = W.id || nuovoId("ap", "n"), priv = W.priv, w = W;
+    b.disabled = true;
+    // prima il PDF e l'invio (il telefono vuole il tocco "fresco"), poi foto e lavoro nel database
+    if (a !== "salva") await inviaPdf(n, a === "pdf-wa" ? "wa" : "mail", w.foto.map(fid => w.cache[fid]).filter(Boolean).concat(w.nuove));
+    const salvato = !db ? false : await (async () => {
+      try {
+        const ora = new Date().toISOString(), foto = w.foto.slice();
+        for (const f of w.nuove) { const fid = nuovoId(n.az || "lavoro", "f"); await db.collection("foto").doc(fid).set({ az: n.az || "", t: ora, da: apMio || "", img: f.img }); foto.push(fid); }
+        for (const fid of w.via) await db.collection("foto").doc(fid).delete().catch(() => {});
+        const body = Object.assign({}, n, { agg: ora, ultimo: apMio || "" }); if (foto.length) body.foto = foto;
+        await db.collection(apColl(priv)).doc(id).set(JSON.parse(JSON.stringify(body)));
+        AP[id] = Object.assign({}, body, { id, _priv: priv }); return true;
+      } catch (err) { return false; }
+    })();
+    const ok = salvato; b.disabled = false;
+    if (db && !ok) { toast("Salvataggio non riuscito, riprova tra poco."); return; }
+    chiudiEditor(); if (n.az) refresh();
+    if (a === "salva") toast(`${etichettaLavoro(n)}: salvato.`);
+  }
+});
+
+/* ---------- PDF da inviare: foglio semplice con il tipo, il cliente, il materiale e, in fondo, i recapiti del cliente ---------- */
+async function pdfLavoro(n, foto = []) {
+  const { jsPDF } = await caricaJsPdf(), doc = new jsPDF({ unit: "mm", format: "a4" });
+  const a = n.az && BYID.get(n.az), verde = [59, 109, 17], giallo = [186, 117, 23], col = n.tipo === "ordine" ? verde : giallo;
+  doc.setFont("helvetica", "bold"); doc.setFontSize(30); doc.setTextColor(...col);
+  doc.text(TIPI[n.tipo].toUpperCase(), 20, 30);
+  doc.setDrawColor(...col); doc.setLineWidth(0.8); doc.line(20, 34, 190, 34);
+  doc.setTextColor(26, 26, 26); doc.setFontSize(18); doc.text(clienteDi(n) || "Cliente", 20, 47);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(90, 90, 90);
+  doc.text(new Date(n.t || Date.now()).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" }), 20, 54);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(26, 26, 26); doc.text("Materiale", 20, 68);
+  let y = 77; doc.setDrawColor(210, 210, 210); doc.setLineWidth(0.2);
+  for (const r of n.righe) {
+    const righe = doc.splitTextToSize(r.t, 150);
+    if (y + righe.length * 6 > 238) { doc.addPage(); y = 25; }
+    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text(r.q || "", 20, y);
+    doc.setFont("helvetica", "normal"); doc.text(righe, 38, y);
+    y += righe.length * 6 + 2; doc.line(20, y - 3, 190, y - 3); y += 3;
+  }
+  // foto sotto il materiale: larghe al massimo 170 mm e alte 110 mm, su più pagine se servono
+  if (foto.length) {
+    if (y > 225) { doc.addPage(); y = 25; }
+    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(26, 26, 26); doc.text("Foto", 20, y + 4); y += 10;
+    for (const f of foto) {
+      const k = Math.min(170 / f.w, 110 / f.h), w = f.w * k, h = f.h * k;
+      if (y + h > 238) { doc.addPage(); y = 25; }
+      try { doc.addImage(f.img, "JPEG", 20, y, w, h); } catch (e) {}
+      y += h + 6;
+    }
+  }
+  // recapiti del cliente: solo nel PDF, per ricontattarlo
+  let yr = 250; doc.setDrawColor(200, 200, 200); doc.line(20, yr - 6, 190, yr - 6);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(26, 26, 26); doc.text("Riferimenti cliente", 20, yr);
+  doc.setFont("helvetica", "normal"); doc.setTextColor(70, 70, 70);
+  const ref = a ? [a.nome + (a.indirizzo ? " · " + a.indirizzo : a.comune ? " · " + a.comune : ""), a.telefono ? "Tel. " + a.telefono : "", (emailList(a)[0] || {}).e ? "Email " + emailList(a)[0].e : ""].filter(Boolean) : [clienteDi(n)];
+  ref.forEach((s, i) => doc.text(doc.splitTextToSize(s, 170)[0], 20, yr + 5.5 * (i + 1)));
+  doc.setFontSize(9); doc.setTextColor(140, 140, 140); doc.text("LBS Affilature · Viserba di Rimini", 105, 287, { align: "center" });
+  const nome = `${TIPI[n.tipo]}-${(clienteDi(n) || "cliente").replace(/[^\w àèéìòù]+/gi, " ").trim().replace(/\s+/g, "-").slice(0, 40)}-${new Date().toISOString().slice(0, 10)}.pdf`;
+  return new File([doc.output("blob")], nome, { type: "application/pdf" });
+}
+// sul telefono si apre "Condividi" con il PDF allegato (WhatsApp, Gmail…); altrove il PDF si scarica e si apre WhatsApp o la mail
+async function inviaPdf(n, dove, foto) {
+  let file;
+  try { file = await pdfLavoro(n, foto); } catch (e) { toast("Non riesco a creare il PDF (serve internet la prima volta)."); return; }
+  const a = n.az && BYID.get(n.az), testo = `${TIPI[n.tipo]} LBS Affilature per ${clienteDi(n)}`;
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: testo, text: testo }); toast(`${etichettaLavoro(n)}: salvato e pronto da inviare.`); return; }
+    catch (e) { if (e && e.name === "AbortError") { toast("Invio annullato: il lavoro è comunque salvato."); return; } }
+  }
+  await salvaFile(file.name, file);
+  if (dove === "wa") { const num = a ? waNum(a.telefono) : ""; window.open(`https://wa.me/${num}?text=${encodeURIComponent(testo + ": te lo allego qui.")}`, "_blank", "noopener"); }
+  else { const mail = a ? ((emailList(a)[0] || {}).e || "") : ""; window.open(`mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(testo)}&body=${encodeURIComponent("Buongiorno,\nin allegato " + TIPI[n.tipo].toLowerCase() + ".\n\nLBS Affilature")}`, "_blank", "noopener"); }
+  toast("PDF scaricato: allegalo al messaggio che si è aperto.");
+}
+
+/* ---------- dettatura: ogni campo ha il suo microfonino; un tocco acceso, un tocco spento ----------
+   Scrive solo in quel campo, nel punto del cursore. Una frase alla volta (su Android l'ascolto "continuo" ripete
+   le parole), con riavvio automatico finché non si ritocca il microfono. Nella "riga nuova" del materiale ogni
+   frase diventa una riga. */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const NOMI_CAMPO = { apTit: "Titolo", apTxt: "Descrizione", apItem: "Cose da fare" };
-let dettaOn = false, campoDetta = null, D = null; // D = campo in dettatura: { el, prima, dopo }
-$("#apEditor").addEventListener("focusin", e => { if (NOMI_CAMPO[e.target.id]) campoDetta = e.target; });
+let dettaOn = false, D = null; // D = { el, btn, prima, dopo, riga }
 function fermaDettatura() { dettaOn = false; if (rec) { try { rec.stop(); } catch (e) {} } else dettaSpenta(); }
 function dettaSpenta() {
-  $("#apDetta").classList.remove("on"); $("#apDetta").lastChild.textContent = "Detta";
-  if (D) { D.el.classList.remove("in-detta"); const p = D.prima.length; D.el.focus({ preventScroll: true }); try { D.el.setSelectionRange(p, p); } catch (e) {} D = null; }
-  if (/ascolto/.test($("#apVoceSt").textContent)) $("#apVoceSt").textContent = "";
+  if (D) {
+    D.el.classList.remove("in-detta"); D.btn.classList.remove("on"); D.btn.setAttribute("aria-pressed", "false");
+    if (!D.riga) { const p = D.prima.length; try { D.el.setSelectionRange(p, p); } catch (e) {} }
+    D.el.dispatchEvent(new Event("input", { bubbles: true }));
+    D = null;
+  }
+  if (/ascolto/.test($("#wzSt").textContent)) $("#wzSt").textContent = "";
 }
 // parole del mestiere: "diametro 300" → Ø300, "zeta 48" → Z48, "12 euro" → 12 €
 const pulisciVoce = t => t.replace(/\bdiametro\s+(?=\d)/gi, "Ø").replace(/\b(?:zeta|z)\s+(\d+)/gi, "Z$1").replace(/(\d)\s*euro\b/gi, "$1 €").replace(/\s+/g, " ").trim();
-function detta() {
-  if (dettaOn) { fermaDettatura(); return; }
-  if (!SR) { $("#apVoceSt").textContent = "Qui la dettatura diretta non c'è: tocca il testo e usa il microfono della tastiera."; $("#apTxt").focus(); return; }
-  const el = campoDetta && !campoDetta.hidden && $("#apEditor").contains(campoDetta) ? campoDetta : $("#apTxt");
-  const a = el.selectionStart ?? el.value.length, b = el.selectionEnd ?? a;
-  D = { el, prima: el.value.slice(0, a), dopo: el.value.slice(b) };
-  dettaOn = true; el.classList.add("in-detta");
-  $("#apDetta").classList.add("on"); $("#apDetta").lastChild.textContent = "Ferma";
-  $("#apVoceSt").textContent = `In ascolto in "${NOMI_CAMPO[el.id]}"… parla, poi tocca Ferma.`;
+document.addEventListener("click", e => {
+  const b = e.target.closest(".mc[data-mic]"); if (!b) return;
+  const el = document.getElementById(b.dataset.mic); if (!el) return;
+  const stessa = D && D.btn === b;
+  if (dettaOn || D) { fermaDettatura(); if (stessa) return; }
+  if (!SR) { toast("Qui la dettatura diretta non c'è: tocca il campo e usa il microfono della tastiera."); el.focus(); return; }
+  setTimeout(() => avviaDettatura(el, b), D ? 200 : 0);
+});
+function avviaDettatura(el, btn) {
+  const a = el.selectionStart ?? el.value.length, z = el.selectionEnd ?? a;
+  D = { el, btn, prima: el.value.slice(0, a), dopo: el.value.slice(z), riga: el.id === "wzT" };
+  dettaOn = true; el.classList.add("in-detta"); btn.classList.add("on"); btn.setAttribute("aria-pressed", "true");
+  if ($("#apWz").contains(el)) $("#wzSt").textContent = "In ascolto… parla, poi ritocca il microfono per fermare.";
+  else toast("In ascolto… ritocca il microfono per fermare.");
   ascolta();
 }
 function ascolta() {
@@ -2421,109 +2722,32 @@ function ascolta() {
   const unisci = (s, t) => s + (s && !/\s$/.test(s) ? " " : "") + t;
   const mostra = extra => { D.el.value = (extra ? unisci(D.prima, extra) : D.prima) + (D.dopo && !/^\s/.test(D.dopo) ? " " : "") + D.dopo; };
   let ultima = "";
-  try { rec = new SR(); } catch (e) { rec = null; dettaOn = false; dettaSpenta(); $("#apVoceSt").textContent = "Dettatura non disponibile: usa il microfono della tastiera."; return; }
+  try { rec = new SR(); } catch (e) { rec = null; dettaOn = false; dettaSpenta(); toast("Dettatura non disponibile: usa il microfono della tastiera."); return; }
   rec.lang = "it-IT"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 3;
   rec.onresult = ev => {
+    if (!D) return;
     const r = ev.results[ev.results.length - 1];
     // tra le possibili trascrizioni, quella di cui il riconoscimento è più sicuro
     const best = Array.from({ length: r.length }, (_, i) => r[i]).sort((x, y) => (y.confidence || 0) - (x.confidence || 0))[0] || r[0], t = pulisciVoce(best.transcript || "");
     if (!t) return;
-    if (r.isFinal) { if (t !== ultima) { D.prima = unisci(D.prima, D.prima ? t : t[0].toUpperCase() + t.slice(1)); ultima = t; } mostra(""); }
-    else mostra(t);
+    if (r.isFinal) {
+      if (t === ultima) return; ultima = t;
+      if (D.riga) { W.righe.push(rigaDaFrase(t)); disegnaRighe(); D.el.value = ""; return; }
+      D.prima = unisci(D.prima, D.prima ? t : t[0].toUpperCase() + t.slice(1)); mostra("");
+      if (D.el.id === "wzCli" || D.el.id === "apCerca") D.el.dispatchEvent(new Event("input", { bubbles: true }));
+    } else if (D.riga) D.el.value = t; else mostra(t);
   };
   rec.onerror = ev => {
-    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { dettaOn = false; $("#apVoceSt").textContent = "Microfono non permesso: usa il microfono della tastiera."; }
-    else if (ev.error !== "no-speech" && ev.error !== "aborted") { dettaOn = false; $("#apVoceSt").textContent = "Dettatura interrotta: riprova."; }
+    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { dettaOn = false; toast("Microfono non permesso: usa il microfono della tastiera."); }
+    else if (ev.error !== "no-speech" && ev.error !== "aborted") { dettaOn = false; toast("Dettatura interrotta: riprova."); }
   };
   rec.onend = () => {
-    rec = null; if (D) mostra("");
+    rec = null; if (D && !D.riga) mostra("");
     if (dettaOn) { setTimeout(() => { if (dettaOn && !rec) ascolta(); }, 120); return; }
     dettaSpenta();
   };
   try { rec.start(); } catch (e) { rec = null; dettaOn = false; dettaSpenta(); }
 }
-$("#apDetta").addEventListener("click", detta);
-$("#apEditor").addEventListener("submit", async e => {
-  e.preventDefault();
-  if (!db) { toast("I lavori si salvano nell'app o nella pagina pubblicata su claude.ai."); return; }
-  fermaDettatura();
-  const tipo = $("#apTipo").value, titolo = tipo || $("#apTit").value.trim(), testo = $("#apTxt").value.trim(), azv = $("#apAz").value.trim(), az = azDaEtichetta(azv), priv = !$("#apCond").checked;
-  const file = $("#apFotoIn").files[0];
-  if (!testo && !apEdit.lista.length && !file && !apEdit.foto.length && !(titolo && !tipo)) { toast("Il lavoro è vuoto: scrivi o detta cosa c'è da fare."); return; }
-  if (azv && !az) { toast("Azienda non trovata: sceglila dall'elenco che compare scrivendo, oppure lascia vuoto."); return; }
-  const uid = await mioId(); if (priv && !uid) { toast("Per i lavori solo tuoi devi essere collegato."); return; }
-  apMio = apMio || uid;
-  const b = e.submitter || e.target.querySelector("[type=submit]"); b.disabled = true;
-  try {
-    const ora = new Date().toISOString(), foto = apEdit.foto.slice();
-    if (file) {
-      const img = await comprimi(file); if (!img) { toast("Non riesco a leggere questa foto: prova con un'altra."); return; }
-      const fid = nuovoId(az || "appunto", "f"); await db.collection("foto").doc(fid).set({ az, t: ora, da: uid, img }); foto.push(fid);
-    }
-    const id = apEdit.id || nuovoId("ap", "n");
-    const body = { tipo, titolo, testo, lista: apEdit.lista, az, foto, t: apEdit.t || ora, agg: ora, da: apEdit.da || uid, ultimo: uid };
-    await db.collection(apColl(priv)).doc(id).set(body);
-    if (apEdit.id && apEdit.priv !== priv) await db.collection(apColl(apEdit.priv)).doc(apEdit.id).delete().catch(() => {});
-    AP[id] = Object.assign({}, body, { id, _priv: priv });
-    chiudiEditor(); toast(az ? `${titolo || "Lavoro"} salvato e collegato a ${BYID.get(az).nome}.` : `${titolo || "Lavoro"} salvato.`);
-    if (az) refresh();
-  } catch (err) { toast(err && err.code === "quota_exceeded" ? "Archivio pieno: non riesco a salvare." : "Salvataggio non riuscito, riprova tra poco."); }
-  finally { b.disabled = false; }
-});
-$("#apDel").addEventListener("click", async e => {
-  const b = e.currentTarget;
-  if (b.dataset.ok !== "1") { b.dataset.ok = "1"; b.textContent = "tocca di nuovo per eliminare"; setTimeout(() => { if (b.dataset.ok === "1") { b.dataset.ok = ""; b.textContent = "elimina lavoro"; } }, 4000); return; }
-  const n = AP[apEdit.id]; if (!n) return;
-  try {
-    for (const fid of n.foto || []) await db.collection("foto").doc(fid).delete().catch(() => {});
-    await db.collection(apColl(n._priv)).doc(n.id).delete(); delete AP[n.id];
-    chiudiEditor(); toast("Lavoro eliminato."); refresh();
-  } catch (err) { toast("Eliminazione non riuscita."); }
-});
-$("#apList").addEventListener("change", async e => {
-  const i = e.target.dataset.chk; if (i == null) return;
-  const n = AP[e.target.closest("[data-ap]").dataset.ap]; if (!n || !db) return;
-  const lista = (n.lista || []).map((x, k) => k === +i ? { t: x.t, ok: e.target.checked } : x);
-  const body = Object.assign({}, n, { lista, agg: new Date().toISOString(), ultimo: await mioId() }); delete body.id; delete body._priv;
-  try { await db.collection(apColl(n._priv)).doc(n.id).set(body); AP[n.id] = Object.assign(body, { id: n.id, _priv: n._priv }); renderAppunti(); } catch (err) { toast("Non riesco a salvare la spunta."); e.target.checked = !e.target.checked; }
-});
-$("#apList").addEventListener("click", e => {
-  if (e.target.closest("input, label, a")) return; // le spunte e i link (WhatsApp, Email) fanno il loro lavoro
-  const sh = e.target.closest("[data-act=condividi]"); if (sh) { const n = AP[sh.closest("[data-ap]").dataset.ap]; if (n) condividi(n); return; }
-  const az = e.target.closest("[data-apaz]"); if (az) { apriScheda(az.dataset.apaz); return; }
-  const f = e.target.closest("[data-act=vfoto]"); if (f) { mostraFoto(f); return; }
-  const c = e.target.closest("[data-ap]"); if (c && AP[c.dataset.ap]) apriEditor(AP[c.dataset.ap]);
-});
-// Claude riordina l'appunto aperto (testo pulito, titolo, cose da fare): poi lo si controlla e si salva
-$("#apAI").addEventListener("click", async e => {
-  const b = e.currentTarget, txt = [$("#apTipo").value || $("#apTit").value, $("#apTxt").value, ...apEdit.lista.map(x => "- " + x.t)].join("\n").trim();
-  if (!$("#apTxt").value.trim() && !apEdit.lista.length) { toast("Scrivi o detta prima qualcosa."); return; }
-  if (!SAMPLE) return;
-  b.disabled = true; $("#apVoceSt").textContent = "Claude sta riordinando il lavoro…";
-  try {
-    const r = await SAMPLE.json(`Sei l'assistente di un venditore di LBS Affilature (affilatura di lame circolari, frese e utensili per la lavorazione del legno, Viserba di Rimini). Questo è un suo appunto preso in fretta, a volte dettato a voce. Riordinalo in italiano: correggi errori, punteggiatura e parole capite male dalla dettatura, ma non inventare niente e mantieni nomi, numeri, misure, prezzi e date. Separa le cose da fare in una lista.\nRispondi solo con JSON: {"titolo": "titolo breve", "testo": "testo pulito", "lista": ["cosa da fare", "..."]} (lista vuota se non ci sono cose da fare).\n\nAPPUNTO:\n${txt.slice(0, 6000)}`, { modelTier: "quick" });
-    if (!r || typeof r !== "object") throw { code: "invalid_json" };
-    if (r.titolo && !$("#apTipo").value) $("#apTit").value = String(r.titolo).slice(0, 120); // Preventivo/Ordine restano
-    if (r.testo) $("#apTxt").value = String(r.testo);
-    if (Array.isArray(r.lista)) { const gia = new Set(apEdit.lista.map(x => norm(x.t))); r.lista.map(String).filter(t => t.trim() && !gia.has(norm(t))).forEach(t => apEdit.lista.push({ t: t.trim(), ok: false })); disegnaLista(); }
-    $("#apVoceSt").textContent = "Riordinato da Claude: controlla e tocca Salva.";
-  } catch (err) { $("#apVoceSt").textContent = msgClaude(err); }
-  finally { b.disabled = false; }
-});
-// Claude riepiloga gli appunti mostrati in un nuovo appunto con le cose da fare
-$("#apRiep").addEventListener("click", async e => {
-  const b = e.currentTarget, l = [...$("#apList").querySelectorAll("[data-ap]")].map(x => AP[x.dataset.ap]).filter(Boolean).slice(0, 40);
-  if (!l.length || !SAMPLE) return;
-  const testo = l.map(n => { const a = n.az && BYID.get(n.az); return `### ${n.titolo || primaRiga(n.testo)} (${fmtDataOra(n.agg || n.t)}${a ? ", azienda: " + a.nome : ""})\n${n.testo || ""}\n${(n.lista || []).map(x => (x.ok ? "[fatto] " : "[da fare] ") + x.t).join("\n")}`; }).join("\n\n");
-  b.disabled = true; toast("Claude sta leggendo gli appunti…");
-  try {
-    const r = await SAMPLE.json(`Sei l'assistente di un venditore di LBS Affilature (affilatura di utensili per legno, Rimini). Ecco i suoi appunti. Fai un riepilogo ordinato in italiano: cosa è successo, raggruppato per azienda dove possibile, e la lista delle cose ancora da fare (escludi quelle già fatte), le più urgenti per prime. Non inventare niente.\nRispondi solo con JSON: {"titolo": "Riepilogo …", "testo": "riepilogo", "lista": ["cosa da fare", "..."]}.\n\nAPPUNTI:\n${testo.slice(0, 40000)}`);
-    apriEditor(null, { titolo: String(r.titolo || "Riepilogo lavori").slice(0, 120), testo: String(r.testo || "") });
-    if (Array.isArray(r.lista)) { apEdit.lista = r.lista.map(t => ({ t: String(t), ok: false })); disegnaLista(); }
-    $("#apVoceSt").textContent = "Riepilogo di Claude: controlla e tocca Salva per tenerlo.";
-  } catch (err) { toast(msgClaude(err)); }
-  finally { b.disabled = false; }
-});
 
 /* ---------- DISEGNI: disegno tecnico quotato calcolato dalle misure (lama circolare, fresa a codolo) ---------- */
 const DZ = {};
