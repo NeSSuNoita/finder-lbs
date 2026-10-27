@@ -332,6 +332,9 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 .wz-fb { display: flex; flex-wrap: wrap; gap: 8px; }
 .wz-fb .foto-b { flex: 1 1 140px; }
 .wz-foto textarea { min-height: 80px; }
+.wz-quando { display: grid; gap: 6px; }
+.wz-qo { display: flex; gap: 8px; }
+.wz-qo input { flex: 1 1 0; min-width: 0; }
 .ap-nota { margin: 0; font-size: 13.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
 /* microfonino in ogni campo di testo: un tocco acceso (rosso pieno), un tocco spento */
 .in-mic { position: relative; display: flex; align-items: center; min-width: 0; }
@@ -798,10 +801,13 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <div class="wz-p" data-p="3a" hidden>
         <div class="wz-q">Cosa ricordare</div>
         <div class="in-mic area"><textarea id="wzTxt" placeholder="Scrivi o detta… es. ritirare le lame affilate e portare il catalogo Freud" aria-label="Cosa ricordare"></textarea><button type="button" class="mc" data-mic="wzTxt" aria-label="Detta cosa ricordare"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
-        <label class="lab">Quando <span class="v-sub">(facoltativo)</span><input type="date" id="wzQuando"></label>
       </div>
       <div class="wz-p" data-p="4" hidden>
         <div id="wzRiep"></div>
+        <div class="wz-quando">
+          <div class="lab">Quando <span class="v-sub">(facoltativo: con la data va da solo nel calendario Lavori LBS)</span></div>
+          <div class="wz-qo"><input type="date" id="wzQuando" aria-label="Giorno"><input type="time" id="wzOra" aria-label="Ora (facoltativa)"></div>
+        </div>
         <div class="wz-foto">
           <label class="lab" for="wzNote">Note <span class="v-sub">(facoltative: vanno anche nel PDF)</span></label>
           <div class="in-mic area"><textarea id="wzNote" placeholder="Scrivi o detta… es. consegna entro venerdì, ritiro in sede, affilatura a filo" aria-label="Note"></textarea><button type="button" class="mc" data-mic="wzNote" aria-label="Detta le note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
@@ -835,6 +841,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <button type="button" class="btn" data-pv="modifica">Modifica</button>
       <button type="button" class="btn" data-pv="wa">Invia su WhatsApp</button>
       <button type="button" class="btn" data-pv="mail">Invia per email</button>
+      <button type="button" class="btn" data-pv="cal" hidden>Aggiungi a Calendar</button>
     </div>
   </div>
 
@@ -2408,7 +2415,7 @@ function corpoLavoro(n, tutte) {
     ? `<ul class="ap-r">${r.slice(0, max).map(x => `<li>${x.q ? `<b>${esc(x.q)}</b> ` : ""}${esc(x.t)}</li>`).join("")}${r.length > max ? `<li class="v-sub">e altre ${r.length - max} righe</li>` : ""}</ul>`
     : n.testo ? `<p>${esc(n.testo)}</p>` : "";
   const nf = (n.foto || []).length;
-  return `<h3>${esc(etichettaLavoro(n))}</h3>${n.quando ? `<span class="ap-quando">${esc(fmtGiornoLungo(n.quando))}</span>` : ""}${corpo}${n.note ? `<p class="ap-nota"><b>Note:</b> ${esc(n.note)}</p>` : ""}${nf ? `<span class="ap-quando">📷 ${nf} foto</span>` : ""}`;
+  return `<h3>${esc(etichettaLavoro(n))}</h3>${n.quando ? `<span class="ap-quando">${esc(fmtGiornoLungo(n.quando) + (n.ora ? " · ore " + n.ora : ""))}</span>` : ""}${corpo}${n.note ? `<p class="ap-nota"><b>Note:</b> ${esc(n.note)}</p>` : ""}${nf ? `<span class="ap-quando">📷 ${nf} foto</span>` : ""}`;
 }
 function apCardHtml(n) {
   return `<article class="ap k-${tipoDi(n)}" data-ap="${esc(n.id)}">
@@ -2513,6 +2520,7 @@ $("#apConfSi").addEventListener("click", async () => {
     for (const fid of n.foto || []) await db.collection("foto").doc(fid).delete().catch(() => {});
     await db.collection(apColl(n._priv)).doc(n.id).delete(); delete AP[n.id];
     renderAppunti(); refresh(); toast("Lavoro eliminato.");
+    if (n.quando) mandaCalendario({ azione: "elimina", id: n.id }); // via anche dal calendario Lavori LBS
   } catch (err) { toast("Eliminazione non riuscita."); }
 });
 
@@ -2522,13 +2530,13 @@ function apriEditor(n, pre = {}) {
   if (document.body.dataset.vista !== "appunti") vista("appunti", { resta: true });
   fermaDettatura();
   if (!n && apChi !== "miei") document.querySelector('#vAppunti [data-chi="miei"]').click(); // un lavoro nuovo è mio
-  W = n ? { id: n.id, priv: !!n._priv, tipo: tipoDi(n), az: n.az || "", cliente: n.cliente || "", righe: righeDi(n).map(x => ({ q: x.q || "", t: x.t })), testo: n.testo || "", quando: n.quando || "", t: n.t, da: n.da, foto: (n.foto || []).slice() }
-    : { id: null, priv: false, tipo: "", az: pre.az || "", cliente: "", righe: [], testo: "", quando: "", foto: [] };
+  W = n ? { id: n.id, priv: !!n._priv, tipo: tipoDi(n), az: n.az || "", cliente: n.cliente || "", righe: righeDi(n).map(x => ({ q: x.q || "", t: x.t })), testo: n.testo || "", quando: n.quando || "", ora: n.ora || "", t: n.t, da: n.da, foto: (n.foto || []).slice() }
+    : { id: null, priv: false, tipo: "", az: pre.az || "", cliente: "", righe: [], testo: "", quando: "", ora: "", foto: [] };
   W.nuove = []; W.via = []; W.cache = {}; // foto nuove {img, w, h}, foto salvate da togliere, foto salvate già scaricate
   $("#wzNote").value = n ? n.note || "" : "";
   $("#wzTit").textContent = n ? "Modifica lavoro" : "Nuovo lavoro";
   $("#wzCli").value = ""; $("#wzSug").innerHTML = ""; $("#wzQ").value = ""; $("#wzT").value = ""; $("#wzSt").textContent = "";
-  $("#wzTxt").value = W.testo; $("#wzQuando").value = W.quando;
+  $("#wzTxt").value = W.testo; $("#wzQuando").value = W.quando; $("#wzOra").value = W.ora;
   $("#apWz").hidden = false;
   passo(n ? "3" : "1");
   $("#apWz").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2548,7 +2556,7 @@ function passo(p) {
   $("#wzSt").textContent = "";
   const f = $("#wzF");
   if (p === "1") { f.innerHTML = `<button type="button" class="btn" data-wz="chiudi">Annulla</button>`; document.querySelectorAll("#apWz [data-tipo]").forEach(b => b.classList.toggle("sel", b.dataset.tipo === W.tipo)); }
-  if (p === "2") { f.innerHTML = `<button type="button" class="btn" data-wz="indietro">Indietro</button><button type="button" class="btn primary" data-wz="avanti">${W.az || W.cliente || isMateriale(W.tipo) ? "Avanti" : "Salta"}</button>`; disegnaScelto(); setTimeout(() => { if (!W.az) $("#wzCli").focus({ preventScroll: true }); }, 250); }
+  if (p === "2") { f.innerHTML = `<button type="button" class="btn" data-wz="indietro">Indietro</button><button type="button" class="btn primary" data-wz="avanti">${W.az || W.cliente || isMateriale(W.tipo) ? "Avanti" : "Salta"}</button>`; disegnaScelto(); setTimeout(() => { if (W && !W.az) $("#wzCli").focus({ preventScroll: true }); }, 250); }
   if (p === "3") { f.innerHTML = `<button type="button" class="btn" data-wz="indietro">Indietro</button><button type="button" class="btn primary" data-wz="avanti">Avanti</button>`; if (isMateriale(W.tipo)) disegnaRighe(); }
   if (p === "4") {
     caricaJsPdf().catch(() => {}); // così il PDF è pronto al tocco
@@ -2660,10 +2668,12 @@ $("#wzThumbs").addEventListener("click", e => {
 });
 // pulsanti in fondo: indietro, avanti, salva, salva e invia
 function lavoroW() {
-  const note = $("#wzNote").value.trim();
-  return isMateriale(W.tipo) ? { tipo: W.tipo, az: W.az, cliente: W.cliente, righe: W.righe.filter(r => r.t.trim()).map(r => ({ q: r.q.trim(), t: r.t.trim() })), note, t: W.t || new Date().toISOString(), da: W.da || apMio }
-    : { tipo: W.tipo, az: W.az, cliente: W.cliente, testo: $("#wzTxt").value.trim(), quando: $("#wzQuando").value, note, t: W.t || new Date().toISOString(), da: W.da || apMio };
+  const note = $("#wzNote").value.trim(), quando = $("#wzQuando").value, ora = quando ? $("#wzOra").value : "";
+  return isMateriale(W.tipo) ? { tipo: W.tipo, az: W.az, cliente: W.cliente, righe: W.righe.filter(r => r.t.trim()).map(r => ({ q: r.q.trim(), t: r.t.trim() })), quando, ora, note, t: W.t || new Date().toISOString(), da: W.da || apMio }
+    : { tipo: W.tipo, az: W.az, cliente: W.cliente, testo: $("#wzTxt").value.trim(), quando, ora, note, t: W.t || new Date().toISOString(), da: W.da || apMio };
 }
+// il riepilogo in alto segue la data e l'ora mentre si scelgono
+["#wzQuando", "#wzOra"].forEach(s => $(s).addEventListener("input", () => { if (W && W.passo === "4") $("#wzRiep .ap-in").innerHTML = corpoLavoro(lavoroW(), true); }));
 $("#wzF").addEventListener("click", async e => {
   const b = e.target.closest("[data-wz]"); if (!b) return;
   const a = b.dataset.wz, p = W.passo;
@@ -2683,7 +2693,7 @@ $("#wzF").addEventListener("click", async e => {
   if (a === "salva" || a === "pdf-wa" || a === "pdf-mail") {
     if (!db) { toast("I lavori si salvano nell'app o nella pagina pubblicata su claude.ai."); if (a === "salva") return; }
     // un Importante sta sempre tra i lavori condivisi, così lo vedono tutti i collaboratori
-    const n = lavoroW(), id = W.id || nuovoId("ap", "n"), priv = W.priv && W.tipo !== "importante", w = W;
+    const n = lavoroW(), id = W.id || nuovoId("ap", "n"), priv = W.priv && W.tipo !== "importante", w = W, prima = W.id ? AP[W.id] : null;
     b.disabled = true;
     // prima il PDF e l'invio (il telefono vuole il tocco "fresco"), poi foto e lavoro nel database
     if (a !== "salva") await inviaPdf(n, a === "pdf-wa" ? "wa" : "mail", w.foto.map(fid => w.cache[fid]).filter(Boolean).concat(w.nuove));
@@ -2702,8 +2712,54 @@ $("#wzF").addEventListener("click", async e => {
     if (db && !ok) { toast("Salvataggio non riuscito, riprova tra poco."); return; }
     chiudiEditor(); if (n.az) refresh();
     if (a === "salva") toast(`${etichettaLavoro(n)}: salvato.`);
+    calendarioDopoSalva(id, n, prima).then(r => { if (r === true) toast(`${etichettaLavoro(n)}: salvato e messo nel calendario Lavori LBS.`); else if (r === false) toast("Salvato, ma il calendario non si è aggiornato: riprova più tardi."); });
   }
 });
+
+/* ---------- calendario Google "Lavori LBS": i lavori con la data ci vanno da soli ----------
+   L'app manda il lavoro al programma Google di LBS (strumenti\calendario-lbs.gs), che crea, sposta o
+   cancella l'evento. L'indirizzo del programma sta nel database (impostazioni/calendario), letto solo da
+   chi è ammesso; senza indirizzo (es. pagina su claude.ai) resta il pulsante "Aggiungi a Calendar" nel PDF. */
+let calUrlP = null;
+function urlCalendario() {
+  return calUrlP = calUrlP || (async () => {
+    try { const s = db && await db.collection("impostazioni").doc("calendario").get(), d = s && s.exists ? s.data() : null; return d && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(d.url || "") ? d.url : ""; }
+    catch (e) { return ""; }
+  })();
+}
+function titoloEvento(n) { const c = clienteDi(n), t = n.testo ? primaRiga(n.testo).slice(0, 50) : ""; return etichettaLavoro(n) + (!c && t ? " · " + t : ""); }
+function eventoDi(id, n) {
+  const k = tipoDi(n), a = n.az && BYID.get(n.az), cli = clienteDi(n);
+  const righe = isMateriale(k) ? righeDi(n).map(r => "• " + (r.q ? r.q + " × " : "") + r.t) : [];
+  const descrizione = [TIPI[k] + (cli ? " per " + cli : ""), ...righe, n.testo || "", n.note ? "Note: " + n.note : "", a && a.telefono ? "Tel. " + a.telefono : "", "Da Finder LBS"].filter(Boolean).join("\n");
+  return { azione: "salva", id, tipo: k, titolo: titoloEvento(n), giorno: n.quando, ora: n.ora || "", descrizione, luogo: a ? a.indirizzo || a.comune || "" : "" };
+}
+// risponde true (fatto), false (non riuscito) o null (calendario non collegato)
+async function mandaCalendario(dati) {
+  const url = await urlCalendario(); if (!url) return null;
+  try { const r = await fetch(url, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(dati) }); return !!(await r.json()).ok; }
+  catch (e) { return false; }
+}
+// dopo il salvataggio: con la data l'evento si crea o si sposta; se la data è stata tolta, l'evento sparisce
+function calendarioDopoSalva(id, n, prima) {
+  if (n.quando) return mandaCalendario(eventoDi(id, n));
+  if (prima && prima.quando) return mandaCalendario({ azione: "elimina", id }).then(() => null);
+  return Promise.resolve(null);
+}
+// per l'amministratore: manda al calendario tutti i lavori con la data già salvati
+window.tuttiAlCalendario = async () => {
+  let fatti = 0, falliti = 0;
+  for (const n of Object.values(AP)) if (n.quando) { (await mandaCalendario(eventoDi(n.id, n))) ? fatti++ : falliti++; }
+  return { fatti, falliti };
+};
+// link per aggiungere a mano l'evento a Google Calendar (quando il calendario automatico non c'è)
+function linkCalendario(n) {
+  const e = eventoDi(n.id, n), g = n.quando.replace(/-/g, ""), p = x => String(x).padStart(2, "0");
+  let date;
+  if (e.ora) { const [h, m] = e.ora.split(":").map(Number); date = `${g}T${p(h)}${p(m)}00/${g}T${p((h + 1) % 24)}${p(m)}00`; }
+  else { const d = new Date(n.quando + "T12:00"); d.setDate(d.getDate() + 1); date = `${g}/${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}`; }
+  return "https://calendar.google.com/calendar/render?" + new URLSearchParams({ action: "TEMPLATE", text: e.titolo, dates: date, ctz: "Europe/Rome", details: e.descrizione, location: e.luogo });
+}
 
 /* ---------- PDF da inviare, su carta intestata LBS: testata con la fresa, campi come sulla carta
    (destinatario, data, oggetto, foglio), il materiale, note, foto e, in fondo, i recapiti del cliente ---------- */
@@ -2829,6 +2885,12 @@ async function pdfLavoro(n, foto = []) {
   };
   if (mat) {
     T("k", 30, col); doc.text(titolo, 15, 99);
+    // quando (consegna, ritiro, appuntamento): a destra del titolo, nel riquadro colorato
+    if (n.quando) {
+      const q = new Date(n.quando + "T12:00").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" }) + (n.ora ? ", ore " + n.ora : "");
+      T("b", 13, col); const w = doc.getTextWidth(q) + 8;
+      doc.setFillColor(...chiaro); doc.roundedRect(195 - w, 91, w, 10, 2.5, 2.5, "F"); doc.text(q, 195 - w + 4, 97.6);
+    }
     doc.setDrawColor(...col); doc.setLineWidth(1); doc.line(15, 102.5, 195, 102.5);
     // intestazione della tabella del materiale
     doc.setFillColor(...chiaro); doc.rect(15, 107, 180, 9, "F");
@@ -2850,7 +2912,7 @@ async function pdfLavoro(n, foto = []) {
     y = 62;
     if (cli) { T("b", 22, nero); doc.text(doc.splitTextToSize(cli, 180)[0], 15, y); y += 13; }
     if (n.quando) {
-      const q = "Quando: " + new Date(n.quando + "T12:00").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      const q = "Quando: " + new Date(n.quando + "T12:00").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + (n.ora ? ", ore " + n.ora : "");
       T("b", 17, col); const w = doc.getTextWidth(q) + 10;
       doc.setFillColor(...chiaro); doc.roundedRect(15, y - 7.5, w, 11.5, 2.5, 2.5, "F"); doc.text(q, 20, y + 0.6); y += 17;
     }
@@ -2942,6 +3004,9 @@ async function apriPdf(n) {
   $("#pdfVT").textContent = etichettaLavoro(n);
   box.classList.remove("zoom"); box.innerHTML = `<p>Preparo il PDF…</p>`;
   $("#pdfV").hidden = false; $("#pdfV [data-pv=chiudi]").focus();
+  // "Aggiungi a Calendar" solo dove il calendario automatico non c'è
+  const bc = $("#pdfV [data-pv=cal]"); bc.hidden = true;
+  if (n.quando) urlCalendario().then(u => { if (PV === pv) bc.hidden = !!u; });
   try {
     pv.foto = await fotoDi(n); if (PV !== pv) return;
     pv.file = await pdfLavoro(n, pv.foto); if (PV !== pv) return;
@@ -2968,6 +3033,7 @@ $("#pdfV").addEventListener("click", async e => {
   const a = b.dataset.pv, pv = PV;
   if (a === "chiudi") chiudiPdf();
   else if (a === "modifica") { chiudiPdf(); apriEditor(pv.n); }
+  else if (a === "cal") window.open(linkCalendario(pv.n), "_blank", "noopener");
   else if (!pv.file) toast("Un attimo: sto preparando il PDF.");
   else { b.disabled = true; await inviaPdf(pv.n, a, pv.foto, pv.file); b.disabled = false; }
 });
