@@ -2715,13 +2715,13 @@ $("#wzF").addEventListener("click", async e => {
    (destinatario, data, oggetto, foglio), il materiale, note, foto e, in fondo, i recapiti del cliente ---------- */
 const LBS = {
   blu: [24, 113, 184],
-  ditta: "di Lucchini Gabriele & C. s.n.c.",
+  ditta: "di Lucchini Gabriele & C. s.a.s.",
   motto: "VENDITA E ASSISTENZA MACCHINE UTENSILI",
   tel: "0541 738314",
   email: "" // mail aziendale: quando c'è, compare in testata e nel piede
 };
-LBS.recapiti = ["L.B.S. di Lucchini Gabriele & C. s.n.c.", "Tel. " + LBS.tel, LBS.email ? "Email " + LBS.email : ""].filter(Boolean);
-LBS.piede = ["L.B.S. di Lucchini Gabriele & C. s.n.c.", "Tel. " + LBS.tel, LBS.email].filter(Boolean).join(" · ");
+LBS.recapiti = ["L.B.S. di Lucchini Gabriele & C. s.a.s.", "Tel. " + LBS.tel, LBS.email ? "Email " + LBS.email : ""].filter(Boolean);
+LBS.piede = ["L.B.S. di Lucchini Gabriele & C. s.a.s.", "Tel. " + LBS.tel, LBS.email].filter(Boolean).join(" · ");
 // carattere Barlow (pulito, da officina) preso da jsDelivr la prima volta; senza internet resta l'Helvetica
 let fontiP = null;
 function caricaFonti() {
