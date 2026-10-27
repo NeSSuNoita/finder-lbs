@@ -5,7 +5,8 @@
 (function () {
   const { rt, me, utenti, auth } = window.FB;
   const uid = me();
-  const RAGGI = [5, 10, 15];
+  const RAGGI = [1, 2.5, 5, 10, 15];
+  const km = k => String(k).replace(".", ",") + " km";
   const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
   let pos = null, watch = 0, R = +(ls("gps-r") || 5), segui = false, vaiAppena = false;
   let ultimoInvio = 0, ultimoInviato = null, ultimoRef = null, ultimoRefT = 0;
@@ -19,7 +20,7 @@
   box.className = "gps-box";
   box.innerHTML =
     `<button type="button" class="btn primary" id="gpsGo">📍 Dove sono</button>` +
-    `<span class="gps-r" role="group" aria-label="Raggio attorno a me">${RAGGI.map(k => `<button type="button" class="btn" data-r="${k}" aria-pressed="${k === R}">${k} km</button>`).join("")}</span>` +
+    `<span class="gps-r" role="group" aria-label="Raggio attorno a me">${RAGGI.map(k => `<button type="button" class="btn" data-r="${k}" aria-pressed="${k === R}">${km(k)}</button>`).join("")}</span>` +
     `<label class="gps-share"><input type="checkbox" id="gpsShare" ${condividi ? "checked" : ""}> condividi la mia posizione</label>` +
     `<span class="gps-st" id="gpsSt" aria-live="polite"></span>`;
   document.querySelector(".res-head").after(box);
@@ -71,7 +72,7 @@
     if (sortBy !== "dist") { sortBy = "dist"; document.getElementById("sort").value = "dist"; }
     nearVisible(); changed();
     const n = LIST.filter(a => !a._c).length, cl = LIST.filter(a => !a._c && isCli(a)).length;
-    st(`${n} aziende entro ${R} km${cl ? ` (${cl} già clienti)` : ""}`);
+    st(`${n} aziende entro ${km(R)}${cl ? ` (${cl} già clienti)` : ""}`);
     if (zoom) {
       const tg = document.getElementById("mapToggle");
       if (isNarrow() && tg.getAttribute("aria-expanded") === "false") tg.click(); // su telefono apre la mappa

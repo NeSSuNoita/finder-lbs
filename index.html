@@ -492,7 +492,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
           <label class="field">da <input id="near" list="comuniList" placeholder="Comune" autocomplete="off"></label>
           <button type="button" class="btn" id="geo" hidden>Mia posizione</button>
           <label class="field">entro
-            <select id="radius"><option value="0">ovunque</option><option value="5">5 km</option><option value="10">10 km</option><option value="15">15 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option></select>
+            <select id="radius"><option value="0">ovunque</option><option value="1">1 km</option><option value="2.5">2,5 km</option><option value="5">5 km</option><option value="10">10 km</option><option value="15">15 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option></select>
           </label>
         </span>
         <button type="button" class="btn narrow-only" id="mapToggle" aria-expanded="false" aria-controls="mapbox">Mostra mappa</button>
@@ -802,7 +802,7 @@ function renderActive() {
   if (!showCont) pills.push(["Contattate nascoste", "cont", ""]);
   if (!showCli) pills.push(["Già clienti nascosti", "cli", ""]);
   if (!showConc && NCONC) pills.push(["Concorrenti nascosti", "conc", ""]);
-  if (ref && radius) pills.push([`Entro ${radius} km da ${ref.label}`, "radius", ""]);
+  if (ref && radius) pills.push([`Entro ${String(radius).replace(".", ",")} km da ${ref.label}`, "radius", ""]);
   $("#active").innerHTML = pills.length ? pills.map(([t, k, v]) => `<span class="pill">${esc(t)}<button type="button" aria-label="Togli il filtro ${esc(t)}" data-k="${k}" data-v="${esc(v)}">×</button></span>`).join("") + `<button type="button" class="link" data-clear>Azzera tutto</button>` : "";
   const n = pills.length; $("#fCount").textContent = n; $("#fCount").hidden = !n;
   renderMore();
@@ -1660,7 +1660,7 @@ $("#cards").addEventListener("focusout", e => { if (pendingRender && e.target.ma
   else useCanvas(window.maplibregl ? "Questo dispositivo non supporta la mappa interattiva (WebGL): mostro lo schema semplificato." : "La libreria della mappa non si è caricata: mostro lo schema semplificato.");
   const pref = loadPref();
   if (SORTS[pref.sortBy] && [...$("#sort").options].some(o => o.value === pref.sortBy)) { sortBy = pref.sortBy; $("#sort").value = sortBy; }
-  if ([5, 10, 15, 20, 30, 50].includes(pref.radius)) { radius = pref.radius; $("#radius").value = String(radius); }
+  if ([1, 2.5, 5, 10, 15, 20, 30, 50].includes(pref.radius)) { radius = pref.radius; $("#radius").value = String(radius); }
   try {
     // i concorrenti sono facoltativi: se il file manca o non è valido la pagina va avanti senza
     const concP = fetch("dati/concorrenti.json").then(r => r.ok ? r.json() : []).then(j => Array.isArray(j) ? j : []).catch(() => []);

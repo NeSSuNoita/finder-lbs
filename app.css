@@ -11,8 +11,11 @@
 #login .link { justify-self: start; }
 #loginMsg { min-height: 1.2em; margin: 0; font-size: 13px; color: var(--muted, #6a7379); }
 
-.gps-box { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
-.gps-r { display: inline-flex; gap: 4px; }
+/* "Dove sono" e i raggi stanno sopra la mappa: sul PC nella colonna della mappa, sul telefono tra intestazione e mappa */
+#main { grid-template-areas: "head gps" "list map"; }
+.gps-box { grid-area: gps; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; min-width: 0; }
+@media (max-width: 980px) { #main { grid-template-areas: "head" "gps" "map" "list"; } }
+.gps-r { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .gps-r .btn[aria-pressed="true"] { background: #1a73e8; border-color: #1a73e8; color: #fff; }
 .gps-share { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
 .gps-share input { width: 18px; height: 18px; }
