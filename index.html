@@ -2707,10 +2707,11 @@ const LBS = {
   blu: [24, 113, 184],
   ditta: "di Lucchini Gabriele & C. s.n.c.",
   motto: "VENDITA E ASSISTENZA MACCHINE UTENSILI",
-  attivita: ["COSTRUZIONE E AFFILATURA", "UTENSILI PER LEGNO, METALLI", "E MATERIALI NON FERROSI"],
-  recapiti: ["Via Bizzocchi, 4 (di fronte Z.A.)", "47922 Viserba di Rimini (RN)", "Tel. 0541 738314", "Partita IVA 02068900402", "R.E.A. RN n. 63044", "Reg. Imprese RN n. 11919"],
-  piede: "L.B.S. di Lucchini Gabriele & C. s.n.c. · Via Bizzocchi 4, Viserba di Rimini · Tel. 0541 738314"
+  tel: "0541 738314",
+  email: "" // mail aziendale: quando c'è, compare in testata e nel piede
 };
+LBS.recapiti = ["L.B.S. di Lucchini Gabriele & C. s.n.c.", "Tel. " + LBS.tel, LBS.email ? "Email " + LBS.email : ""].filter(Boolean);
+LBS.piede = ["L.B.S. di Lucchini Gabriele & C. s.n.c.", "Tel. " + LBS.tel, LBS.email].filter(Boolean).join(" · ");
 // carattere Barlow (pulito, da officina) preso da jsDelivr la prima volta; senza internet resta l'Helvetica
 let fontiP = null;
 function caricaFonti() {
@@ -2735,19 +2736,59 @@ function lamaLbs(doc, cx, cy, R) {
   foro.push([cx - w, cy - r - nh], [cx + w, cy - r - nh]);
   doc.setLineWidth(R * 0.07); chiudi(foro);
 }
+// la scritta L.B.S. del logo ridisegnata dalla carta intestata: lettere piene con i tagli bianchi a mezzaluna.
+// Tracciati in unità di disegno: lettere alte da y 5.6 a 37.6, larghe da x 4.6 a 135.6. "O x y r" è un cerchio.
+const LBS_SCRITTA = [
+  ["b", "M4.6 37.6 L4.6 7.2 C4.6 6.2 5.4 5.6 6.4 5.6 L18.8 5.6 L18.8 21.5 C18.5 24.5 11 26.5 8.8 29 L8.8 33.5 C8.8 35.5 10.5 37 12 37.6 Z"],
+  ["b", "M21 23.9 C24 23.8 26.3 24.2 27 25.2 L27 37.6 L19 37.6 C16 36.5 14 34.5 14 31.5 L14 28.5 C14 26 17 24 21 23.9 Z"],
+  ["b", "O34.2 32.8 5.2"],
+  ["b", "M41.3 10 C41.3 7.2 43 5.6 46 5.6 L66 5.6 C72.5 5.6 75.5 8.8 75.5 12.8 C75.5 16 73.6 18.3 70.8 19.6 C74.6 20.8 77 24 77 28.4 C77 33.8 73.3 37.6 66.5 37.6 L41.3 37.6 Z"],
+  ["w", "M50.5 12.8 C56 11.2 63 11.2 68.6 12.8 C63 14.4 56 14.4 50.5 12.8 Z"],
+  ["w", "M50.5 28.8 C57 27.1 64 27.1 70.6 28.8 C64 30.5 57 30.5 50.5 28.8 Z"],
+  ["b", "O82.3 32.8 5.2"],
+  ["b", "M89.6 17 C89.6 9.5 94 5.4 101 5.4 L123.4 5.4 C124.8 5.4 125.4 6.2 125.4 7.6 L125.4 26 C125.4 33.5 121 37.6 114 37.6 L91.4 37.6 C90 37.6 89.4 36.8 89.4 35.4 Z"],
+  ["w", "M127 13.8 C118 13.6 107 14.2 98.6 16.6 C107 18.2 118 19.4 127 20.2 Z"],
+  ["w", "M88 23 C96 23.6 107 24.6 116.4 26.6 C107 28.2 96 29 88 29.2 Z"],
+  ["b", "O130.4 32.8 5.2"]
+];
+function puntiTracciato(d) {
+  const t = d.match(/[MLCZO]|-?[\d.]+/g), num = () => +t[i++], pts = [];
+  let i = 0, p = [0, 0];
+  while (i < t.length) {
+    const c = t[i++];
+    if (c === "O") { const cx = num(), cy = num(), r = num(); for (let k = 0; k < 40; k++) pts.push([cx + r * Math.cos(k * Math.PI / 20), cy + r * Math.sin(k * Math.PI / 20)]); }
+    else if (c === "M" || c === "L") { p = [num(), num()]; pts.push(p); }
+    else if (c === "C") {
+      const a = p, b = [num(), num()], q = [num(), num()], e = [num(), num()];
+      for (let k = 1; k <= 12; k++) { const s = k / 12, u = 1 - s; pts.push([0, 1].map(j => u * u * u * a[j] + 3 * u * u * s * b[j] + 3 * u * s * s * q[j] + s * s * s * e[j])); }
+      p = e;
+    }
+  }
+  return pts;
+}
+// disegna L.B.S. con la parte alta delle lettere in (x, y) e altezza h mm; restituisce la larghezza
+function scrittaLbs(doc, x, y, h) {
+  const k = h / 32;
+  for (const [c, d] of LBS_SCRITTA) {
+    const q = puntiTracciato(d).map(([px, py]) => [x + (px - 4.6) * k, y + (py - 5.6) * k]);
+    if (c === "b") doc.setFillColor(...LBS.blu); else doc.setFillColor(255, 255, 255);
+    doc.lines(q.slice(1).map((p, i) => [p[0] - q[i][0], p[1] - q[i][1]]), q[0][0], q[0][1], [1, 1], "F", true);
+  }
+  return 131 * k;
+}
 function testataLbs(doc, T) {
   const blu = LBS.blu;
   lamaLbs(doc, 28, 24, 12.5);
-  T("k", 42, blu); doc.text("L.B.S.", 45, 30.5);
+  scrittaLbs(doc, 45, 19.5, 11);
   T("i", 9, [70, 90, 110]); doc.text(LBS.ditta, 46, 35.8);
   doc.setFillColor(...blu); doc.rect(15, 40, 92, 6.5, "F");
   T("b", 9.5, [255, 255, 255]); doc.text(LBS.motto, 61, 44.4, { align: "center", maxWidth: 88 });
-  // recapiti a destra, attività in mezzo (si stringe un po' se non ci sta)
-  T("n", 7.6, [60, 75, 90]); const wR = Math.max(...LBS.recapiti.map(s => doc.getTextWidth(s)));
-  doc.text(LBS.recapiti, 195 - wR, 16.5, { lineHeightFactor: 1.4 });
-  T("b", 8.8, blu); let pt = 8.8;
-  while (pt > 6.5 && Math.max(...LBS.attivita.map(s => doc.getTextWidth(s))) > 195 - wR - 6 - 113) doc.setFontSize(pt -= 0.2);
-  doc.text(LBS.attivita, 113, 19, { lineHeightFactor: 1.45 });
+  // a destra: nome della ditta in grassetto, sotto telefono e mail
+  const [nomeR, ...altriR] = LBS.recapiti;
+  T("b", 8.6, [45, 60, 75]); const w0 = doc.getTextWidth(nomeR);
+  T("n", 8.6, [60, 75, 90]); const wR = Math.max(w0, ...altriR.map(s => doc.getTextWidth(s)));
+  T("b", 8.6, [45, 60, 75]); doc.text(nomeR, 195 - wR, 19);
+  T("n", 8.6, [60, 75, 90]); doc.text(altriR, 195 - wR, 24, { lineHeightFactor: 1.5 });
   doc.setDrawColor(...blu); doc.setLineWidth(0.5); doc.line(15, 52, 195, 52);
 }
 async function pdfLavoro(n, foto = []) {
