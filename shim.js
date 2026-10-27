@@ -5,7 +5,8 @@
    autorizzati/<email con le virgole> (nome, email, admin: chi può entrare, gestito dall'amministratore),
    utenti/<uid> (nome ed email, scritti da ciascuno al primo accesso), presenza/<uid> (chi ha l'app aperta),
    posizioni/<uid> (GPS), visite/<azienda>__v… (storico visite), foto/<azienda>__f… (foto delle visite),
-   giri/<uid> (giro del giorno di ciascuno). Le regole del database fanno entrare solo chi è in autorizzati/. */
+   giri/<uid> (giro del giorno di ciascuno), appunti/<id> (condivisi), data/users/<uid>/<id> (appunti solo per sé),
+   disegni/<id>, cataloghi/<id>. Le regole del database fanno entrare solo chi è in autorizzati/. */
 (function () {
   firebase.initializeApp(window.FIREBASE_CONFIG);
   const auth = firebase.auth(), rt = firebase.database();
@@ -107,11 +108,12 @@
     });
   }
 
-  // esportazione CSV: scarica direttamente il file
+  // file da scaricare (CSV dell'elenco, PDF/DXF/SVG dei disegni): download diretto
+  const TIPI = { csv: "text/csv;charset=utf-8", pdf: "application/pdf", dxf: "application/dxf", svg: "image/svg+xml", json: "application/json" };
   const downloads = {
     save: async ({ filename, data }) => {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([data], { type: "text/csv;charset=utf-8" }));
+      a.href = URL.createObjectURL(data instanceof Blob ? data : new Blob([data], { type: TIPI[String(filename).split(".").pop().toLowerCase()] || "application/octet-stream" }));
       a.download = filename; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }

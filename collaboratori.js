@@ -20,7 +20,7 @@
     </form>
     <p class="note" id="collMsg" aria-live="polite"></p>
     <h2>Copia di sicurezza</h2>
-    <p class="note">Scarica in un file tutto quello che avete scritto: stati, note, promemoria, visite, foto, giri e collaboratori.
+    <p class="note">Scarica in un file tutto quello che avete scritto: stati, note, promemoria, visite, foto, giri, appunti, disegni, cataloghi e collaboratori.
       Fallo ogni tanto e prima delle modifiche importanti; per ripristinare si importa il file in Firebase (istruzioni in LEGGIMI.md).</p>
     <button type="button" class="btn" id="backupBtn">Scarica copia di sicurezza</button>
     <p class="note" id="backupMsg" aria-live="polite"></p>`;
@@ -59,8 +59,10 @@
     const b = e.currentTarget, m = document.getElementById("backupMsg");
     b.disabled = true; m.textContent = "Preparo la copia…";
     const out = { esportato: new Date().toISOString(), da: auth.currentUser && auth.currentUser.email };
-    const nodi = ["autorizzati", "utenti", "stato", "visite", "foto", "giri"], mancano = [];
+    const nodi = ["autorizzati", "utenti", "stato", "visite", "foto", "giri", "appunti", "disegni", "cataloghi"], mancano = [];
     for (const n of nodi) { try { out[n] = (await rt.ref(n).get()).val() || {}; } catch (err) { mancano.push(n); } }
+    // i propri appunti "solo per me" (quelli degli altri restano privati)
+    try { out.miei_appunti = { uid: auth.currentUser.uid, appunti: (await rt.ref("data/users/" + auth.currentUser.uid).get()).val() || {} }; } catch (err) { mancano.push("appunti personali"); }
     const d = new Date(), p = x => String(x).padStart(2, "0"); // ora italiana nel nome del file
     const nome = `finder-copia-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;
     const a = document.createElement("a");
@@ -68,7 +70,7 @@
     a.download = nome; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     const cnt = k => Object.keys(out[k] || {}).length;
-    m.textContent = `Scaricato ${nome}: ${cnt("stato")} schede, ${cnt("visite")} visite, ${cnt("foto")} foto, ${cnt("autorizzati")} collaboratori.` + (mancano.length ? ` Non letti: ${mancano.join(", ")}.` : "");
+    m.textContent = `Scaricato ${nome}: ${cnt("stato")} schede, ${cnt("visite")} visite, ${cnt("appunti")} appunti, ${cnt("disegni")} disegni, ${cnt("foto")} foto, ${cnt("autorizzati")} collaboratori.` + (mancano.length ? ` Non letti: ${mancano.join(", ")}.` : "");
     b.disabled = false;
   });
   document.getElementById("collAdd").addEventListener("submit", e => {

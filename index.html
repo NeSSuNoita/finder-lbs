@@ -237,6 +237,72 @@ button.link { border: 0; background: none; color: var(--steel); padding: 4px 6px
 .gb { display: flex; gap: 4px; }
 .gb .btn { padding: 0 9px; min-width: 34px; justify-content: center; }
 .giro-act, .giro-maps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+/* sezioni dell'app: barra in basso (Finder, Appunti, Disegni, Cataloghi, Altro) */
+body { padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)); }
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; background: var(--panel); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -2px 12px rgba(0, 0, 0, .08); }
+.tabbar button { flex: 1 1 0; max-width: 150px; display: grid; justify-items: center; gap: 2px; padding: 7px 2px 8px; background: none; border: 0; border-top: 3px solid transparent; color: var(--muted); font: inherit; font-size: 11.5px; cursor: pointer; }
+.tabbar button .i { width: 22px; height: 22px; }
+.tabbar button[aria-current="page"] { color: var(--p1); border-top-color: var(--p1); font-weight: 700; }
+.toast { bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+body[data-vista]:not([data-vista="finder"]) .fv { display: none !important; }
+/* fuori dal Finder la targa in alto mostra solo il titolo */
+body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([data-vista="finder"]) .plate-top > div > p, body[data-vista]:not([data-vista="finder"]) .ruler { display: none; }
+.vista { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.vista[hidden] { display: none; }
+.v-head h2 { margin: 0; font-family: var(--font-display); font-size: 26px; letter-spacing: .02em; }
+.v-head p, .v-sub { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.vista input:not([type=checkbox]):not([type=file]), .vista select, .vista textarea { font: inherit; font-size: 15px; min-height: 38px; padding: 6px 9px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--panel); color: var(--ink); box-sizing: border-box; min-width: 0; }
+.vista textarea { min-height: 120px; width: 100%; resize: vertical; line-height: 1.45; }
+.vista .lab { display: grid; gap: 3px; }
+.vista .ck { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; }
+.ap-bar, .ap-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ap-bar input[type=search] { flex: 1 1 200px; }
+.ap-row input[type=text] { flex: 1 1 200px; }
+.seg2 { display: inline-flex; border: 1px solid var(--line-2); border-radius: 6px; overflow: hidden; }
+.seg2 button { border: 0; background: none; padding: 0 10px; min-height: 36px; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; }
+.seg2 button[aria-pressed="true"] { background: var(--steel); color: var(--on-steel); font-weight: 600; }
+.claude-b { border-color: #9c8ee8; color: #5b4bc4; }
+.claude-b .i { color: #7b6be0; }
+.ap-ed { background: var(--panel); border: 2px solid var(--steel); border-radius: var(--radius); padding: 12px; display: grid; gap: 8px; }
+.ap-ed[hidden] { display: none; }
+.ap-ed-h { display: flex; justify-content: space-between; align-items: baseline; }
+.ap-lista { display: grid; gap: 4px; }
+#apDetta.on { background: var(--conc); border-color: var(--conc); color: var(--panel); }
+.ap-list { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); align-items: start; }
+.ap { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--steel); border-radius: var(--radius); padding: 10px 12px; display: grid; gap: 6px; cursor: pointer; min-width: 0; }
+.ap.priv { border-left-color: var(--muted); }
+.ap h3 { margin: 0; font-size: 15px; }
+.ap > p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.ap .meta { font-size: 12px; color: var(--muted); }
+.chk { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.chk li { display: flex; align-items: flex-start; gap: 6px; }
+.chk label { display: flex; gap: 7px; align-items: flex-start; font-size: 14px; flex: 1; cursor: pointer; }
+.chk input { width: 18px; height: 18px; margin: 1px 0 0; flex: none; }
+.chk .ok span { text-decoration: line-through; color: var(--muted); }
+.tag-az { cursor: pointer; font: inherit; font-size: 12px; }
+.dz-grid { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 14px; align-items: start; }
+.dz-form { display: grid; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.dz-mis { border: 1px solid var(--line); border-radius: 6px; padding: 8px; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.dz-mis[hidden] { display: none; }
+.dz-mis legend { font-size: 12px; font-weight: 600; padding: 0 4px; }
+.dz-mis label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+.dz-mis .w2 { grid-column: 1 / -1; }
+.dz-img { max-width: 100%; max-height: 220px; object-fit: contain; border-radius: 6px; border: 1px solid var(--line); }
+.crea-b { background: #1d9e75; border-color: #1d9e75; color: #fff; font-weight: 600; justify-content: center; min-height: 42px; }
+.dz-out { display: grid; gap: 10px; min-width: 0; }
+.dz-prev { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 6px; min-height: 120px; display: grid; place-items: center; }
+.dz-prev svg { width: 100%; height: auto; display: block; }
+.dz-h3 { margin: 6px 0 0; font-size: 15px; }
+.dz-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.dz-list li { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; }
+.dz-list li > span { flex: 1; min-width: 0; display: grid; }
+.dz-list small { color: var(--muted); }
+.cat-list { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.cat { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: grid; gap: 6px; align-content: start; }
+.cat b { font-size: 17px; font-family: var(--font-display); letter-spacing: .02em; }
+.cat p { margin: 0; }
+.cat .ap-row .btn { flex: 1 1 auto; justify-content: center; }
+@media (max-width: 900px) { .dz-grid { grid-template-columns: minmax(0, 1fr); } }
 .results { grid-area: list; display: grid; gap: 8px; min-width: 0; }
 #cards { display: grid; gap: 8px; min-width: 0; }
 .more { justify-self: center; }
@@ -495,7 +561,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
     <div class="ruler" aria-hidden="true"></div>
   </header>
 
-  <div class="bar" id="bar">
+  <div class="bar fv" id="bar">
     <div class="row1">
       <div class="search">
         <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
@@ -516,7 +582,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
     <div class="active-filters" id="active"></div>
   </div>
 
-  <div class="main" id="main">
+  <div class="main fv" id="main">
     <div class="res-head">
       <p class="count" id="count" aria-live="polite">Caricamento elenco aziende…</p>
       <div class="tools">
@@ -575,10 +641,127 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <p class="note" id="cvNote" hidden>Schema in coordinate reali, senza sfondo cartografico: si adatta alle aziende filtrate. Tocca un punto per aprire la scheda.</p>
     </aside>
   </div>
-  <p class="note" id="foot"></p>
-  <p class="note"><button type="button" class="link" id="delLink" aria-expanded="false" aria-controls="delPanel" hidden>Eliminati (0)</button></p>
-  <section class="del-panel" id="delPanel" aria-label="Contatti eliminati" hidden></section>
+  <p class="note fv" id="foot"></p>
+  <p class="note fv"><button type="button" class="link" id="delLink" aria-expanded="false" aria-controls="delPanel" hidden>Eliminati (0)</button></p>
+  <section class="del-panel fv" id="delPanel" aria-label="Contatti eliminati" hidden></section>
+
+  <!-- APPUNTI: veloci, anche a voce; condivisi con i colleghi o solo per sé; collegabili a un'azienda -->
+  <section class="vista" id="vAppunti" aria-labelledby="apT" hidden>
+    <div class="v-head"><h2 id="apT">Appunti</h2><p>Veloci, anche a voce. Collegali a un'azienda per ritrovarli nella sua scheda.</p></div>
+    <div class="ap-bar">
+      <button type="button" class="btn primary" id="apNuovo">+ Nuovo</button>
+      <button type="button" class="btn" id="apMic" aria-label="Nuovo appunto dettato a voce" title="Detta un appunto"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Detta</button>
+      <button type="button" class="btn" id="apCam" aria-label="Nuovo appunto con foto" title="Appunto con foto"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto</button>
+      <input type="search" id="apCerca" placeholder="Cerca negli appunti" aria-label="Cerca negli appunti">
+      <span class="seg2" role="group" aria-label="Quali appunti">
+        <button type="button" data-apf="tutti" aria-pressed="true">Tutti</button><button type="button" data-apf="condivisi" aria-pressed="false">Condivisi</button><button type="button" data-apf="miei" aria-pressed="false">Solo miei</button><button type="button" data-apf="fare" aria-pressed="false">Da fare</button>
+      </span>
+    </div>
+    <form class="ap-ed" id="apEditor" hidden>
+      <div class="ap-ed-h"><b id="apEdT">Nuovo appunto</b><button type="button" class="link" id="apChiudi">chiudi</button></div>
+      <input type="text" id="apTit" maxlength="120" placeholder="Titolo (facoltativo)" aria-label="Titolo">
+      <textarea id="apTxt" placeholder="Scrivi o detta… es. Artigiana Serramenti: vogliono 20 lame entro venerdì, chiedere prezzo frese" aria-label="Testo dell'appunto"></textarea>
+      <div class="ap-row"><button type="button" class="btn" id="apDetta"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Detta</button><span class="v-sub" id="apVoceSt" aria-live="polite"></span></div>
+      <div class="ap-lista">
+        <span class="lab">Cose da fare</span>
+        <ul class="chk" id="apLista"></ul>
+        <div class="ap-row"><input type="text" id="apItem" maxlength="200" placeholder="Aggiungi una cosa da fare" aria-label="Nuova cosa da fare"><button type="button" class="btn" id="apItemAdd">Aggiungi</button></div>
+      </div>
+      <label class="lab">Azienda collegata <input type="text" id="apAz" list="azList" placeholder="Scrivi il nome dell'azienda (facoltativo)" autocomplete="off"></label>
+      <label class="ck"><input type="checkbox" id="apCond" checked> Condiviso con i colleghi <span class="v-sub">(se lo togli lo vedi solo tu)</span></label>
+      <div class="ap-row"><label class="vfile">Foto <input type="file" id="apFotoIn" accept="image/*" capture="environment"></label><span class="v-sub" id="apFotoSt"></span></div>
+      <div class="ap-row">
+        <button type="submit" class="btn primary">Salva</button>
+        <button type="button" class="btn claude-b" id="apAI" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Riordina con Claude</button>
+        <button type="button" class="link vdel" id="apDel" hidden>elimina appunto</button>
+      </div>
+    </form>
+    <div class="ap-list" id="apList"></div>
+    <p class="v-sub" id="apVuoto" hidden></p>
+    <button type="button" class="btn claude-b" id="apRiep" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Riordina con Claude</button>
+  </section>
+
+  <!-- DISEGNI: dalla foto e dalle misure al disegno tecnico quotato (PDF, DXF, SVG) -->
+  <section class="vista" id="vDisegni" aria-labelledby="dzT" hidden>
+    <div class="v-head"><h2 id="dzT">Disegni</h2><p>Dalla foto al disegno tecnico. Le misure prese con il calibro decidono il disegno; la foto serve a Claude per contare i denti e riconoscere il tipo di dente.</p></div>
+    <div class="dz-grid">
+      <form class="dz-form" id="dzForm">
+        <label class="lab">Utensile <select name="tipo" id="dzTipo"><option value="lama">Lama circolare</option><option value="fresa">Fresa a codolo</option></select></label>
+        <div class="ap-row">
+          <label class="vfile">Foto <input type="file" id="dzFoto" accept="image/*" capture="environment"></label>
+          <button type="button" class="btn claude-b" id="dzAI" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Leggi la foto con Claude</button>
+        </div>
+        <img class="dz-img" id="dzImg" alt="Foto dell'utensile" hidden>
+        <p class="v-sub" id="dzAIst" aria-live="polite"></p>
+        <fieldset class="dz-mis" data-t="lama">
+          <legend>Misure dal calibro (mm)</legend>
+          <label>Diametro esterno D<input name="D" inputmode="decimal" placeholder="300"></label>
+          <label>Foro d<input name="foro" inputmode="decimal" placeholder="30"></label>
+          <label>Spessore taglio B<input name="B" inputmode="decimal" placeholder="3,2"></label>
+          <label>Spessore corpo b<input name="b" inputmode="decimal" placeholder="2,2"></label>
+          <label>Numero denti Z<input name="Z" inputmode="numeric" placeholder="48"></label>
+          <label>Tipo di dente<select name="dente"><option value="ATB">Alterno (ATB)</option><option value="FT">Piatto (FT)</option><option value="TCG">Trapezio-piatto (TCG)</option><option value="NEG">Alterno negativo</option><option value="HZ">Altro</option></select></label>
+          <label class="w2">Fori di trascinamento <input name="fori" placeholder="es. 2/10/60 = 2 fori Ø10 su Ø60"></label>
+        </fieldset>
+        <fieldset class="dz-mis" data-t="fresa" hidden>
+          <legend>Misure dal calibro (mm)</legend>
+          <label>Diametro taglio D<input name="FD" inputmode="decimal" placeholder="20"></label>
+          <label>Altezza taglio H<input name="FH" inputmode="decimal" placeholder="40"></label>
+          <label>Diametro codolo d<input name="Fd" inputmode="decimal" placeholder="12"></label>
+          <label>Lunghezza totale L<input name="FL" inputmode="decimal" placeholder="100"></label>
+          <label>Taglienti Z<input name="FZ" inputmode="numeric" placeholder="2"></label>
+        </fieldset>
+        <label class="lab">Nome del disegno <input name="nome" maxlength="80" placeholder="es. Lama Gorza 300×48"></label>
+        <label class="lab">Azienda <input name="az" list="azList" placeholder="facoltativo" autocomplete="off"></label>
+        <label class="lab">Note <input name="note" maxlength="200" placeholder="es. riaffilare, denti in widia, foro con cava"></label>
+        <button type="submit" class="btn crea-b">Crea disegno</button>
+      </form>
+      <div class="dz-out">
+        <div class="dz-prev" id="dzPrev"><p class="v-sub">Inserisci le misure e tocca "Crea disegno".</p></div>
+        <div class="ap-row" id="dzExp" hidden>
+          <button type="button" class="btn" data-exp="pdf">Scarica PDF</button>
+          <button type="button" class="btn" data-exp="dxf">Scarica DXF (CAD)</button>
+          <button type="button" class="btn" data-exp="svg">Scarica SVG</button>
+          <button type="button" class="btn primary" id="dzSalva">Salva nell'elenco</button>
+        </div>
+        <h3 class="dz-h3">Disegni salvati</h3>
+        <ul class="dz-list" id="dzList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATALOGHI dei fornitori: link ai PDF (da completare) -->
+  <section class="vista" id="vCataloghi" aria-labelledby="ctT" hidden>
+    <div class="v-head"><h2 id="ctT">Cataloghi</h2><p>I cataloghi in PDF dei fornitori principali, sempre a portata di mano.</p></div>
+    <div class="cat-list" id="ctList"></div>
+    <form class="ap-ed" id="ctEd" hidden>
+      <div class="ap-ed-h"><b id="ctEdT">Catalogo</b><button type="button" class="link" id="ctChiudi">chiudi</button></div>
+      <label class="lab">Nome <input id="ctNome" maxlength="60" required></label>
+      <label class="lab">Link al PDF <input id="ctUrl" type="url" placeholder="https://…/catalogo.pdf"></label>
+      <label class="lab">Nota <input id="ctNota" maxlength="140" placeholder="es. catalogo 2026, lame e frese per legno"></label>
+      <div class="ap-row"><button type="submit" class="btn primary">Salva</button><button type="button" class="link vdel" id="ctDel" hidden>togli dall'elenco</button></div>
+    </form>
+    <button type="button" class="btn" id="ctAdd">+ Aggiungi catalogo</button>
+  </section>
+
+  <!-- ALTRO: spazio per le prossime funzioni -->
+  <section class="vista" id="vAltro" aria-labelledby="alT" hidden>
+    <div class="v-head"><h2 id="alT">Altro</h2><p>Qui arriveranno le prossime funzioni dell'app.</p></div>
+    <div class="cat-list">
+      <div class="cat"><b>Preventivi</b><p class="v-sub">Preventivi di affilatura da mandare al cliente.</p><span class="tag">in arrivo</span></div>
+      <div class="cat"><b>Listino affilature</b><p class="v-sub">Prezzi di affilatura per lame, frese e coltelli.</p><span class="tag">in arrivo</span></div>
+      <div class="cat"><b>Utensili dai clienti</b><p class="v-sub">Cosa avete ritirato, da chi e quando va riconsegnato.</p><span class="tag">in arrivo</span></div>
+    </div>
+  </section>
 </div>
+<datalist id="azList"></datalist>
+<nav class="tabbar" id="tabbar" aria-label="Sezioni dell'app">
+  <button type="button" data-v="finder" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Finder</button>
+  <button type="button" data-v="appunti"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h4"/></svg>Appunti</button>
+  <button type="button" data-v="disegni"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Disegni</button>
+  <button type="button" data-v="cataloghi"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2z"/><path d="M4 20V5M9 7h6"/></svg>Cataloghi</button>
+  <button type="button" data-v="altro"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/></svg>Altro</button>
+</nav>
 <div class="toast" id="toast" role="status" hidden></div>
 <!-- conferma di eliminazione costruita nella pagina (confirm() negli Artifact non funziona) -->
 <div class="dlg-back" id="dlg" hidden>
@@ -631,6 +814,7 @@ const I = {
   dir: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg>',
   wa: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c.3 2 2.2 4.2 4.5 4.8l1-1.2 2 .9-.4 1.6c-3.3.4-7.4-3.2-7.6-6.8l1.6-.5.9 2z"/></svg>',
   car: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16h14v-4l-2-5H7l-2 5z"/><circle cx="8" cy="16.5" r="1.6"/><circle cx="16" cy="16.5" r="1.6"/><path d="M5 12h14"/></svg>',
+  nota: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h4"/></svg>',
 };
 
 function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
@@ -1052,6 +1236,7 @@ function detailHtml(a, s, k, id) {
       ${wa ? `<a class="btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">${I.wa}WhatsApp</a>` : ""}
       ${a._ok ? `<a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=${a._lat},${a._lon}&travelmode=driving&dir_action=navigate" target="_blank" rel="noopener">${I.dir}Portami qui</a>` : ""}
       ${a._c ? "" : `<button type="button" class="btn giro-b" data-act="giro" aria-pressed="${inGiro(a.id)}">${I.car}${inGiro(a.id) ? "Nel giro ✓" : "Aggiungi al giro"}</button>`}
+      <button type="button" class="btn" data-act="apNuovo">${I.nota}Appunto</button>
       ${mail ? `<a class="btn" href="mailto:${esc(mail)}">${I.mail}Email</a>` : ""}
       ${a.sito ? `<a class="btn" href="${esc(sitoUrl(a.sito))}" target="_blank" rel="noopener">${I.web}Sito</a>` : ""}
       <a class="btn" href="${maps}" target="_blank" rel="noopener">${I.pin}Google Maps</a>
@@ -1075,6 +1260,7 @@ function detailHtml(a, s, k, id) {
           ${s.richiamo && !dis ? `<button type="button" class="link" data-act="norich">togli promemoria</button>` : ""}
         </div>
         ${visiteHtml(a, id, dis)}
+        ${appuntiDi(a.id).length ? `<div class="visite"><h4>Appunti <span class="vn">${appuntiDi(a.id).length}</span></h4><ul class="vlist">${appuntiDi(a.id).map(n => `<li><span class="vd">${esc(fmtDataOra(n.agg || n.t))}${n._priv ? " · solo per te" : ""}</span><button type="button" class="link" data-act="apApri" data-ap="${esc(n.id)}">${esc(n.titolo || primaRiga(n.testo) || "Appunto")}</button></li>`).join("")}</ul></div>` : ""}
       </div>
       <div>
         <h4>Contatti</h4>
@@ -1727,6 +1913,8 @@ $("#cards").addEventListener("click", e => {
   if (act.dataset.act === "registra") registraVisita(id, card, act);
   if (act.dataset.act === "vfoto") mostraFoto(act);
   if (act.dataset.act === "vdel") eliminaVisita(id, act.closest("li"), act);
+  if (act.dataset.act === "apNuovo") apriEditor(null, { az: id });
+  if (act.dataset.act === "apApri" && AP[act.dataset.ap]) apriEditor(AP[act.dataset.ap]);
 });
 $("#cards").addEventListener("change", e => {
   if (e.target.dataset.act === "richiamo") {
@@ -1967,6 +2155,577 @@ function scrive() {
   return !!(f && (f.querySelector("input[type=text]").value || (f.querySelector("input[type=file]").files || []).length));
 }
 
+/* ========== sezioni dell'app: Finder, Appunti, Disegni, Cataloghi, Altro ========== */
+const VISTE = ["finder", "appunti", "disegni", "cataloghi", "altro"];
+const vistaEl = v => document.getElementById("v" + v[0].toUpperCase() + v.slice(1));
+function vista(v, opt = {}) {
+  if (!VISTE.includes(v)) v = "finder";
+  document.body.dataset.vista = v;
+  VISTE.forEach(x => { const s = vistaEl(x); if (s) s.hidden = x !== v; });
+  document.querySelectorAll("#tabbar [data-v]").forEach(b => { if (b.dataset.v === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  try { localStorage.setItem("finder-vista", v); } catch (e) {}
+  if (v === "finder") setTimeout(() => { if (typeof GL !== "undefined" && GL.ready) GL.map.resize(); scheduleMap(); }, 50);
+  if (v === "appunti") renderAppunti();
+  if (v === "disegni") renderDisegni();
+  if (v === "cataloghi") renderCataloghi();
+  if (!opt.resta) window.scrollTo(0, 0);
+}
+$("#tabbar").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (b) vista(b.dataset.v); });
+// apre la scheda di un'azienda nel Finder (se i filtri la nascondono, li azzera)
+function apriScheda(id) {
+  vista("finder", { resta: true });
+  if (!LIST.some(a => a.id === id)) clearAll();
+  const k = LIST.findIndex(a => a.id === id); if (k < 0) return;
+  if (k >= shown) shown = Math.ceil((k + 1) / PAGE) * PAGE;
+  openId = id; selId = id; renderCards(); scheduleMap(); focusMap(BYID.get(id));
+  setTimeout(() => { const el = document.querySelector(`.card[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80);
+}
+// file da scaricare: su claude.ai con la conferma della piattaforma, altrove con un normale download
+async function salvaFile(nome, blob) {
+  const d = await use("downloads");
+  if (d) { try { await d.save({ filename: nome, data: blob }); return; } catch (e) { if (e && e.code !== "unavailable") { toast("Download non riuscito."); return; } } }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nome;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+async function mioId() { try { return userNs ? (await userNs.id()) || "" : ""; } catch (e) { return ""; } }
+function fmtDataOra(t) { const d = new Date(t); return isNaN(d) ? "" : d.toLocaleDateString("it-IT", { day: "numeric", month: "short" }) + " " + d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); }
+// nomi delle persone (data-whon) dentro un riquadro qualsiasi
+async function nomiIn(root) {
+  if (!userNs || !userNs.profiles) return;
+  const els = [...root.querySelectorAll("[data-whon]")].filter(e => e.dataset.whon && !e.textContent);
+  if (!els.length) return;
+  try { const ps = await userNs.profiles([...new Set(els.map(e => e.dataset.whon))]); els.forEach(e => { const p = ps && ps[e.dataset.whon]; e.textContent = (p && p.name) || "un collega"; }); } catch (e) {}
+}
+// elenco aziende per i campi "Azienda" (Appunti e Disegni): "Nome · Comune"
+const azEtichetta = a => `${a.nome} · ${a.comune || ""}`;
+let AZLAB = null;
+function preparaAzList() {
+  if (AZLAB || !loaded) return;
+  AZLAB = new Map(); const opts = [];
+  for (const a of AZ) { if (a._del) continue; const l = azEtichetta(a); AZLAB.set(norm(l), a.id); opts.push(`<option value="${esc(l)}"></option>`); }
+  $("#azList").innerHTML = opts.join("");
+}
+function azDaEtichetta(v) { preparaAzList(); return (AZLAB && AZLAB.get(norm(String(v || "").trim()))) || ""; }
+// Claude dentro la pagina (solo su claude.ai): riordina gli appunti e legge le foto degli utensili
+let SAMPLE = null, SAMPLE_IMG = false;
+function msgClaude(e) {
+  const c = e && e.code;
+  if (c === "not_granted" || c === "sampling_disabled" || c === "not_declared") { SAMPLE = null; aggiornaClaude(); return "Claude non è disponibile qui: puoi continuare senza."; }
+  if (c === "rate_limited") return "Troppe richieste a Claude: riprova tra qualche minuto.";
+  if (c === "image_rejected") return "Claude non riesce a leggere questa foto: prova con un'altra.";
+  if (c === "cancelled") return "Richiesta fermata.";
+  return "Claude non ha risposto, riprova.";
+}
+function aggiornaClaude() {
+  $("#apAI").hidden = !SAMPLE; $("#apRiep").hidden = !SAMPLE || !Object.keys(AP).length;
+  $("#dzAI").hidden = !SAMPLE_IMG;
+}
+
+/* ---------- APPUNTI: condivisi (appunti/<id>) o solo per sé (data/users/<persona>/<id>) ---------- */
+const AP = {};
+let apFiltro = "tutti", apMio = "", apEdit = null, rec = null;
+const apColl = priv => priv ? "data/users/" + apMio : "appunti";
+const primaRiga = s => String(s || "").split("\n")[0].slice(0, 80);
+function appuntiDi(id) { return Object.values(AP).filter(n => n.az === id).sort((x, y) => String(y.agg).localeCompare(String(x.agg))); }
+async function avviaAppunti() {
+  apMio = await mioId();
+  if (!db) { renderAppunti(); return; }
+  const segui = (coll, priv) => db.collection(coll).onSnapshot(snap => {
+    snap.docChanges().forEach(ch => { const id = ch.doc.id; if (ch.type === "removed") delete AP[id]; else AP[id] = Object.assign({}, ch.doc.data(), { id, _priv: priv }); });
+    aggiornaClaude();
+    if (!apEdit) renderAppunti();
+    if (document.body.dataset.vista === "finder" && !scrive()) refresh();
+  }, () => {});
+  segui("appunti", false);
+  if (apMio) segui("data/users/" + apMio, true);
+}
+function apCardHtml(n) {
+  const a = n.az && BYID.get(n.az), li = n.lista || [];
+  return `<article class="ap${n._priv ? " priv" : ""}" data-ap="${esc(n.id)}">
+      <h3>${esc(n.titolo || primaRiga(n.testo) || "Appunto")}</h3>
+      ${n.testo && n.titolo ? `<p>${esc(n.testo)}</p>` : n.testo && n.testo.includes("\n") ? `<p>${esc(n.testo.split("\n").slice(1).join("\n"))}</p>` : ""}
+      ${li.length ? `<ul class="chk">${li.map((x, i) => `<li class="${x.ok ? "ok" : ""}"><label><input type="checkbox" data-chk="${i}" ${x.ok ? "checked" : ""}><span>${esc(x.t)}</span></label></li>`).join("")}</ul>` : ""}
+      <div class="tags">${a ? `<button type="button" class="tag tag-az" data-apaz="${esc(a.id)}">${esc(a.nome)}</button>` : ""}<span class="tag${n._priv ? "" : " giro-t"}">${n._priv ? "solo per te" : "condiviso"}</span>${li.some(x => !x.ok) ? `<span class="tag rich">${li.filter(x => !x.ok).length} da fare</span>` : ""}</div>
+      ${(n.foto || []).length ? `<div><button type="button" class="link" data-act="vfoto" data-f="${esc(n.foto.join(","))}">vedi ${n.foto.length === 1 ? "la foto" : n.foto.length + " foto"}</button><span class="vfoto"></span></div>` : ""}
+      <div class="meta">${esc(fmtDataOra(n.agg || n.t))} · <span data-whon="${esc(n.ultimo || n.da || "")}"></span></div>
+    </article>`;
+}
+function renderAppunti() {
+  if ($("#vAppunti").hidden) return;
+  const q = norm($("#apCerca").value.trim()).split(/\s+/).filter(Boolean);
+  let l = Object.values(AP);
+  if (apFiltro === "miei") l = l.filter(n => n._priv);
+  if (apFiltro === "condivisi") l = l.filter(n => !n._priv);
+  if (apFiltro === "fare") l = l.filter(n => (n.lista || []).some(x => !x.ok));
+  if (q.length) l = l.filter(n => { const a = n.az && BYID.get(n.az), t = norm([n.titolo, n.testo, ...(n.lista || []).map(x => x.t), a ? a.nome : ""].join(" ")); return q.every(w => t.includes(w)); });
+  l.sort((x, y) => String(y.agg || y.t).localeCompare(String(x.agg || x.t)));
+  $("#apList").innerHTML = l.map(apCardHtml).join("");
+  const v = $("#apVuoto");
+  v.hidden = !!l.length;
+  v.textContent = !db ? "Gli appunti si salvano nell'app e nella pagina pubblicata su claude.ai." : Object.keys(AP).length ? "Nessun appunto con questa ricerca." : "Ancora nessun appunto: tocca \"+ Nuovo\", \"Detta\" o \"Foto\".";
+  aggiornaClaude(); nomiIn($("#apList"));
+}
+$("#apCerca").addEventListener("input", renderAppunti);
+document.querySelector("#vAppunti .seg2").addEventListener("click", e => {
+  const b = e.target.closest("[data-apf]"); if (!b) return;
+  apFiltro = b.dataset.apf;
+  document.querySelectorAll("[data-apf]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  renderAppunti();
+});
+function disegnaLista() {
+  $("#apLista").innerHTML = apEdit.lista.map((x, i) => `<li class="${x.ok ? "ok" : ""}"><label><input type="checkbox" data-li="${i}" ${x.ok ? "checked" : ""}><span>${esc(x.t)}</span></label><button type="button" class="link" data-lx="${i}" aria-label="Togli ${esc(x.t)}">togli</button></li>`).join("");
+}
+function apriEditor(n, pre = {}) {
+  if (document.body.dataset.vista !== "appunti") vista("appunti", { resta: true });
+  preparaAzList();
+  apEdit = n ? { id: n.id, priv: !!n._priv, lista: (n.lista || []).map(x => ({ t: x.t, ok: !!x.ok })), foto: (n.foto || []).slice(), t: n.t, da: n.da }
+    : { id: null, priv: false, lista: [], foto: [] };
+  $("#apEdT").textContent = n ? "Modifica appunto" : "Nuovo appunto";
+  $("#apTit").value = n ? n.titolo || "" : pre.titolo || "";
+  $("#apTxt").value = n ? n.testo || "" : pre.testo || "";
+  const az = BYID.get((n && n.az) || pre.az); $("#apAz").value = az ? azEtichetta(az) : "";
+  $("#apCond").checked = n ? !n._priv : true;
+  $("#apFotoIn").value = ""; $("#apFotoSt").textContent = apEdit.foto.length ? `${apEdit.foto.length} foto già salvate` : "";
+  $("#apVoceSt").textContent = ""; $("#apDel").hidden = !n; $("#apDel").textContent = "elimina appunto"; $("#apDel").dataset.ok = "";
+  disegnaLista(); aggiornaClaude();
+  $("#apEditor").hidden = false; $("#apEditor").scrollIntoView({ behavior: "smooth", block: "start" });
+  if (pre.foto) $("#apFotoIn").click();
+  else if (pre.detta) detta();
+  else setTimeout(() => $("#apTxt").focus({ preventScroll: true }), 300);
+}
+function chiudiEditor() { if (rec) rec.stop(); apEdit = null; $("#apEditor").hidden = true; renderAppunti(); }
+$("#apNuovo").addEventListener("click", () => apriEditor(null));
+$("#apMic").addEventListener("click", () => apriEditor(null, { detta: true }));
+$("#apCam").addEventListener("click", () => apriEditor(null, { foto: true }));
+$("#apChiudi").addEventListener("click", chiudiEditor);
+$("#apFotoIn").addEventListener("change", e => { const f = e.target.files[0]; $("#apFotoSt").textContent = f ? "Foto pronta: si salva con l'appunto." : ""; });
+$("#apLista").addEventListener("change", e => { const i = e.target.dataset.li; if (i != null) { apEdit.lista[i].ok = e.target.checked; disegnaLista(); } });
+$("#apLista").addEventListener("click", e => { const i = e.target.dataset.lx; if (i != null) { apEdit.lista.splice(+i, 1); disegnaLista(); } });
+function aggiungiVoce() { const v = $("#apItem").value.trim(); if (!v) return; apEdit.lista.push({ t: v, ok: false }); $("#apItem").value = ""; disegnaLista(); $("#apItem").focus(); }
+$("#apItemAdd").addEventListener("click", aggiungiVoce);
+$("#apItem").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); aggiungiVoce(); } });
+// dettatura con il riconoscimento vocale del browser (Chrome su Android); altrimenti il microfono della tastiera
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function detta() {
+  if (rec) { rec.stop(); return; }
+  if (!SR) { $("#apVoceSt").textContent = "Qui la dettatura diretta non c'è: tocca il testo e usa il microfono della tastiera."; $("#apTxt").focus(); return; }
+  const base = $("#apTxt").value.trim();
+  try { rec = new SR(); } catch (e) { rec = null; $("#apVoceSt").textContent = "Dettatura non disponibile: usa il microfono della tastiera."; return; }
+  rec.lang = "it-IT"; rec.interimResults = true; rec.continuous = true;
+  rec.onresult = ev => { let t = ""; for (const r of ev.results) t += r[0].transcript; $("#apTxt").value = (base ? base + " " : "") + t.trim(); };
+  rec.onerror = ev => { $("#apVoceSt").textContent = ev.error === "not-allowed" || ev.error === "service-not-allowed" ? "Microfono non permesso: usa il microfono della tastiera." : ev.error === "no-speech" ? "Non ho sentito niente." : "Dettatura interrotta."; };
+  rec.onend = () => { rec = null; $("#apDetta").classList.remove("on"); $("#apDetta").lastChild.textContent = "Detta"; if (/ascolto/.test($("#apVoceSt").textContent)) $("#apVoceSt").textContent = ""; };
+  try { rec.start(); } catch (e) { rec = null; return; }
+  $("#apDetta").classList.add("on"); $("#apDetta").lastChild.textContent = "Ferma"; $("#apVoceSt").textContent = "In ascolto… parla, poi tocca Ferma.";
+}
+$("#apDetta").addEventListener("click", detta);
+$("#apEditor").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!db) { toast("Gli appunti si salvano nell'app o nella pagina pubblicata su claude.ai."); return; }
+  if (rec) rec.stop();
+  const titolo = $("#apTit").value.trim(), testo = $("#apTxt").value.trim(), azv = $("#apAz").value.trim(), az = azDaEtichetta(azv), priv = !$("#apCond").checked;
+  const file = $("#apFotoIn").files[0];
+  if (!titolo && !testo && !apEdit.lista.length && !file && !apEdit.foto.length) { toast("L'appunto è vuoto."); return; }
+  if (azv && !az) { toast("Azienda non trovata: sceglila dall'elenco che compare scrivendo, oppure lascia vuoto."); return; }
+  const uid = await mioId(); if (priv && !uid) { toast("Per gli appunti solo tuoi devi essere collegato."); return; }
+  apMio = apMio || uid;
+  const b = e.submitter || e.target.querySelector("[type=submit]"); b.disabled = true;
+  try {
+    const ora = new Date().toISOString(), foto = apEdit.foto.slice();
+    if (file) {
+      const img = await comprimi(file); if (!img) { toast("Non riesco a leggere questa foto: prova con un'altra."); return; }
+      const fid = nuovoId(az || "appunto", "f"); await db.collection("foto").doc(fid).set({ az, t: ora, da: uid, img }); foto.push(fid);
+    }
+    const id = apEdit.id || nuovoId("ap", "n");
+    const body = { titolo, testo, lista: apEdit.lista, az, foto, t: apEdit.t || ora, agg: ora, da: apEdit.da || uid, ultimo: uid };
+    await db.collection(apColl(priv)).doc(id).set(body);
+    if (apEdit.id && apEdit.priv !== priv) await db.collection(apColl(apEdit.priv)).doc(apEdit.id).delete().catch(() => {});
+    AP[id] = Object.assign({}, body, { id, _priv: priv });
+    chiudiEditor(); toast(az ? `Appunto salvato e collegato a ${BYID.get(az).nome}.` : "Appunto salvato.");
+    if (az) refresh();
+  } catch (err) { toast(err && err.code === "quota_exceeded" ? "Archivio pieno: non riesco a salvare." : "Salvataggio non riuscito, riprova tra poco."); }
+  finally { b.disabled = false; }
+});
+$("#apDel").addEventListener("click", async e => {
+  const b = e.currentTarget;
+  if (b.dataset.ok !== "1") { b.dataset.ok = "1"; b.textContent = "tocca di nuovo per eliminare"; setTimeout(() => { if (b.dataset.ok === "1") { b.dataset.ok = ""; b.textContent = "elimina appunto"; } }, 4000); return; }
+  const n = AP[apEdit.id]; if (!n) return;
+  try {
+    for (const fid of n.foto || []) await db.collection("foto").doc(fid).delete().catch(() => {});
+    await db.collection(apColl(n._priv)).doc(n.id).delete(); delete AP[n.id];
+    chiudiEditor(); toast("Appunto eliminato."); refresh();
+  } catch (err) { toast("Eliminazione non riuscita."); }
+});
+$("#apList").addEventListener("change", async e => {
+  const i = e.target.dataset.chk; if (i == null) return;
+  const n = AP[e.target.closest("[data-ap]").dataset.ap]; if (!n || !db) return;
+  const lista = (n.lista || []).map((x, k) => k === +i ? { t: x.t, ok: e.target.checked } : x);
+  const body = Object.assign({}, n, { lista, agg: new Date().toISOString(), ultimo: await mioId() }); delete body.id; delete body._priv;
+  try { await db.collection(apColl(n._priv)).doc(n.id).set(body); AP[n.id] = Object.assign(body, { id: n.id, _priv: n._priv }); renderAppunti(); } catch (err) { toast("Non riesco a salvare la spunta."); e.target.checked = !e.target.checked; }
+});
+$("#apList").addEventListener("click", e => {
+  if (e.target.closest("input, label")) return;
+  const az = e.target.closest("[data-apaz]"); if (az) { apriScheda(az.dataset.apaz); return; }
+  const f = e.target.closest("[data-act=vfoto]"); if (f) { mostraFoto(f); return; }
+  const c = e.target.closest("[data-ap]"); if (c && AP[c.dataset.ap]) apriEditor(AP[c.dataset.ap]);
+});
+// Claude riordina l'appunto aperto (testo pulito, titolo, cose da fare): poi lo si controlla e si salva
+$("#apAI").addEventListener("click", async e => {
+  const b = e.currentTarget, txt = [$("#apTit").value, $("#apTxt").value, ...apEdit.lista.map(x => "- " + x.t)].join("\n").trim();
+  if (!txt) { toast("Scrivi o detta prima qualcosa."); return; }
+  if (!SAMPLE) return;
+  b.disabled = true; $("#apVoceSt").textContent = "Claude sta riordinando l'appunto…";
+  try {
+    const r = await SAMPLE.json(`Sei l'assistente di un venditore di LBS Affilature (affilatura di lame circolari, frese e utensili per la lavorazione del legno, Viserba di Rimini). Questo è un suo appunto preso in fretta, a volte dettato a voce. Riordinalo in italiano: correggi errori, punteggiatura e parole capite male dalla dettatura, ma non inventare niente e mantieni nomi, numeri, misure, prezzi e date. Separa le cose da fare in una lista.\nRispondi solo con JSON: {"titolo": "titolo breve", "testo": "testo pulito", "lista": ["cosa da fare", "..."]} (lista vuota se non ci sono cose da fare).\n\nAPPUNTO:\n${txt.slice(0, 6000)}`, { modelTier: "quick" });
+    if (!r || typeof r !== "object") throw { code: "invalid_json" };
+    if (r.titolo) $("#apTit").value = String(r.titolo).slice(0, 120);
+    if (r.testo) $("#apTxt").value = String(r.testo);
+    if (Array.isArray(r.lista)) { const gia = new Set(apEdit.lista.map(x => norm(x.t))); r.lista.map(String).filter(t => t.trim() && !gia.has(norm(t))).forEach(t => apEdit.lista.push({ t: t.trim(), ok: false })); disegnaLista(); }
+    $("#apVoceSt").textContent = "Riordinato da Claude: controlla e tocca Salva.";
+  } catch (err) { $("#apVoceSt").textContent = msgClaude(err); }
+  finally { b.disabled = false; }
+});
+// Claude riepiloga gli appunti mostrati in un nuovo appunto con le cose da fare
+$("#apRiep").addEventListener("click", async e => {
+  const b = e.currentTarget, l = [...$("#apList").querySelectorAll("[data-ap]")].map(x => AP[x.dataset.ap]).filter(Boolean).slice(0, 40);
+  if (!l.length || !SAMPLE) return;
+  const testo = l.map(n => { const a = n.az && BYID.get(n.az); return `### ${n.titolo || primaRiga(n.testo)} (${fmtDataOra(n.agg || n.t)}${a ? ", azienda: " + a.nome : ""})\n${n.testo || ""}\n${(n.lista || []).map(x => (x.ok ? "[fatto] " : "[da fare] ") + x.t).join("\n")}`; }).join("\n\n");
+  b.disabled = true; toast("Claude sta leggendo gli appunti…");
+  try {
+    const r = await SAMPLE.json(`Sei l'assistente di un venditore di LBS Affilature (affilatura di utensili per legno, Rimini). Ecco i suoi appunti. Fai un riepilogo ordinato in italiano: cosa è successo, raggruppato per azienda dove possibile, e la lista delle cose ancora da fare (escludi quelle già fatte), le più urgenti per prime. Non inventare niente.\nRispondi solo con JSON: {"titolo": "Riepilogo …", "testo": "riepilogo", "lista": ["cosa da fare", "..."]}.\n\nAPPUNTI:\n${testo.slice(0, 40000)}`);
+    apriEditor(null, { titolo: String(r.titolo || "Riepilogo appunti").slice(0, 120), testo: String(r.testo || "") });
+    if (Array.isArray(r.lista)) { apEdit.lista = r.lista.map(t => ({ t: String(t), ok: false })); disegnaLista(); }
+    $("#apVoceSt").textContent = "Riepilogo di Claude: controlla e tocca Salva per tenerlo.";
+  } catch (err) { toast(msgClaude(err)); }
+  finally { b.disabled = false; }
+});
+
+/* ---------- DISEGNI: disegno tecnico quotato calcolato dalle misure (lama circolare, fresa a codolo) ---------- */
+const DZ = {};
+let dzUltimo = null, dzFotoFile = null;
+const num = v => { const x = parseFloat(String(v ?? "").replace(",", ".")); return isFinite(x) && x > 0 ? x : 0; };
+const fmtMm = x => String(Math.round(x * 100) / 100).replace(".", ",");
+const DENTI = { ATB: "alterno (ATB)", FT: "piatto (FT)", TCG: "trapezio-piatto (TCG)", NEG: "alterno negativo", HZ: "altro" };
+function misureForm() {
+  const f = new FormData($("#dzForm")), m = {}; for (const [k, v] of f.entries()) m[k] = String(v).trim();
+  return m;
+}
+function scalaStd(max) { for (const s of [10, 5, 4, 2, 1.5, 1, 0.5, 0.4, 0.25, 0.2, 0.1, 0.05]) if (s <= max) return s; return 0.05; }
+const scalaTxt = s => s >= 1 ? `${String(s).replace(".", ",")}:1` : `1:${String(Math.round(1 / s * 10) / 10).replace(".", ",")}`;
+// primitive in mm sul foglio A4 orizzontale (y verso il basso): l linea, c cerchio, p polilinea, f triangolo pieno, t testo.
+// st = g grosso, f fine, c asse, q quota, h tratteggio; v = vista (per il DXF in scala reale)
+function nuovoFoglio() {
+  const P = [], V = {};
+  const vistaD = (tag, ox, oy, s, mx) => { V[tag] = { ox, oy, s, mx }; return (x, y) => [ox + x * s, oy - y * s]; };
+  const l = (a, b, st = "g", v = null) => P.push({ k: "l", a, b, st, v });
+  const c = (cc, r, st = "g", v = null) => P.push({ k: "c", c: cc, r, st, v });
+  const p = (pts, z, st = "g", v = null) => P.push({ k: "p", pts, z, st, v });
+  const t = (at, s, h = 3, al = "l", v = null, rot = 0) => P.push({ k: "t", at, s, h, al, v, rot });
+  const freccia = (pt, dir, v) => { const [x, y] = pt, [dx, dy] = dir, L = 2.6, W = 0.75; P.push({ k: "f", pts: [[x, y], [x - dx * L - dy * W, y - dy * L + dx * W], [x - dx * L + dy * W, y - dy * L - dx * W]], v }); };
+  // quota orizzontale tra x1 e x2 sulla riga y (yr = da dove partono le linee di richiamo)
+  const quotaH = (x1, x2, y, yr, testo, v) => {
+    const sgn = y < yr ? -1 : 1;
+    l([x1, yr + sgn * 1], [x1, y + sgn * 1.5], "q", v); l([x2, yr + sgn * 1], [x2, y + sgn * 1.5], "q", v);
+    if (x2 - x1 > 7) { l([x1, y], [x2, y], "q", v); freccia([x1, y], [-1, 0], v); freccia([x2, y], [1, 0], v); }
+    else { l([x1 - 6, y], [x2 + 6, y], "q", v); freccia([x1, y], [1, 0], v); freccia([x2, y], [-1, 0], v); }
+    t([(x1 + x2) / 2, y - 1.2], testo, 3, "c", v);
+  };
+  const quotaV = (y1, y2, x, xr, testo, v) => {
+    const sgn = x < xr ? -1 : 1;
+    l([xr + sgn * 1, y1], [x + sgn * 1.5, y1], "q", v); l([xr + sgn * 1, y2], [x + sgn * 1.5, y2], "q", v);
+    l([x, y1], [x, y2], "q", v); freccia([x, Math.min(y1, y2)], [0, -1], v); freccia([x, Math.max(y1, y2)], [0, 1], v);
+    t([x - 1.2, (y1 + y2) / 2], testo, 3, "c", v, 90);
+  };
+  // tratteggio a 45° dentro un rettangolo del foglio
+  const tratteggia = (x0, y0, x1, y1, v, passo = 1.6) => {
+    for (let k = y0 - x1; k < y1 - x0; k += passo * Math.SQRT2) { const xa = Math.max(x0, y0 - k), xb = Math.min(x1, y1 - k); if (xb - xa > 0.05) l([xa, xa + k], [xb, xb + k], "h", v); }
+  };
+  return { P, V, vistaD, l, c, p, t, freccia, quotaH, quotaV, tratteggia };
+}
+function cartiglio(F, m, titolo, scale, righe) {
+  F.p([[10, 10], [287, 10], [287, 200], [10, 200]], true, "g");
+  const x0 = 177, y0 = 170;
+  F.p([[x0, y0], [287, y0], [287, 200], [x0, 200]], true, "g");
+  [y0 + 8, y0 + 15, y0 + 22].forEach(y => F.l([x0, y], [287, y], "f"));
+  F.l([232, y0 + 15], [232, 200], "f");
+  F.t([x0 + 2, y0 + 5.6], "LBS Affilature · Viserba di Rimini", 3.4);
+  F.t([x0 + 2, y0 + 12.8], (m.nome || titolo).slice(0, 52), 3.6);
+  F.t([x0 + 2, y0 + 19.8], titolo, 3);
+  F.t([234, y0 + 19.8], "Scala " + scale, 3);
+  F.t([x0 + 2, y0 + 27], new Date().toLocaleDateString("it-IT"), 3);
+  F.t([234, y0 + 27], "Quote in mm", 3);
+  righe.forEach((r, i) => F.t([14, 176 + i * 5.2], r, 3));
+  F.t([14, 197], "Disegno generato da FINDER dalle misure inserite: verificare prima della produzione.", 2.4);
+}
+function disegnaLama(m) {
+  const D = num(m.D), d = num(m.foro), B = num(m.B), b = num(m.b) || (B ? B * 0.7 : 0), Z = Math.round(num(m.Z));
+  if (!D || !d || !Z) return { errore: "Servono almeno diametro esterno D, foro d e numero di denti Z." };
+  if (d >= D * 0.9) return { errore: "Il foro è troppo grande rispetto al diametro: controlla le misure." };
+  const F = nuovoFoglio(), R = D / 2, s = scalaStd(68 / R), V = F.vistaD("fronte", 92, 92, s, 0), p = 360 / Z;
+  const h = Math.min(Math.max(Math.PI * D / Z * 0.42, 1.5), R * 0.25);
+  // profilo dei denti: punta, dorso, fondo del vano, petto (la lama gira in senso orario)
+  const pol = (r, deg) => { const a = deg * Math.PI / 180; return V(r * Math.cos(a), r * Math.sin(a)); };
+  const pts = [];
+  for (let k = 0; k < Z; k++) {
+    const a0 = 90 - k * p;
+    pts.push(pol(R, a0), pol(R, a0 - 0.07 * p), pol(R - h * 0.8, a0 - 0.68 * p), pol(R - h, a0 - 0.8 * p), pol(R - h * 0.85, a0 - 0.9 * p), pol(R - h * 0.4, a0 - 0.97 * p));
+  }
+  F.p(pts, true, "g", "fronte");
+  F.c(V(0, 0), d / 2 * s, "g", "fronte");
+  const e = R * s + 6;
+  F.l([92 - e, 92], [92 + e, 92], "c", "fronte"); F.l([92, 92 - e], [92, 92 + e], "c", "fronte");
+  // fori di trascinamento: "2/10/60" = 2 fori Ø10 su circonferenza Ø60 (più gruppi separati da +)
+  const fori = [];
+  for (const g of String(m.fori || "").split("+")) {
+    const [n, df, pc] = g.split("/").map(num); if (!n || !df || !pc) continue;
+    F.c(V(0, 0), pc / 2 * s, "c", "fronte");
+    for (let i = 0; i < n; i++) { const a = (i * 360 / n) * Math.PI / 180; F.c(V(pc / 2 * Math.cos(a), pc / 2 * Math.sin(a)), df / 2 * s, "g", "fronte"); }
+    fori.push(`${n} fori Ø${fmtMm(df)} su Ø${fmtMm(pc)}`);
+  }
+  F.quotaH(92 - R * s, 92 + R * s, 92 - R * s - 8, 92, "Ø" + fmtMm(D), "fronte");
+  const ab = Math.PI / 4, xb = 92 + d / 2 * s * Math.cos(ab), yb = 92 - d / 2 * s * Math.sin(ab);
+  F.l([xb, yb], [xb + 14, yb - 14], "q", "fronte"); F.l([xb + 14, yb - 14], [xb + 26, yb - 14], "q", "fronte"); F.freccia([xb, yb], [-Math.SQRT1_2, Math.SQRT1_2], "fronte");
+  F.t([xb + 15, yb - 15.2], "Ø" + fmtMm(d), 3, "l", "fronte");
+  // dettaglio della sezione del dente, ingrandito
+  if (B) {
+    const sd = scalaStd(Math.min(26 / B, 70 / (h + 8))), W = F.vistaD("sezione", 225, 70 + R * sd, sd, R + 50), hh = h + 8;
+    const top = R, bt = R - h, low = R - hh;
+    const rect = (x0, y0, x1, y1) => { const a = W(x0, y1), c2 = W(x1, y0); return [a[0], a[1], c2[0], c2[1]]; };
+    const dente = rect(-B / 2, bt, B / 2, top), corpo = rect(-b / 2, low, b / 2, bt);
+    F.p([[dente[0], dente[1]], [dente[2], dente[1]], [dente[2], dente[3]], [dente[0], dente[3]]], true, "g", "sezione");
+    F.l([corpo[0], corpo[1]], [corpo[0], corpo[3]], "g", "sezione"); F.l([corpo[2], corpo[1]], [corpo[2], corpo[3]], "g", "sezione");
+    // linea di interruzione a zig-zag sotto
+    const zy = corpo[3], zx0 = corpo[0], zx1 = corpo[2];
+    F.p([[zx0, zy], [zx0 + (zx1 - zx0) * 0.3, zy - 1.5], [zx0 + (zx1 - zx0) * 0.6, zy + 1.5], [zx1, zy]], false, "f", "sezione");
+    F.tratteggia(corpo[0], corpo[1], corpo[2], corpo[3], "sezione"); F.tratteggia(dente[0], dente[1], dente[2], dente[3], "sezione");
+    F.l([225, dente[1] - 5], [225, zy + 5], "c", "sezione");
+    F.quotaH(dente[0], dente[2], dente[1] - 7, dente[1], "B " + fmtMm(B), "sezione");
+    F.quotaH(corpo[0], corpo[2], zy + 9, zy, "b " + fmtMm(b), "sezione");
+    F.quotaV(dente[1], dente[3], dente[2] + 9, dente[2], "h " + fmtMm(h) + " ca.", "sezione");
+    F.t([225, dente[1] - 16], `Sezione del dente (scala ${scalaTxt(sd)})`, 3.2, "c");
+  }
+  const righe = [`Lama circolare Ø${fmtMm(D)} × ${B ? fmtMm(B) : "?"} / ${b ? fmtMm(b) : "?"} × Ø${fmtMm(d)}`, `Z ${Z} · dente ${DENTI[m.dente] || "?"}`];
+  if (fori.length) righe.push("Fori di trascinamento: " + fori.join(", "));
+  if (m.note) righe.push("Note: " + m.note.slice(0, 90));
+  cartiglio(F, m, "Lama circolare", scalaTxt(s), righe);
+  return { F, titolo: `Lama Ø${fmtMm(D)} Z${Z}` };
+}
+function disegnaFresa(m) {
+  const D = num(m.FD), H = num(m.FH), d = num(m.Fd), L = num(m.FL), Z = Math.round(num(m.FZ)) || 2;
+  if (!D || !H || !d || !L) return { errore: "Servono diametro di taglio D, altezza di taglio H, diametro del codolo d e lunghezza totale L." };
+  if (H >= L) return { errore: "L'altezza di taglio deve essere minore della lunghezza totale." };
+  const F = nuovoFoglio(), s = scalaStd(Math.min(135 / L, 95 / D)), oy = 92 + L * s / 2, V = F.vistaD("lato", 85, oy, s, 0);
+  const R = (x0, y0, x1, y1) => { const a = V(x0, y1), b2 = V(x1, y0); return [a[0], a[1], b2[0], b2[1]]; };
+  const tg = R(-D / 2, 0, D / 2, H), cd = R(-d / 2, H, d / 2, L);
+  F.p([[tg[0], tg[1]], [tg[2], tg[1]], [tg[2], tg[3]], [tg[0], tg[3]]], true, "g", "lato");
+  F.p([[cd[0], cd[1]], [cd[2], cd[1]], [cd[2], tg[1]], [cd[0], tg[1]]], true, "g", "lato");
+  // eliche dei taglienti (inclinazione 30°), tagliate dentro la parte che taglia
+  const k = Math.tan(30 * Math.PI / 180), w = tg[2] - tg[0], hh = tg[3] - tg[1];
+  for (let i = 0; i < Z; i++) {
+    const x = tg[0] + (i + 0.5) * w / Z; let xa = x, ya = tg[3], xb = x + hh * k, yb = tg[1];
+    if (xb > tg[2]) { yb = tg[3] - (tg[2] - x) / k; xb = tg[2]; }
+    F.l([xa, ya], [xb, yb], "f", "lato");
+  }
+  F.l([85, cd[1] - 5], [85, tg[3] + 5], "c", "lato");
+  F.quotaH(tg[0], tg[2], tg[3] + 9, tg[3], "Ø" + fmtMm(D), "lato");
+  F.quotaH(cd[0], cd[2], cd[1] - 8, cd[1], "Ø" + fmtMm(d), "lato");
+  F.quotaV(tg[1], tg[3], tg[0] - 9, tg[0], "H " + fmtMm(H), "lato");
+  F.quotaV(cd[1], tg[3], tg[2] + 16, Math.max(tg[2], cd[2]), "L " + fmtMm(L), "lato");
+  // vista dal basso: taglienti
+  const E = F.vistaD("basso", 215, 85, scalaStd(Math.min(36 / (D / 2), s * 3)), L + D + 30), rE = D / 2 * E(1, 0)[0] - D / 2 * E(0, 0)[0];
+  const cE = E(0, 0); F.c(cE, rE, "g", "basso");
+  for (let i = 0; i < Z; i++) { const a = (i * 360 / Z + 90) * Math.PI / 180; F.l([cE[0] + Math.cos(a) * rE * 0.25, cE[1] - Math.sin(a) * rE * 0.25], [cE[0] + Math.cos(a) * rE, cE[1] - Math.sin(a) * rE], "g", "basso"); }
+  F.l([cE[0] - rE - 5, cE[1]], [cE[0] + rE + 5, cE[1]], "c", "basso"); F.l([cE[0], cE[1] - rE - 5], [cE[0], cE[1] + rE + 5], "c", "basso");
+  F.t([cE[0], cE[1] + rE + 12], `Vista dal basso: ${Z} taglienti`, 3.2, "c");
+  const righe = [`Fresa a codolo Ø${fmtMm(D)} × H ${fmtMm(H)} · codolo Ø${fmtMm(d)} · L ${fmtMm(L)}`, `Z ${Z} taglienti`];
+  if (m.note) righe.push("Note: " + m.note.slice(0, 90));
+  cartiglio(F, m, "Fresa a codolo", scalaTxt(s), righe);
+  return { F, titolo: `Fresa Ø${fmtMm(D)} H${fmtMm(H)}` };
+}
+const STROKE = { g: 0.5, f: 0.25, c: 0.2, q: 0.18, h: 0.15 };
+function inSvg(F) {
+  const at = st => `stroke="#000" stroke-width="${STROKE[st] || 0.25}"${st === "c" ? ' stroke-dasharray="6 1.5 1 1.5"' : ""} fill="none"`;
+  const r = n => Math.round(n * 100) / 100;
+  const out = F.P.map(o => {
+    if (o.k === "l") return `<line x1="${r(o.a[0])}" y1="${r(o.a[1])}" x2="${r(o.b[0])}" y2="${r(o.b[1])}" ${at(o.st)}/>`;
+    if (o.k === "c") return `<circle cx="${r(o.c[0])}" cy="${r(o.c[1])}" r="${r(o.r)}" ${at(o.st)}/>`;
+    if (o.k === "p") return `<${o.z ? "polygon" : "polyline"} points="${o.pts.map(q => r(q[0]) + "," + r(q[1])).join(" ")}" ${at(o.st)} stroke-linejoin="round"/>`;
+    if (o.k === "f") return `<polygon points="${o.pts.map(q => r(q[0]) + "," + r(q[1])).join(" ")}" fill="#000"/>`;
+    if (o.k === "t") return `<text x="${r(o.at[0])}" y="${r(o.at[1])}" font-size="${o.h}" text-anchor="${{ l: "start", c: "middle", r: "end" }[o.al]}"${o.rot ? ` transform="rotate(${-o.rot} ${r(o.at[0])} ${r(o.at[1])})"` : ""} fill="#000">${esc(o.s)}</text>`;
+    return "";
+  }).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 297 210" width="297mm" height="210mm" font-family="Arial, Helvetica, sans-serif" role="img" aria-label="Disegno tecnico"><rect width="297" height="210" fill="#fff"/>${out}</svg>`;
+}
+// DXF (R12) in scala reale 1:1, senza cartiglio: si apre in qualsiasi programma CAD
+function inDxf(F) {
+  const L = { g: "CONTORNO", f: "FINE", c: "ASSI", q: "QUOTE", h: "TRATTEGGIO" }, out = ["0", "SECTION", "2", "HEADER", "9", "$ACADVER", "1", "AC1009", "0", "ENDSEC", "0", "SECTION", "2", "ENTITIES"];
+  const n = x => (Math.round(x * 1000) / 1000).toString();
+  const tr = (v, q) => { const w = F.V[v]; return [(q[0] - w.ox) / w.s + w.mx, (w.oy - q[1]) / w.s]; };
+  for (const o of F.P) {
+    if (!o.v || !F.V[o.v]) continue;
+    const s = F.V[o.v].s, lay = o.k === "t" ? "TESTI" : o.k === "f" ? "QUOTE" : L[o.st] || "0";
+    const linea = (a, b) => { const A = tr(o.v, a), B2 = tr(o.v, b); out.push("0", "LINE", "8", lay, "10", n(A[0]), "20", n(A[1]), "11", n(B2[0]), "21", n(B2[1])); };
+    if (o.k === "l") linea(o.a, o.b);
+    if (o.k === "p") { for (let i = 0; i < o.pts.length - 1; i++) linea(o.pts[i], o.pts[i + 1]); if (o.z) linea(o.pts[o.pts.length - 1], o.pts[0]); }
+    if (o.k === "c") { const C = tr(o.v, o.c); out.push("0", "CIRCLE", "8", lay, "10", n(C[0]), "20", n(C[1]), "40", n(o.r / s)); }
+    if (o.k === "f") { const q = o.pts.map(x => tr(o.v, x)); out.push("0", "SOLID", "8", lay, "10", n(q[0][0]), "20", n(q[0][1]), "11", n(q[1][0]), "21", n(q[1][1]), "12", n(q[2][0]), "22", n(q[2][1]), "13", n(q[2][0]), "23", n(q[2][1])); }
+    if (o.k === "t") {
+      const T = tr(o.v, o.at), al = { l: 0, c: 1, r: 2 }[o.al];
+      out.push("0", "TEXT", "8", lay, "10", n(T[0]), "20", n(T[1]), "40", n(o.h / s), "1", o.s.replace(/Ø/g, "%%c").replace(/[^\x20-\x7e]/g, "-"), "50", n(o.rot || 0));
+      if (al) out.push("72", String(al), "11", n(T[0]), "21", n(T[1]));
+    }
+  }
+  out.push("0", "ENDSEC", "0", "EOF");
+  return out.join("\r\n");
+}
+// PDF con jsPDF (caricato solo quando serve)
+let jspdfP = null;
+function caricaJsPdf() {
+  if (window.jspdf) return Promise.resolve(window.jspdf);
+  return jspdfP = jspdfP || new Promise((ok, ko) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"; s.onload = () => window.jspdf ? ok(window.jspdf) : ko(); s.onerror = () => { jspdfP = null; ko(); }; document.head.appendChild(s); });
+}
+async function inPdf(F) {
+  const { jsPDF } = await caricaJsPdf(), doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  doc.setFont("helvetica", "normal");
+  for (const o of F.P) {
+    if (o.k === "t") { doc.setFontSize(o.h * 2.835); doc.text(o.s, o.at[0], o.at[1], { align: { l: "left", c: "center", r: "right" }[o.al], angle: o.rot || 0 }); continue; }
+    if (o.k === "f") { doc.triangle(o.pts[0][0], o.pts[0][1], o.pts[1][0], o.pts[1][1], o.pts[2][0], o.pts[2][1], "F"); continue; }
+    doc.setLineWidth(STROKE[o.st] || 0.25); doc.setLineDashPattern(o.st === "c" ? [6, 1.5, 1, 1.5] : [], 0);
+    if (o.k === "l") doc.line(o.a[0], o.a[1], o.b[0], o.b[1]);
+    if (o.k === "c") doc.circle(o.c[0], o.c[1], o.r, "S");
+    if (o.k === "p") { for (let i = 0; i < o.pts.length - 1; i++) doc.line(o.pts[i][0], o.pts[i][1], o.pts[i + 1][0], o.pts[i + 1][1]); if (o.z) doc.line(o.pts.at(-1)[0], o.pts.at(-1)[1], o.pts[0][0], o.pts[0][1]); }
+  }
+  return doc.output("blob");
+}
+function creaDisegno(m) {
+  const r = m.tipo === "fresa" ? disegnaFresa(m) : disegnaLama(m);
+  if (r.errore) { $("#dzPrev").innerHTML = `<p class="v-sub">${esc(r.errore)}</p>`; $("#dzExp").hidden = true; dzUltimo = null; return false; }
+  dzUltimo = { m, F: r.F, titolo: r.titolo };
+  $("#dzPrev").innerHTML = inSvg(r.F); $("#dzExp").hidden = false;
+  return true;
+}
+const nomeFile = () => (dzUltimo.m.nome || dzUltimo.titolo).replace(/[^\w\- àèéìòù]+/gi, " ").trim().replace(/\s+/g, "-").slice(0, 60) || "disegno";
+$("#dzTipo").addEventListener("change", e => document.querySelectorAll(".dz-mis").forEach(f => f.hidden = f.dataset.t !== e.target.value));
+$("#dzForm").addEventListener("submit", e => { e.preventDefault(); if (creaDisegno(misureForm())) $("#dzPrev").scrollIntoView({ behavior: "smooth", block: "nearest" }); });
+$("#dzExp").addEventListener("click", async e => {
+  const b = e.target.closest("[data-exp]"); if (!b || !dzUltimo) return;
+  const x = b.dataset.exp;
+  try {
+    if (x === "svg") await salvaFile(nomeFile() + ".svg", new Blob([inSvg(dzUltimo.F)], { type: "image/svg+xml" }));
+    if (x === "dxf") await salvaFile(nomeFile() + ".dxf", new Blob([inDxf(dzUltimo.F)], { type: "application/dxf" }));
+    if (x === "pdf") { b.disabled = true; await salvaFile(nomeFile() + ".pdf", await inPdf(dzUltimo.F)); }
+  } catch (err) { toast(x === "pdf" ? "Non riesco a creare il PDF (serve internet la prima volta): scarica l'SVG." : "Download non riuscito."); }
+  finally { b.disabled = false; }
+});
+$("#dzFoto").addEventListener("change", e => {
+  dzFotoFile = e.target.files[0] || null; const im = $("#dzImg");
+  if (dzFotoFile) { im.src = URL.createObjectURL(dzFotoFile); im.hidden = false; } else im.hidden = true;
+  $("#dzAIst").textContent = dzFotoFile && SAMPLE_IMG ? "Tocca \"Leggi la foto con Claude\" per contare i denti e riconoscere il tipo di dente." : "";
+});
+// Claude guarda la foto: completa solo i campi vuoti (le misure prese con il calibro restano quelle)
+$("#dzAI").addEventListener("click", async e => {
+  const b = e.currentTarget; if (!SAMPLE_IMG) return;
+  if (!dzFotoFile) { toast("Scatta o scegli prima la foto dell'utensile."); $("#dzFoto").click(); return; }
+  const m = misureForm(), noti = Object.entries(m).filter(([k, v]) => v && !["nome", "az", "note"].includes(k)).map(([k, v]) => `${k}=${v}`).join(", ");
+  b.disabled = true; $("#dzAIst").textContent = "Claude sta guardando la foto… (anche un minuto)";
+  try {
+    const r = await SAMPLE.json(`Sei un tecnico affilatore di LBS Affilature. Nella foto c'è un utensile per la lavorazione del legno da disegnare (lama circolare o fresa a codolo). Misure già prese con il calibro (mm): ${noti || "nessuna"}. Le misure del calibro valgono sempre: non cambiarle.
+Dalla foto ricava: il tipo di utensile; per una lama il numero di denti Z (contali con cura), il tipo di dente tra ATB (alterno), FT (piatto), TCG (trapezio-piatto), NEG (alterno negativo), HZ (altro), e i fori di trascinamento se si vedono; per una fresa il numero di taglienti. Stima le misure mancanti solo se nella foto c'è un riferimento di misura (righello, metro, calibro), altrimenti lasciale null.
+Rispondi solo con JSON: {"tipo": "lama"|"fresa", "Z": numero|null, "dente": "ATB"|"FT"|"TCG"|"NEG"|"HZ"|null, "fori": "n/diametro/interasse"|null, "D": numero|null, "foro": numero|null, "FD": numero|null, "FH": numero|null, "Fd": numero|null, "FL": numero|null, "FZ": numero|null, "osservazioni": "2-3 frasi su cosa vedi: materiale dei denti, stato di usura, dubbi"}`, { images: dzFotoFile, cache: false });
+    const f = $("#dzForm"), set = (k, v) => { const el = f.elements[k]; if (el && v != null && v !== "" && !String(el.value).trim()) { el.value = String(v).replace(".", ","); return true; } return false; };
+    if (r.tipo === "fresa" || r.tipo === "lama") { $("#dzTipo").value = r.tipo; $("#dzTipo").dispatchEvent(new Event("change")); }
+    const fatti = [];
+    if (set("Z", r.Z)) fatti.push("denti"); if (r.dente && DENTI[r.dente] && f.elements.dente) { f.elements.dente.value = r.dente; fatti.push("tipo di dente"); }
+    if (set("fori", r.fori)) fatti.push("fori"); ["D", "foro", "FD", "FH", "Fd", "FL", "FZ"].forEach(k => { if (set(k, r[k])) fatti.push(k); });
+    $("#dzAIst").textContent = `Claude: ${r.osservazioni || ""}${fatti.length ? ` Ho compilato: ${fatti.join(", ")}. Controlla e tocca "Crea disegno".` : " Nessun campo da completare."}`;
+  } catch (err) { $("#dzAIst").textContent = msgClaude(err); }
+  finally { b.disabled = false; }
+});
+$("#dzSalva").addEventListener("click", async e => {
+  if (!dzUltimo) return;
+  if (!db) { toast("I disegni si salvano nell'app o nella pagina pubblicata su claude.ai. Intanto puoi scaricarli."); return; }
+  const b = e.currentTarget; b.disabled = true;
+  try {
+    const uid = await mioId(), ora = new Date().toISOString(), m = Object.assign({}, dzUltimo.m), az = azDaEtichetta(m.az); delete m.az;
+    const body = { nome: m.nome || dzUltimo.titolo, tipo: m.tipo, m, az, t: ora, da: uid };
+    if (dzFotoFile) { const img = await comprimi(dzFotoFile); if (img) { const fid = nuovoId(az || "disegno", "f"); await db.collection("foto").doc(fid).set({ az, t: ora, da: uid, img }); body.foto = [fid]; } }
+    const id = nuovoId("dz", "d"); await db.collection("disegni").doc(id).set(body); DZ[id] = Object.assign({ id }, body);
+    renderDisegni(); toast("Disegno salvato nell'elenco.");
+  } catch (err) { toast("Salvataggio non riuscito, riprova tra poco."); }
+  finally { b.disabled = false; }
+});
+function renderDisegni() {
+  if ($("#vDisegni").hidden) return;
+  preparaAzList(); aggiornaClaude();
+  const l = Object.values(DZ).sort((x, y) => String(y.t).localeCompare(String(x.t)));
+  $("#dzList").innerHTML = l.length ? l.map(d => { const a = d.az && BYID.get(d.az); return `<li data-dz="${esc(d.id)}"><span><b>${esc(d.nome)}</b><small>${esc(fmtDataOra(d.t))}${a ? " · " + esc(a.nome) : ""}</small></span><button type="button" class="btn" data-dza="apri">Apri</button><button type="button" class="link vdel" data-dza="del">elimina</button></li>`; }).join("")
+    : `<li><span class="v-sub">${db ? "Nessun disegno salvato." : "I disegni salvati si vedono nell'app e nella pagina pubblicata su claude.ai."}</span></li>`;
+}
+$("#dzList").addEventListener("click", async e => {
+  const b = e.target.closest("[data-dza]"); if (!b) return;
+  const d = DZ[b.closest("[data-dz]").dataset.dz]; if (!d) return;
+  if (b.dataset.dza === "apri") {
+    const f = $("#dzForm"); f.reset(); $("#dzTipo").value = d.tipo || "lama"; $("#dzTipo").dispatchEvent(new Event("change"));
+    for (const [k, v] of Object.entries(d.m || {})) if (f.elements[k] && k !== "tipo") f.elements[k].value = v;
+    const a = d.az && BYID.get(d.az); f.elements.az.value = a ? azEtichetta(a) : "";
+    dzFotoFile = null; $("#dzImg").hidden = true; creaDisegno(misureForm()); window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    if (b.dataset.ok !== "1") { b.dataset.ok = "1"; b.textContent = "tocca di nuovo"; setTimeout(() => { if (b.isConnected) { b.dataset.ok = ""; b.textContent = "elimina"; } }, 4000); return; }
+    try { for (const fid of d.foto || []) await db.collection("foto").doc(fid).delete().catch(() => {}); await db.collection("disegni").doc(d.id).delete(); delete DZ[d.id]; renderDisegni(); toast("Disegno eliminato."); } catch (err) { toast("Eliminazione non riuscita."); }
+  }
+});
+function avviaDisegni() {
+  if (!db) return;
+  db.collection("disegni").onSnapshot(snap => { snap.docChanges().forEach(ch => { if (ch.type === "removed") delete DZ[ch.doc.id]; else DZ[ch.doc.id] = Object.assign({ id: ch.doc.id }, ch.doc.data()); }); renderDisegni(); }, () => {});
+}
+
+/* ---------- CATALOGHI dei fornitori (cataloghi/<id>): i cinque principali sono già in elenco, il link si aggiunge dopo ---------- */
+const CAT0 = [
+  { id: "cmt", nome: "CMT", nota: "Lame, frese e punte per legno" },
+  { id: "freud", nome: "Freud", nota: "Lame circolari e frese" },
+  { id: "ache", nome: "Ache", nota: "" },
+  { id: "klein", nome: "Klein", nota: "" },
+  { id: "il-centro", nome: "Il Centro", nota: "Utensili" },
+];
+const CAT = {};
+let ctEdit = null;
+function renderCataloghi() {
+  if ($("#vCataloghi").hidden) return;
+  const l = CAT0.map(c => Object.assign({}, c, CAT[c.id] || {})).filter(c => !c.tolto).concat(Object.values(CAT).filter(c => !CAT0.some(x => x.id === c.id) && !c.tolto));
+  const puo = db && canWrite;
+  $("#ctList").innerHTML = l.map(c => `<div class="cat" data-ct="${esc(c.id)}"><b>${esc(c.nome)}</b>${c.nota ? `<p class="v-sub">${esc(c.nota)}</p>` : ""}
+      <div class="ap-row">${/^https?:\/\//.test(c.url || "") ? `<a class="btn primary" href="${esc(c.url)}" target="_blank" rel="noopener">Apri il catalogo</a>` : `<span class="tag">catalogo da trovare</span>`}${puo ? `<button type="button" class="btn" data-cta="mod">${c.url ? "Modifica" : "Aggiungi il link"}</button>` : ""}</div></div>`).join("");
+  $("#ctAdd").hidden = !puo;
+}
+function apriCat(c) {
+  ctEdit = c ? c.id : null;
+  $("#ctEdT").textContent = c ? c.nome : "Nuovo catalogo";
+  $("#ctNome").value = c ? c.nome : ""; $("#ctUrl").value = c ? c.url || "" : ""; $("#ctNota").value = c ? c.nota || "" : "";
+  $("#ctDel").hidden = !c; $("#ctEd").hidden = false; $("#ctEd").scrollIntoView({ behavior: "smooth", block: "nearest" }); $("#ctUrl").focus({ preventScroll: true });
+}
+$("#ctList").addEventListener("click", e => { const b = e.target.closest("[data-cta]"); if (!b) return; const id = b.closest("[data-ct]").dataset.ct; apriCat(Object.assign({}, CAT0.find(c => c.id === id) || {}, CAT[id] || {}, { id })); });
+$("#ctAdd").addEventListener("click", () => apriCat(null));
+$("#ctChiudi").addEventListener("click", () => { $("#ctEd").hidden = true; });
+$("#ctEd").addEventListener("submit", async e => {
+  e.preventDefault(); if (!db) return;
+  const nome = $("#ctNome").value.trim(), url = $("#ctUrl").value.trim(), nota = $("#ctNota").value.trim();
+  if (!nome) return; if (url && !/^https?:\/\//.test(url)) { toast("Il link deve iniziare con https://"); return; }
+  const id = ctEdit || norm(nome).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || nuovoId("cat", "c");
+  const body = { nome, url, nota, agg: new Date().toISOString(), da: await mioId() };
+  try { await db.collection("cataloghi").doc(id).set(body); CAT[id] = Object.assign({ id }, body); $("#ctEd").hidden = true; renderCataloghi(); toast("Catalogo salvato."); } catch (err) { toast("Salvataggio non riuscito."); }
+});
+$("#ctDel").addEventListener("click", async () => {
+  if (!ctEdit || !db) return;
+  const c = Object.assign({}, CAT0.find(x => x.id === ctEdit) || {}, CAT[ctEdit] || {});
+  try { await db.collection("cataloghi").doc(ctEdit).set({ nome: c.nome || ctEdit, url: "", nota: "", tolto: true, agg: new Date().toISOString(), da: await mioId() }); CAT[ctEdit] = Object.assign({ id: ctEdit }, c, { tolto: true }); $("#ctEd").hidden = true; renderCataloghi(); toast("Tolto dall'elenco."); } catch (err) { toast("Non riuscito."); }
+});
+function avviaCataloghi() {
+  if (!db) { renderCataloghi(); return; }
+  db.collection("cataloghi").onSnapshot(snap => { snap.docChanges().forEach(ch => { if (ch.type === "removed") delete CAT[ch.doc.id]; else CAT[ch.doc.id] = Object.assign({ id: ch.doc.id }, ch.doc.data()); }); renderCataloghi(); }, () => {});
+}
+// la sezione aperta l'ultima volta
+try { const v0 = localStorage.getItem("finder-vista"); if (v0 && v0 !== "finder") vista(v0, { resta: true }); else document.body.dataset.vista = "finder"; } catch (e) { document.body.dataset.vista = "finder"; }
+
 /* ---------- avvio ---------- */
 (async () => {
   buildMs();
@@ -2038,6 +2797,9 @@ function scrive() {
     refresh();
   }, () => {});
   avviaGiro();
+  // Claude nella pagina (solo su claude.ai): riordina appunti, legge le foto degli utensili
+  use("sample").then(async s => { SAMPLE = s; if (s && s.limits) { try { const l = await s.limits(); SAMPLE_IMG = !!(l && l.images); } catch (e) {} } aggiornaClaude(); });
+  avviaAppunti(); avviaDisegni(); avviaCataloghi();
   refresh();
   startLive();
 })();
