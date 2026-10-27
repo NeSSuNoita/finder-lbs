@@ -268,6 +268,7 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 .ap-ed-h { display: flex; justify-content: space-between; align-items: baseline; }
 .ap-lista { display: grid; gap: 4px; }
 #apDetta.on { background: var(--conc); border-color: var(--conc); color: var(--panel); }
+.vista .in-detta { outline: 3px solid var(--conc); outline-offset: 1px; }
 .ap-list { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); align-items: start; }
 .ap { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--steel); border-radius: var(--radius); padding: 10px 12px; display: grid; gap: 6px; cursor: pointer; min-width: 0; }
 .ap.priv { border-left-color: var(--muted); }
@@ -2358,7 +2359,7 @@ function apriEditor(n, pre = {}) {
   const az = BYID.get((n && n.az) || pre.az); $("#apAz").value = az ? azEtichetta(az) : "";
   $("#apCond").checked = n ? !n._priv : true;
   $("#apFotoIn").value = ""; $("#apFotoSt").textContent = apEdit.foto.length ? `${apEdit.foto.length} foto già salvate` : "";
-  $("#apVoceSt").textContent = ""; $("#apDel").hidden = !n; $("#apDel").textContent = "elimina lavoro"; $("#apDel").dataset.ok = "";
+  $("#apVoceSt").textContent = ""; $("#apDel").hidden = !n; $("#apDel").textContent = "elimina lavoro"; $("#apDel").dataset.ok = ""; campoDetta = null;
   disegnaLista(); aggiornaClaude();
   $("#apEditor").hidden = false; $("#apEditor").scrollIntoView({ behavior: "smooth", block: "start" });
   if (pre.foto) $("#apFotoIn").click();
@@ -2390,37 +2391,56 @@ $("#apItem").addEventListener("keydown", e => { if (e.key === "Enter") { e.preve
 // dettatura con il riconoscimento vocale del browser (Chrome su Android); altrimenti il microfono della tastiera.
 // Una frase alla volta: su Android l'ascolto "continuo" ripete le parole ("8 lame 8 lame"). Ogni frase finita si
 // aggiunge al testo e l'ascolto riparte da solo finché non si tocca Ferma.
+// Il tasto resta acceso finché non lo si ritocca e scrive nel campo dove si era cliccato (Titolo, Descrizione,
+// Cose da fare), nel punto del cursore.
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let dettaOn = false;
+const NOMI_CAMPO = { apTit: "Titolo", apTxt: "Descrizione", apItem: "Cose da fare" };
+let dettaOn = false, campoDetta = null, D = null; // D = campo in dettatura: { el, prima, dopo }
+$("#apEditor").addEventListener("focusin", e => { if (NOMI_CAMPO[e.target.id]) campoDetta = e.target; });
 function fermaDettatura() { dettaOn = false; if (rec) { try { rec.stop(); } catch (e) {} } else dettaSpenta(); }
-function dettaSpenta() { $("#apDetta").classList.remove("on"); $("#apDetta").lastChild.textContent = "Detta"; if (/ascolto/.test($("#apVoceSt").textContent)) $("#apVoceSt").textContent = ""; }
+function dettaSpenta() {
+  $("#apDetta").classList.remove("on"); $("#apDetta").lastChild.textContent = "Detta";
+  if (D) { D.el.classList.remove("in-detta"); const p = D.prima.length; D.el.focus({ preventScroll: true }); try { D.el.setSelectionRange(p, p); } catch (e) {} D = null; }
+  if (/ascolto/.test($("#apVoceSt").textContent)) $("#apVoceSt").textContent = "";
+}
+// parole del mestiere: "diametro 300" → Ø300, "zeta 48" → Z48, "12 euro" → 12 €
+const pulisciVoce = t => t.replace(/\bdiametro\s+(?=\d)/gi, "Ø").replace(/\b(?:zeta|z)\s+(\d+)/gi, "Z$1").replace(/(\d)\s*euro\b/gi, "$1 €").replace(/\s+/g, " ").trim();
 function detta() {
   if (dettaOn) { fermaDettatura(); return; }
   if (!SR) { $("#apVoceSt").textContent = "Qui la dettatura diretta non c'è: tocca il testo e usa il microfono della tastiera."; $("#apTxt").focus(); return; }
-  dettaOn = true;
-  $("#apDetta").classList.add("on"); $("#apDetta").lastChild.textContent = "Ferma"; $("#apVoceSt").textContent = "In ascolto… parla, poi tocca Ferma.";
+  const el = campoDetta && !campoDetta.hidden && $("#apEditor").contains(campoDetta) ? campoDetta : $("#apTxt");
+  const a = el.selectionStart ?? el.value.length, b = el.selectionEnd ?? a;
+  D = { el, prima: el.value.slice(0, a), dopo: el.value.slice(b) };
+  dettaOn = true; el.classList.add("in-detta");
+  $("#apDetta").classList.add("on"); $("#apDetta").lastChild.textContent = "Ferma";
+  $("#apVoceSt").textContent = `In ascolto in "${NOMI_CAMPO[el.id]}"… parla, poi tocca Ferma.`;
   ascolta();
 }
 function ascolta() {
-  let base = $("#apTxt").value.trim(), ultima = "";
-  try { rec = new SR(); } catch (e) { rec = null; dettaOn = false; $("#apVoceSt").textContent = "Dettatura non disponibile: usa il microfono della tastiera."; return; }
-  rec.lang = "it-IT"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  if (!D) return;
+  const unisci = (s, t) => s + (s && !/\s$/.test(s) ? " " : "") + t;
+  const mostra = extra => { D.el.value = (extra ? unisci(D.prima, extra) : D.prima) + (D.dopo && !/^\s/.test(D.dopo) ? " " : "") + D.dopo; };
+  let ultima = "";
+  try { rec = new SR(); } catch (e) { rec = null; dettaOn = false; dettaSpenta(); $("#apVoceSt").textContent = "Dettatura non disponibile: usa il microfono della tastiera."; return; }
+  rec.lang = "it-IT"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 3;
   rec.onresult = ev => {
-    const r = ev.results[ev.results.length - 1], t = r[0].transcript.trim();
+    const r = ev.results[ev.results.length - 1];
+    // tra le possibili trascrizioni, quella di cui il riconoscimento è più sicuro
+    const best = Array.from({ length: r.length }, (_, i) => r[i]).sort((x, y) => (y.confidence || 0) - (x.confidence || 0))[0] || r[0], t = pulisciVoce(best.transcript || "");
     if (!t) return;
-    if (r.isFinal) { if (t !== ultima) { base = (base ? base + " " : "") + t; ultima = t; } $("#apTxt").value = base; }
-    else $("#apTxt").value = (base ? base + " " : "") + t;
+    if (r.isFinal) { if (t !== ultima) { D.prima = unisci(D.prima, D.prima ? t : t[0].toUpperCase() + t.slice(1)); ultima = t; } mostra(""); }
+    else mostra(t);
   };
   rec.onerror = ev => {
     if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { dettaOn = false; $("#apVoceSt").textContent = "Microfono non permesso: usa il microfono della tastiera."; }
     else if (ev.error !== "no-speech" && ev.error !== "aborted") { dettaOn = false; $("#apVoceSt").textContent = "Dettatura interrotta: riprova."; }
   };
   rec.onend = () => {
-    rec = null; $("#apTxt").value = base;
+    rec = null; if (D) mostra("");
     if (dettaOn) { setTimeout(() => { if (dettaOn && !rec) ascolta(); }, 120); return; }
     dettaSpenta();
   };
-  try { rec.start(); } catch (e) { rec = null; dettaOn = false; }
+  try { rec.start(); } catch (e) { rec = null; dettaOn = false; dettaSpenta(); }
 }
 $("#apDetta").addEventListener("click", detta);
 $("#apEditor").addEventListener("submit", async e => {
