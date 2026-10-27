@@ -527,6 +527,19 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 .dlg p { margin: 0; overflow-wrap: anywhere; }
 .dlg-row { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .btn.danger { background: var(--conc); border-color: var(--conc); color: var(--panel); font-weight: 600; }
+.pdfv { position: fixed; inset: 0; z-index: 61; background: #3b4147; display: flex; flex-direction: column; }
+.pdfv[hidden] { display: none; }
+.pdfv-h, .pdfv-f { display: flex; align-items: center; gap: 8px; background: var(--panel); color: var(--ink); padding: 8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px)); }
+.pdfv-h { padding-top: max(8px, env(safe-area-inset-top, 0px)); border-bottom: 1px solid var(--line-2); }
+.pdfv-h b { flex: 1; min-width: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pdfv-f { flex-wrap: wrap; padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line-2); }
+.pdfv-f .btn { flex: 1 1 110px; justify-content: center; min-height: 46px; }
+.pdfv-p { flex: 1; overflow: auto; padding: 12px; display: grid; gap: 12px; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
+.pdfv-p canvas { width: 100%; max-width: 820px; height: auto; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .4); cursor: zoom-in; }
+.pdfv-p.zoom { justify-items: start; }
+.pdfv-p.zoom canvas { width: 200%; max-width: none; cursor: zoom-out; }
+.pdfv-p p { margin: 0; color: #fff; text-align: center; }
+.pdfv-p .pdfv-nota { color: #c9d0d6; font-size: 13px; }
 .toast-act { margin-left: 10px; background: none; border: 1px solid currentColor; color: inherit; border-radius: 4px; padding: 2px 10px; font: inherit; font-weight: 600; cursor: pointer; }
 /* contatti eliminati */
 .del-panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
@@ -812,6 +825,16 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <h2 id="apConfT">Eliminare questo lavoro?</h2>
       <p id="apConfD"></p>
       <div class="dlg-row"><button type="button" class="btn" id="apConfNo">Annulla</button><button type="button" class="btn danger" id="apConfSi">Elimina</button></div>
+    </div>
+  </div>
+  <!-- PDF di un ordine o preventivo salvato -->
+  <div class="pdfv" id="pdfV" role="dialog" aria-modal="true" aria-labelledby="pdfVT" hidden>
+    <div class="pdfv-h"><b id="pdfVT"></b><button type="button" class="btn" data-pv="chiudi">✕ Chiudi</button></div>
+    <div class="pdfv-p" id="pdfVP"></div>
+    <div class="pdfv-f">
+      <button type="button" class="btn" data-pv="modifica">Modifica</button>
+      <button type="button" class="btn" data-pv="wa">Invia su WhatsApp</button>
+      <button type="button" class="btn" data-pv="mail">Invia per email</button>
     </div>
   </div>
 
@@ -2419,7 +2442,8 @@ function renderAppunti() {
   if ($("#vAppunti").hidden) return;
   const q = norm($("#apCerca").value.trim()).split(/\s+/).filter(Boolean);
   let l = Object.values(AP);
-  l = l.filter(n => apChi === "miei" ? mio(n) : !mio(n) && (!apAltro || n.da === apAltro));
+  // gli Importanti li vedono tutti: compaiono anche tra i "Miei" di ogni collaboratore
+  l = l.filter(n => apChi === "miei" ? mio(n) || tipoDi(n) === "importante" : !mio(n) && (!apAltro || n.da === apAltro));
   disegnaChi();
   if (apFiltro !== "tutti") l = l.filter(n => tipoDi(n) === apFiltro);
   if (q.length) l = l.filter(n => { const t = norm([etichettaLavoro(n), n.testo, n.titolo, ...righeDi(n).map(x => x.t)].join(" ")); return q.every(w => t.includes(w)); });
@@ -2470,9 +2494,9 @@ $("#apList").addEventListener("click", e => {
   if (e.target.closest("[data-del]")) { chiediElimina(card.dataset.ap); return; }
   if (card.classList.contains("aperto")) { chiudiSw(); return; }
   chiudiSw();
-  const n = AP[card.dataset.ap]; if (n) apriEditor(n);
+  const n = AP[card.dataset.ap]; if (n) apriLavoro(n);
 });
-$("#apList").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".ap-in")) { e.preventDefault(); const n = AP[e.target.closest(".ap").dataset.ap]; if (n) apriEditor(n); } if (e.key === "Delete" && e.target.matches(".ap-in")) chiediElimina(e.target.closest(".ap").dataset.ap); });
+$("#apList").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".ap-in")) { e.preventDefault(); const n = AP[e.target.closest(".ap").dataset.ap]; if (n) apriLavoro(n); } if (e.key === "Delete" && e.target.matches(".ap-in")) chiediElimina(e.target.closest(".ap").dataset.ap); });
 let daEliminare = null;
 function chiediElimina(id) {
   const n = AP[id]; if (!n) return;
@@ -2654,7 +2678,8 @@ $("#wzF").addEventListener("click", async e => {
   }
   if (a === "salva" || a === "pdf-wa" || a === "pdf-mail") {
     if (!db) { toast("I lavori si salvano nell'app o nella pagina pubblicata su claude.ai."); if (a === "salva") return; }
-    const n = lavoroW(), id = W.id || nuovoId("ap", "n"), priv = W.priv, w = W;
+    // un Importante sta sempre tra i lavori condivisi, così lo vedono tutti i collaboratori
+    const n = lavoroW(), id = W.id || nuovoId("ap", "n"), priv = W.priv && W.tipo !== "importante", w = W;
     b.disabled = true;
     // prima il PDF e l'invio (il telefono vuole il tocco "fresco"), poi foto e lavoro nel database
     if (a !== "salva") await inviaPdf(n, a === "pdf-wa" ? "wa" : "mail", w.foto.map(fid => w.cache[fid]).filter(Boolean).concat(w.nuove));
@@ -2665,6 +2690,7 @@ $("#wzF").addEventListener("click", async e => {
         for (const fid of w.via) await db.collection("foto").doc(fid).delete().catch(() => {});
         const body = Object.assign({}, n, { agg: ora, ultimo: apMio || "" }); if (foto.length) body.foto = foto;
         await db.collection(apColl(priv)).doc(id).set(JSON.parse(JSON.stringify(body)));
+        if (w.priv && !priv) await db.collection(apColl(true)).doc(id).delete().catch(() => {});
         AP[id] = Object.assign({}, body, { id, _priv: priv }); return true;
       } catch (err) { return false; }
     })();
@@ -2675,57 +2701,126 @@ $("#wzF").addEventListener("click", async e => {
   }
 });
 
-/* ---------- PDF da inviare: foglio semplice con il tipo, il cliente, il materiale e, in fondo, i recapiti del cliente ---------- */
+/* ---------- PDF da inviare, su carta intestata LBS: testata con la fresa, campi come sulla carta
+   (destinatario, data, oggetto, foglio), il materiale, note, foto e, in fondo, i recapiti del cliente ---------- */
+const LBS = {
+  blu: [24, 113, 184],
+  ditta: "di Lucchini Gabriele & C. s.n.c.",
+  motto: "VENDITA E ASSISTENZA MACCHINE UTENSILI",
+  attivita: ["COSTRUZIONE E AFFILATURA", "UTENSILI PER LEGNO, METALLI", "E MATERIALI NON FERROSI"],
+  recapiti: ["Via Bizzocchi, 4 (di fronte Z.A.)", "47922 Viserba di Rimini (RN)", "Tel. 0541 738314", "Partita IVA 02068900402", "R.E.A. RN n. 63044", "Reg. Imprese RN n. 11919"],
+  piede: "L.B.S. di Lucchini Gabriele & C. s.n.c. · Via Bizzocchi 4, Viserba di Rimini · Tel. 0541 738314"
+};
+// carattere Barlow (pulito, da officina) preso da jsDelivr la prima volta; senza internet resta l'Helvetica
+let fontiP = null;
+function caricaFonti() {
+  const u = "https://cdn.jsdelivr.net/npm/@expo-google-fonts/barlow@0.4.1/", f = { n: "400Regular/Barlow_400Regular.ttf", b: "700Bold/Barlow_700Bold.ttf", i: "400Regular_Italic/Barlow_400Regular_Italic.ttf", k: "900Black/Barlow_900Black.ttf" };
+  return fontiP = fontiP || Promise.all(Object.entries(f).map(async ([k, p]) => {
+    const r = await fetch(u + p); if (!r.ok) throw new Error(r.status);
+    const b = new Uint8Array(await r.arrayBuffer()); let s = "";
+    for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+    return [k, btoa(s)];
+  })).then(Object.fromEntries).catch(() => { fontiP = null; return null; });
+}
+// la fresa del logo, stilizzata: lama con i denti a uncino, anello e foro con la cava della chiavetta in alto
+function lamaLbs(doc, cx, cy, R) {
+  const Z = 16, phi = 2 * Math.PI / Z, Rg = R * 0.8, P = (r, a) => [cx + r * Math.cos(a), cy + r * Math.sin(a)], pts = [];
+  for (let k = 0; k < Z; k++) { const a0 = k * phi - Math.PI / 2; pts.push(P(R, a0), P(R * 0.965, a0 + 0.10 * phi), P(Rg * 1.05, a0 + 0.70 * phi), P(Rg, a0 + 0.83 * phi), P(Rg * 1.04, a0 + 0.94 * phi)); }
+  const chiudi = q => doc.lines(q.slice(1).map((p, i) => [p[0] - q[i][0], p[1] - q[i][1]]), q[0][0], q[0][1], [1, 1], "S", true);
+  doc.setDrawColor(...LBS.blu); try { doc.setLineJoin("round"); } catch (e) {}
+  doc.setLineWidth(R * 0.07); chiudi(pts);
+  doc.setLineWidth(R * 0.08); doc.circle(cx, cy, R * 0.55, "S");
+  const r = R * 0.34, w = r * 0.26, nh = r * 0.24, d = Math.asin(w / r), foro = [];
+  for (let i = 0; i <= 40; i++) foro.push(P(r, -Math.PI / 2 + d + (2 * Math.PI - 2 * d) * i / 40));
+  foro.push([cx - w, cy - r - nh], [cx + w, cy - r - nh]);
+  doc.setLineWidth(R * 0.07); chiudi(foro);
+}
+function testataLbs(doc, T) {
+  const blu = LBS.blu;
+  lamaLbs(doc, 28, 24, 12.5);
+  T("k", 42, blu); doc.text("L.B.S.", 45, 30.5);
+  T("i", 9, [70, 90, 110]); doc.text(LBS.ditta, 46, 35.8);
+  doc.setFillColor(...blu); doc.rect(15, 40, 92, 6.5, "F");
+  T("b", 9.5, [255, 255, 255]); doc.text(LBS.motto, 61, 44.4, { align: "center", maxWidth: 88 });
+  // recapiti a destra, attività in mezzo (si stringe un po' se non ci sta)
+  T("n", 7.6, [60, 75, 90]); const wR = Math.max(...LBS.recapiti.map(s => doc.getTextWidth(s)));
+  doc.text(LBS.recapiti, 195 - wR, 16.5, { lineHeightFactor: 1.4 });
+  T("b", 8.8, blu); let pt = 8.8;
+  while (pt > 6.5 && Math.max(...LBS.attivita.map(s => doc.getTextWidth(s))) > 195 - wR - 6 - 113) doc.setFontSize(pt -= 0.2);
+  doc.text(LBS.attivita, 113, 19, { lineHeightFactor: 1.45 });
+  doc.setDrawColor(...blu); doc.setLineWidth(0.5); doc.line(15, 52, 195, 52);
+}
 async function pdfLavoro(n, foto = []) {
-  const { jsPDF } = await caricaJsPdf(), doc = new jsPDF({ unit: "mm", format: "a4" });
-  const a = n.az && BYID.get(n.az), verde = [59, 109, 17], giallo = [186, 117, 23], col = n.tipo === "ordine" ? verde : giallo;
-  doc.setFont("helvetica", "bold"); doc.setFontSize(30); doc.setTextColor(...col);
-  doc.text(TIPI[n.tipo].toUpperCase(), 20, 30);
-  doc.setDrawColor(...col); doc.setLineWidth(0.8); doc.line(20, 34, 190, 34);
-  doc.setTextColor(26, 26, 26); doc.setFontSize(18); doc.text(clienteDi(n) || "Cliente", 20, 47);
-  doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(90, 90, 90);
-  doc.text(new Date(n.t || Date.now()).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" }), 20, 54);
-  doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(26, 26, 26); doc.text("Materiale", 20, 68);
-  let y = 77; doc.setDrawColor(210, 210, 210); doc.setLineWidth(0.2);
+  const [{ jsPDF }, ff] = await Promise.all([caricaJsPdf(), caricaFonti()]), doc = new jsPDF({ unit: "mm", format: "a4" });
+  if (ff) {
+    [["n", "normal"], ["b", "bold"], ["i", "italic"]].forEach(([k, s]) => { doc.addFileToVFS(`barlow-${k}.ttf`, ff[k]); doc.addFont(`barlow-${k}.ttf`, "Barlow", s); });
+    doc.addFileToVFS("barlow-k.ttf", ff.k); doc.addFont("barlow-k.ttf", "BarlowBlack", "normal");
+  }
+  // T(stile, punti, colore): n normale, b grassetto, i corsivo, k nerissimo (per L.B.S. e il titolo)
+  const T = (s, pt, col) => { if (s === "k") doc.setFont(ff ? "BarlowBlack" : "helvetica", ff ? "normal" : "bold"); else doc.setFont(ff ? "Barlow" : "helvetica", { n: "normal", b: "bold", i: "italic" }[s]); doc.setFontSize(pt); doc.setTextColor(...col); };
+  const a = n.az && BYID.get(n.az), blu = LBS.blu, nero = [28, 30, 33], col = n.tipo === "ordine" ? [59, 109, 17] : [186, 117, 23];
+  const TOP = 60, FONDO = 238, nuova = () => { doc.addPage(); return TOP; };
+  T("k", 22, col); doc.text(TIPI[n.tipo].toUpperCase(), 15, 89);
+  doc.setDrawColor(...col); doc.setLineWidth(0.8); doc.line(15, 92, 195, 92);
+  // intestazione della tabella del materiale
+  doc.setFillColor(232, 241, 249); doc.rect(15, 97, 180, 7, "F");
+  T("b", 8, blu); doc.text("Q.TÀ", 17, 101.6); doc.text("MATERIALE", 38, 101.6);
+  let y = 111;
   for (const r of n.righe) {
-    const righe = doc.splitTextToSize(r.t, 150);
-    if (y + righe.length * 6 > 238) { doc.addPage(); y = 25; }
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text(r.q || "", 20, y);
-    doc.setFont("helvetica", "normal"); doc.text(righe, 38, y);
-    y += righe.length * 6 + 2; doc.line(20, y - 3, 190, y - 3); y += 3;
+    T("n", 12, nero); const righe = doc.splitTextToSize(r.t, 155);
+    if (y + righe.length * 5.5 > FONDO) y = nuova() + 4;
+    T("b", 12, nero); doc.text(r.q || "", 17, y);
+    T("n", 12, nero); doc.text(righe, 38, y, { lineHeightFactor: 1.3 });
+    y += righe.length * 5.5 + 1; doc.setDrawColor(218, 225, 232); doc.setLineWidth(0.2); doc.line(15, y - 2.5, 195, y - 2.5); y += 4;
   }
   // note sotto il materiale
   if (n.note) {
-    const nr = doc.splitTextToSize(n.note, 170);
-    if (y + 10 + nr.length * 5.5 > 238) { doc.addPage(); y = 25; }
-    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(26, 26, 26); doc.text("Note", 20, y + 4); y += 11;
-    doc.setFont("helvetica", "normal"); doc.setFontSize(11.5); doc.setTextColor(40, 40, 40); doc.text(nr, 20, y); y += nr.length * 5.5 + 6;
+    T("n", 11.5, nero); const nr = doc.splitTextToSize(n.note, 180);
+    if (y + 10 + nr.length * 5.3 > FONDO) y = nuova();
+    T("b", 8, blu); doc.text("NOTE", 15, y + 4); y += 10;
+    T("n", 11.5, [45, 48, 52]); doc.text(nr, 15, y, { lineHeightFactor: 1.3 }); y += nr.length * 5.3 + 6;
   }
-  // foto sotto il materiale: larghe al massimo 170 mm e alte 110 mm, su più pagine se servono
+  // foto sotto il materiale: larghe al massimo 180 mm e alte 110 mm, su più fogli se servono
+  // (se in fondo al foglio c'è almeno 6 cm la foto si rimpicciolisce e ci sta, altrimenti va sul foglio dopo)
+  const misura = (f, spazio) => { let k = Math.min(180 / f.w, 110 / f.h); if (f.h * k > spazio && spazio >= 60) k = spazio / f.h; return [f.w * k, f.h * k]; };
   if (foto.length) {
-    if (y > 225) { doc.addPage(); y = 25; }
-    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(26, 26, 26); doc.text("Foto", 20, y + 4); y += 10;
+    if (misura(foto[0], FONDO - y - 9)[1] > FONDO - y - 9) y = nuova();
+    T("b", 8, blu); doc.text("FOTO", 15, y + 4); y += 9;
     for (const f of foto) {
-      const k = Math.min(170 / f.w, 110 / f.h), w = f.w * k, h = f.h * k;
-      if (y + h > 238) { doc.addPage(); y = 25; }
-      try { doc.addImage(f.img, "JPEG", 20, y, w, h); } catch (e) {}
+      let [w, h] = misura(f, FONDO - y);
+      if (y + h > FONDO) { y = nuova(); [w, h] = misura(f, FONDO - y); }
+      try { doc.addImage(f.img, "JPEG", 15, y, w, h); } catch (e) {}
       y += h + 6;
     }
   }
   // recapiti del cliente: solo nel PDF, per ricontattarlo
-  let yr = 250; doc.setDrawColor(200, 200, 200); doc.line(20, yr - 6, 190, yr - 6);
-  doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(26, 26, 26); doc.text("Riferimenti cliente", 20, yr);
-  doc.setFont("helvetica", "normal"); doc.setTextColor(70, 70, 70);
+  const yr = 250; doc.setDrawColor(...blu); doc.setLineWidth(0.2); doc.line(15, yr - 6, 195, yr - 6);
+  T("b", 8, blu); doc.text("RIFERIMENTI CLIENTE", 15, yr);
+  T("n", 10, [60, 64, 70]);
   const ref = a ? [a.nome + (a.indirizzo ? " · " + a.indirizzo : a.comune ? " · " + a.comune : ""), a.telefono ? "Tel. " + a.telefono : "", (emailList(a)[0] || {}).e ? "Email " + emailList(a)[0].e : ""].filter(Boolean) : [clienteDi(n)];
-  ref.forEach((s, i) => doc.text(doc.splitTextToSize(s, 170)[0], 20, yr + 5.5 * (i + 1)));
-  doc.setFontSize(9); doc.setTextColor(140, 140, 140); doc.text("LBS Affilature · Viserba di Rimini", 105, 287, { align: "center" });
+  ref.forEach((s, i) => doc.text(doc.splitTextToSize(s, 180)[0], 15, yr + 5.5 * (i + 1)));
+  // su ogni foglio: carta intestata e piede con il numero del foglio; i campi solo sul primo
+  const tot = doc.getNumberOfPages(), data = new Date(n.t || Date.now()).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+  const campo = (x, y, w, et, val) => {
+    T("b", 7, blu); doc.text(et, x, y);
+    T("b", 11.5, nero); doc.text(doc.splitTextToSize(val || "", w - 31)[0] || "", x + 30, y);
+    doc.setDrawColor(...blu); doc.setLineWidth(0.2); doc.line(x + 29, y + 1.6, x + w, y + 1.6);
+  };
+  for (let p = 1; p <= tot; p++) {
+    doc.setPage(p); testataLbs(doc, T);
+    if (p === 1) {
+      campo(15, 63, 102, "DESTINATARIO", clienteDi(n) || "—"); campo(125, 63, 70, "DATA", data);
+      campo(15, 72, 102, "OGGETTO", TIPI[n.tipo]); campo(125, 72, 70, "FOGLIO N.", `${p} di ${tot}`);
+    }
+    doc.setDrawColor(...blu); doc.setLineWidth(0.3); doc.line(15, 283, 195, 283);
+    T("n", 7.5, [110, 120, 130]); doc.text(LBS.piede, 15, 287.5); doc.text(`Foglio ${p} di ${tot}`, 195, 287.5, { align: "right" });
+  }
   const nome = `${TIPI[n.tipo]}-${(clienteDi(n) || "cliente").replace(/[^\w àèéìòù]+/gi, " ").trim().replace(/\s+/g, "-").slice(0, 40)}-${new Date().toISOString().slice(0, 10)}.pdf`;
   return new File([doc.output("blob")], nome, { type: "application/pdf" });
 }
 // sul telefono si apre "Condividi" con il PDF allegato (WhatsApp, Gmail…); altrove il PDF si scarica e si apre WhatsApp o la mail
-async function inviaPdf(n, dove, foto) {
-  let file;
-  try { file = await pdfLavoro(n, foto); } catch (e) { toast("Non riesco a creare il PDF (serve internet la prima volta)."); return; }
+async function inviaPdf(n, dove, foto, file) {
+  if (!file) try { file = await pdfLavoro(n, foto); } catch (e) { toast("Non riesco a creare il PDF (serve internet la prima volta)."); return; }
   const a = n.az && BYID.get(n.az), testo = `${TIPI[n.tipo]} LBS Affilature per ${clienteDi(n)}`;
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try { await navigator.share({ files: [file], title: testo, text: testo }); toast(`${etichettaLavoro(n)}: salvato e pronto da inviare.`); return; }
@@ -2736,6 +2831,62 @@ async function inviaPdf(n, dove, foto) {
   else { const mail = a ? ((emailList(a)[0] || {}).e || "") : ""; window.open(`mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(testo)}&body=${encodeURIComponent("Buongiorno,\nin allegato " + TIPI[n.tipo].toLowerCase() + ".\n\nLBS Affilature")}`, "_blank", "noopener"); }
   toast("PDF scaricato: allegalo al messaggio che si è aperto.");
 }
+
+/* ---------- vedere il PDF di un ordine o preventivo salvato: si tocca il lavoro nella lista ----------
+   Il PDF si rifà dai dati salvati (stesso foglio che si invia) e si mostra con pdf.js, pagina per pagina:
+   così si vede anche sul telefono, dove Chrome non apre i PDF dentro la pagina. */
+let pdfjsP = null, PV = null; // PV = { n, file, foto }
+function caricaPdfJs() {
+  const u = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  const s = src => new Promise((ok, ko) => { const e = document.createElement("script"); e.src = u + src; e.onload = ok; e.onerror = ko; document.head.appendChild(e); });
+  // il "worker" di pdf.js caricato come script normale lavora dentro la pagina: niente file separati (va anche su claude.ai)
+  return pdfjsP = pdfjsP || s("pdf.min.js").then(() => s("pdf.worker.min.js")).then(() => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = u + "pdf.worker.min.js"; return window.pdfjsLib; }).catch(e => { pdfjsP = null; throw e; });
+}
+async function fotoDi(n) {
+  const out = [];
+  if (!db) return out;
+  for (const fid of n.foto || []) {
+    try { const s = await db.collection("foto").doc(fid).get(), d = s && s.exists ? s.data() : null; if (d && d.img) out.push(Object.assign({ img: d.img }, await dimImg(d.img))); } catch (e) {}
+  }
+  return out;
+}
+async function apriPdf(n) {
+  const pv = PV = { n, file: null, foto: [] }, box = $("#pdfVP");
+  $("#pdfVT").textContent = etichettaLavoro(n);
+  box.classList.remove("zoom"); box.innerHTML = `<p>Preparo il PDF…</p>`;
+  $("#pdfV").hidden = false; $("#pdfV [data-pv=chiudi]").focus();
+  try {
+    pv.foto = await fotoDi(n); if (PV !== pv) return;
+    pv.file = await pdfLavoro(n, pv.foto); if (PV !== pv) return;
+    const lib = await caricaPdfJs(), pdf = await lib.getDocument({ data: new Uint8Array(await pv.file.arrayBuffer()), isEvalSupported: false }).promise;
+    if (PV !== pv) return;
+    // disegnata larga il doppio dello schermo, così resta nitida anche ingrandita
+    const px = Math.min(2400, Math.min(box.clientWidth || 400, 820) * Math.min(window.devicePixelRatio || 1, 2) * 2);
+    box.innerHTML = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const pg = await pdf.getPage(i), vp = pg.getViewport({ scale: px / pg.getViewport({ scale: 1 }).width });
+      const c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+      c.setAttribute("role", "img"); c.setAttribute("aria-label", `Foglio ${i} di ${pdf.numPages}`);
+      box.appendChild(c);
+      await pg.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+      if (PV !== pv) return;
+    }
+    box.insertAdjacentHTML("beforeend", `<p class="pdfv-nota">Tocca il foglio per ingrandirlo.</p>`);
+  } catch (e) { if (PV === pv) box.innerHTML = `<p>Non riesco a mostrare il PDF (serve internet la prima volta).</p>`; }
+}
+function chiudiPdf() { $("#pdfV").hidden = true; $("#pdfVP").innerHTML = ""; PV = null; }
+$("#pdfV").addEventListener("click", async e => {
+  if (e.target.matches("#pdfVP canvas")) { $("#pdfVP").classList.toggle("zoom"); return; }
+  const b = e.target.closest("[data-pv]"); if (!b || !PV) return;
+  const a = b.dataset.pv, pv = PV;
+  if (a === "chiudi") chiudiPdf();
+  else if (a === "modifica") { chiudiPdf(); apriEditor(pv.n); }
+  else if (!pv.file) toast("Un attimo: sto preparando il PDF.");
+  else { b.disabled = true; await inviaPdf(pv.n, a, pv.foto, pv.file); b.disabled = false; }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#pdfV").hidden) chiudiPdf(); });
+// ordini e preventivi si aprono come PDF; appunti e importanti nel modulo per modificarli
+const apriLavoro = n => isMateriale(tipoDi(n)) && righeDi(n).length ? apriPdf(n) : apriEditor(n);
 
 /* ---------- dettatura: ogni campo ha il suo microfonino; un tocco acceso, un tocco spento ----------
    Scrive solo in quel campo, nel punto del cursore. Una frase alla volta (su Android l'ascolto "continuo" ripete
