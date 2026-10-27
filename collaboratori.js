@@ -19,7 +19,6 @@
       <button type="submit" class="btn primary">Aggiungi</button>
     </form>
     <p class="note" id="collMsg" aria-live="polite"></p>
-    <p class="note">Calendario: ognuno collega il proprio in Altro → "Il mio calendario Google"; ci vanno solo i suoi lavori.</p>
     <h2>Copia di sicurezza</h2>
     <p class="note">Scarica in un file tutto quello che avete scritto: stati, note, promemoria, visite, foto, giri, appunti, disegni, cataloghi e collaboratori.
       Fallo ogni tanto e prima delle modifiche importanti; per ripristinare si importa il file in Firebase (istruzioni in LEGGIMI.md).</p>
@@ -60,7 +59,7 @@
     const b = e.currentTarget, m = document.getElementById("backupMsg");
     b.disabled = true; m.textContent = "Preparo la copia…";
     const out = { esportato: new Date().toISOString(), da: auth.currentUser && auth.currentUser.email };
-    const nodi = ["autorizzati", "utenti", "stato", "visite", "foto", "giri", "appunti", "disegni", "cataloghi", "impostazioni"], mancano = [];
+    const nodi = ["autorizzati", "utenti", "stato", "visite", "foto", "giri", "appunti", "disegni", "cataloghi"], mancano = [];
     for (const n of nodi) { try { out[n] = (await rt.ref(n).get()).val() || {}; } catch (err) { mancano.push(n); } }
     // i propri appunti "solo per me" (quelli degli altri restano privati)
     try { out.miei_appunti = { uid: auth.currentUser.uid, appunti: (await rt.ref("data/users/" + auth.currentUser.uid).get()).val() || {} }; } catch (err) { mancano.push("appunti personali"); }
