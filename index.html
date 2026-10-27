@@ -314,6 +314,7 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 .wz-sug button:last-child { border-bottom: 0; }
 .wz-sug button span { color: var(--muted); font-size: 13px; }
 .wz-sug button.libero { color: var(--muted); font-style: italic; }
+.wz-sug .cli-t { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--gold-ink); background: var(--gold-soft); border: 1px solid var(--gold); border-radius: 999px; padding: 0 7px; margin-left: 4px; }
 .wz-scelto { font-size: 15px; padding: 9px 11px; background: var(--steel-soft); border-radius: 8px; }
 .wz-righe { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .wz-righe li, .wz-nuova { display: flex; gap: 6px; align-items: center; }
@@ -2536,13 +2537,14 @@ function cercaDitte(q) {
   for (const a of AZ) {
     if (a._del) continue;
     const n = norm(a.nome), nc = solo(n); if (!t.every(w => n.includes(w) || nc.includes(solo(w)))) continue;
-    out.push([n.startsWith(t[0]) || nc.startsWith(solo(t[0])) ? 0 : n.split(/[\s.'-]+/).some(p => p.startsWith(t[0])) ? 1 : 2, a]);
+    out.push([isCli(a) ? 0 : 1, n.startsWith(t[0]) || nc.startsWith(solo(t[0])) ? 0 : n.split(/[\s.'-]+/).some(p => p.startsWith(t[0])) ? 1 : 2, a]);
   }
-  return out.sort((x, y) => x[0] - y[0] || coll.compare(x[1].nome, y[1].nome)).slice(0, 8).map(x => x[1]);
+  // prima i clienti (stato "Cliente", anche i clienti LBS dei giri), poi le altre ditte del Finder
+  return out.sort((x, y) => x[0] - y[0] || x[1] - y[1] || coll.compare(x[2].nome, y[2].nome)).slice(0, 8).map(x => x[2]);
 }
 $("#wzCli").addEventListener("input", () => {
   const v = $("#wzCli").value.trim(), l = cercaDitte(v);
-  $("#wzSug").innerHTML = l.map(a => `<button type="button" role="option" data-az="${esc(a.id)}"><b>${esc(a.nome)}</b> <span>${esc(a.comune || "")}${a.cliente_lbs ? " · cliente LBS" : ""}</span></button>`).join("") +
+  $("#wzSug").innerHTML = l.map(a => `<button type="button" role="option" data-az="${esc(a.id)}"${isCli(a) ? ' class="cli"' : ""}><b>${esc(a.nome)}</b> <span>${esc(a.comune || "")}</span>${isCli(a) ? ' <i class="cli-t">cliente</i>' : ""}</button>`).join("") +
     (v.length >= 3 ? `<button type="button" role="option" class="libero" data-libero="1">Usa "${esc(v)}" come nome (non è nel Finder)</button>` : "");
 });
 $("#wzSug").addEventListener("click", e => {
