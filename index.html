@@ -332,6 +332,13 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 .wz-fb { display: flex; flex-wrap: wrap; gap: 8px; }
 .wz-fb .foto-b { flex: 1 1 140px; }
 .wz-foto textarea { min-height: 80px; }
+.cal-mio { display: grid; gap: 8px; margin-bottom: 14px; }
+.cal-mio[hidden] { display: none; }
+.cal-mio ol { margin: 6px 0; padding-left: 20px; display: grid; gap: 4px; }
+.cal-mio summary { cursor: pointer; font-weight: 600; }
+.cal-mio input { width: 100%; box-sizing: border-box; }
+.cal-b { display: flex; flex-wrap: wrap; gap: 8px; }
+.cal-b .btn { flex: 1 1 140px; justify-content: center; }
 .wz-quando { display: grid; gap: 6px; }
 .wz-qo { display: flex; gap: 8px; }
 .wz-qo input { flex: 1 1 0; min-width: 0; }
@@ -911,6 +918,29 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
   <!-- ALTRO: spazio per le prossime funzioni -->
   <section class="vista" id="vAltro" aria-labelledby="alT" hidden>
     <div class="v-head"><h2 id="alT">Altro</h2><p>Qui arriveranno le prossime funzioni dell'app.</p></div>
+    <!-- calendario personale: i propri lavori con la data vanno nel proprio Google Calendar (solo nell'app) -->
+    <div class="cat cal-mio" id="calMio" hidden>
+      <b>Il mio calendario Google</b>
+      <p class="v-sub" id="calMioStato" aria-live="polite"></p>
+      <details id="calMioPassi">
+        <summary>Come collegarlo: una volta sola, 5 minuti, meglio dal computer</summary>
+        <ol>
+          <li>Tocca <b>Copia il programma</b> qui sotto.</li>
+          <li>Apri <a href="https://script.google.com/create" target="_blank" rel="noopener">script.google.com/create</a> con il tuo account Google: cancella tutto quello che c'è e incolla.</li>
+          <li>In alto scegli la funzione <b>prepara</b> e premi <b>Esegui</b>; dai il permesso: <i>Rivedi autorizzazioni → il tuo account → Avanzate → Vai a… → Consenti</i>. Nel tuo Google Calendar compare "Lavori LBS".</li>
+          <li><b>Esegui il deployment → Nuovo deployment</b>, tipo <b>Applicazione web</b>; "Utenti autorizzati ad accedere": <b>Chiunque</b> → <b>Esegui il deployment</b> (se chiede di nuovo il permesso, dallo).</li>
+          <li>Copia l'<b>URL</b> dell'applicazione web (finisce con /exec), incollalo qui sotto e premi <b>Salva</b>, poi <b>Prova</b>.</li>
+        </ol>
+        <p class="v-sub">Nel tuo calendario vanno solo i lavori fatti da te; quelli dei colleghi restano nei loro.</p>
+      </details>
+      <input type="url" id="calMioUrl" placeholder="https://script.google.com/macros/s/…/exec" aria-label="Indirizzo dell'applicazione web del tuo calendario" autocomplete="off">
+      <div class="cal-b">
+        <button type="button" class="btn" id="calMioCopia">Copia il programma</button>
+        <button type="button" class="btn primary" id="calMioSalva">Salva</button>
+        <button type="button" class="btn" id="calMioProva">Prova</button>
+        <button type="button" class="btn" id="calMioTutti">Manda i miei lavori già salvati</button>
+      </div>
+    </div>
     <div class="cat-list">
       <div class="cat"><b>Preventivi</b><p class="v-sub">Preventivi di affilatura da mandare al cliente.</p><span class="tag">in arrivo</span></div>
       <div class="cat"><b>Listino affilature</b><p class="v-sub">Prezzi di affilatura per lame, frese e coltelli.</p><span class="tag">in arrivo</span></div>
@@ -2333,6 +2363,7 @@ function vista(v, opt = {}) {
   if (v === "appunti") renderAppunti();
   if (v === "disegni") renderDisegni();
   if (v === "cataloghi") renderCataloghi();
+  if (v === "altro") setTimeout(disegnaCalMio, 0); // dopo l'avvio: all'apertura l'app può ripartire da Altro
   if (!opt.resta) window.scrollTo(0, 0);
 }
 $("#tabbar").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (b) vista(b.dataset.v); });
@@ -2520,7 +2551,7 @@ $("#apConfSi").addEventListener("click", async () => {
     for (const fid of n.foto || []) await db.collection("foto").doc(fid).delete().catch(() => {});
     await db.collection(apColl(n._priv)).doc(n.id).delete(); delete AP[n.id];
     renderAppunti(); refresh(); toast("Lavoro eliminato.");
-    if (n.quando) mandaCalendario({ azione: "elimina", id: n.id }); // via anche dal calendario Lavori LBS
+    if (n.quando && lavoroMio(n)) mandaCalendario({ azione: "elimina", id: n.id }); // via anche dal proprio calendario
   } catch (err) { toast("Eliminazione non riuscita."); }
 });
 
@@ -2716,17 +2747,27 @@ $("#wzF").addEventListener("click", async e => {
   }
 });
 
-/* ---------- calendario Google "Lavori LBS": i lavori con la data ci vanno da soli ----------
-   L'app manda il lavoro al programma Google di LBS (strumenti\calendario-lbs.gs), che crea, sposta o
-   cancella l'evento. L'indirizzo del programma sta nel database (impostazioni/calendario), letto solo da
-   chi è ammesso; senza indirizzo (es. pagina su claude.ai) resta il pulsante "Aggiungi a Calendar" nel PDF. */
+/* ---------- calendario Google personale "Lavori LBS": i propri lavori con la data ci vanno da soli ----------
+   Ognuno collega il suo calendario (Altro → Il mio calendario): un programma Google (strumenti\calendario-lbs.gs)
+   sul proprio account, che crea, sposta o cancella l'evento. L'app manda solo i lavori fatti da chi la usa, così
+   nessuno si ritrova nel calendario i lavori degli altri. L'indirizzo del programma sta in calendari/<id>, letto
+   solo dal proprietario; senza indirizzo (o sulla pagina claude.ai) resta il pulsante "Aggiungi a Calendar" nel PDF. */
+const APP_WEB = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/;
 let calUrlP = null;
 function urlCalendario() {
   return calUrlP = calUrlP || (async () => {
-    try { const s = db && await db.collection("impostazioni").doc("calendario").get(), d = s && s.exists ? s.data() : null; return d && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(d.url || "") ? d.url : ""; }
-    catch (e) { return ""; }
+    if (!db || !window.FB) return "";
+    const id = apMio || await mioId(); if (!id) return "";
+    try { const s = await db.collection("calendari").doc(id).get(), d = s && s.exists ? s.data() : null; if (d && APP_WEB.test(d.url || "")) return d.url; } catch (e) {}
+    // il primo collegamento (quello di Luca) era nelle impostazioni comuni: vale solo per chi l'aveva salvato
+    try {
+      const s = await db.collection("impostazioni").doc("calendario").get(), d = s && s.exists ? s.data() : null, me = window.FB.auth && window.FB.auth.currentUser;
+      if (d && APP_WEB.test(d.url || "") && me && d.da === me.email) return d.url;
+    } catch (e) {}
+    return "";
   })();
 }
+const lavoroMio = n => !n.da || n.da === apMio;
 function titoloEvento(n) { const c = clienteDi(n), t = n.testo ? primaRiga(n.testo).slice(0, 50) : ""; return etichettaLavoro(n) + (!c && t ? " · " + t : ""); }
 function eventoDi(id, n) {
   const k = tipoDi(n), a = n.az && BYID.get(n.az), cli = clienteDi(n);
@@ -2742,16 +2783,47 @@ async function mandaCalendario(dati) {
 }
 // dopo il salvataggio: con la data l'evento si crea o si sposta; se la data è stata tolta, l'evento sparisce
 function calendarioDopoSalva(id, n, prima) {
+  if (!lavoroMio(n)) return Promise.resolve(null); // il lavoro di un collega resta nel suo calendario
   if (n.quando) return mandaCalendario(eventoDi(id, n));
   if (prima && prima.quando) return mandaCalendario({ azione: "elimina", id }).then(() => null);
   return Promise.resolve(null);
 }
-// per l'amministratore: manda al calendario tutti i lavori con la data già salvati
+// manda al proprio calendario i propri lavori con la data già salvati
 window.tuttiAlCalendario = async () => {
   let fatti = 0, falliti = 0;
-  for (const n of Object.values(AP)) if (n.quando) { (await mandaCalendario(eventoDi(n.id, n))) ? fatti++ : falliti++; }
+  for (const n of Object.values(AP)) if (n.quando && lavoroMio(n)) { (await mandaCalendario(eventoDi(n.id, n))) ? fatti++ : falliti++; }
   return { fatti, falliti };
 };
+// sezione "Il mio calendario" (Altro): solo nell'app, dove ognuno ha il suo accesso Google
+async function disegnaCalMio() {
+  const box = $("#calMio"); box.hidden = !(db && window.FB); if (box.hidden) return;
+  const u = await urlCalendario();
+  if (u && !$("#calMioUrl").value) $("#calMioUrl").value = u;
+  $("#calMioStato").textContent = u ? "Collegato: i tuoi lavori con una data vanno da soli nel tuo calendario \"Lavori LBS\"." : "Non collegato: segui i passi qui sotto (una volta sola).";
+  $("#calMioPassi").open = !u;
+}
+$("#calMioCopia").addEventListener("click", async () => {
+  try { const t = await (await fetch("calendario-lbs.gs", { cache: "no-cache" })).text(); await navigator.clipboard.writeText(t); toast("Programma copiato: incollalo in script.google.com."); }
+  catch (e) { toast("Non riesco a copiarlo: riprova con internet attivo."); }
+});
+$("#calMioSalva").addEventListener("click", async () => {
+  const url = $("#calMioUrl").value.trim();
+  if (!APP_WEB.test(url)) { $("#calMioStato").textContent = "L'indirizzo deve essere quello dell'applicazione web: https://script.google.com/macros/s/…/exec"; return; }
+  try { await db.collection("calendari").doc(apMio || await mioId()).set({ url, agg: new Date().toISOString() }); calUrlP = null; await disegnaCalMio(); toast("Calendario salvato: ora premi Prova."); }
+  catch (e) { $("#calMioStato").textContent = "Non salvato: riprova tra poco."; }
+});
+$("#calMioProva").addEventListener("click", async () => {
+  calUrlP = null; const u = await urlCalendario(); if (!u) { $("#calMioStato").textContent = "Prima incolla l'indirizzo e premi Salva."; return; }
+  $("#calMioStato").textContent = "Provo…";
+  try { const r = await (await fetch(u, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ azione: "prova" }) })).json(); $("#calMioStato").textContent = r.ok ? `Funziona: calendario "${r.calendario}" pronto.` : "Il programma risponde con un errore: " + (r.errore || ""); }
+  catch (e) { $("#calMioStato").textContent = "Il programma non risponde: controlla l'indirizzo e che l'applicazione web sia per \"Chiunque\"."; }
+});
+$("#calMioTutti").addEventListener("click", async e => {
+  const b = e.currentTarget; if (!(await urlCalendario())) { $("#calMioStato").textContent = "Prima collega il calendario."; return; }
+  b.disabled = true; $("#calMioStato").textContent = "Mando i tuoi lavori con la data…";
+  const r = await window.tuttiAlCalendario(); b.disabled = false;
+  $("#calMioStato").textContent = `Fatto: ${r.fatti} lavori nel tuo calendario` + (r.falliti ? `, ${r.falliti} non riusciti (riprova più tardi).` : ".");
+});
 // link per aggiungere a mano l'evento a Google Calendar (quando il calendario automatico non c'è)
 function linkCalendario(n) {
   const e = eventoDi(n.id, n), g = n.quando.replace(/-/g, ""), p = x => String(x).padStart(2, "0");
@@ -3004,9 +3076,9 @@ async function apriPdf(n) {
   $("#pdfVT").textContent = etichettaLavoro(n);
   box.classList.remove("zoom"); box.innerHTML = `<p>Preparo il PDF…</p>`;
   $("#pdfV").hidden = false; $("#pdfV [data-pv=chiudi]").focus();
-  // "Aggiungi a Calendar" solo dove il calendario automatico non c'è
+  // "Aggiungi a Calendar" dove il calendario automatico non c'è, o per il lavoro di un collega
   const bc = $("#pdfV [data-pv=cal]"); bc.hidden = true;
-  if (n.quando) urlCalendario().then(u => { if (PV === pv) bc.hidden = !!u; });
+  if (n.quando) urlCalendario().then(u => { if (PV === pv) bc.hidden = !!u && lavoroMio(n); });
   try {
     pv.foto = await fotoDi(n); if (PV !== pv) return;
     pv.file = await pdfLavoro(n, pv.foto); if (PV !== pv) return;

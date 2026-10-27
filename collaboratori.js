@@ -19,16 +19,7 @@
       <button type="submit" class="btn primary">Aggiungi</button>
     </form>
     <p class="note" id="collMsg" aria-live="polite"></p>
-    <h2>Calendario Lavori LBS</h2>
-    <p class="note">I lavori con una data vanno da soli nel calendario Google "Lavori LBS". Qui si incolla l'indirizzo dell'App web
-      del programma Google (finisce con /exec): resta nel database, lo leggono solo i collaboratori.</p>
-    <form id="calForm">
-      <label>Indirizzo App web <input name="url" type="url" required placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
-      <button type="submit" class="btn primary">Salva</button>
-      <button type="button" class="btn" id="calProva">Prova</button>
-      <button type="button" class="btn" id="calTutti">Manda i lavori già salvati</button>
-    </form>
-    <p class="note" id="calMsg" aria-live="polite"></p>
+    <p class="note">Calendario: ognuno collega il proprio in Altro → "Il mio calendario Google"; ci vanno solo i suoi lavori.</p>
     <h2>Copia di sicurezza</h2>
     <p class="note">Scarica in un file tutto quello che avete scritto: stati, note, promemoria, visite, foto, giri, appunti, disegni, cataloghi e collaboratori.
       Fallo ogni tanto e prima delle modifiche importanti; per ripristinare si importa il file in Firebase (istruzioni in LEGGIMI.md).</p>
@@ -82,30 +73,6 @@
     const cnt = k => Object.keys(out[k] || {}).length;
     m.textContent = `Scaricato ${nome}: ${cnt("stato")} schede, ${cnt("visite")} visite, ${cnt("appunti")} appunti, ${cnt("disegni")} disegni, ${cnt("foto")} foto, ${cnt("autorizzati")} collaboratori.` + (mancano.length ? ` Non letti: ${mancano.join(", ")}.` : "");
     b.disabled = false;
-  });
-  // calendario: indirizzo del programma Google in impostazioni/calendario (lo scrivono solo gli amministratori)
-  const calMsg = t => { document.getElementById("calMsg").textContent = t || ""; };
-  const calForm = document.getElementById("calForm"), APP_WEB = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/;
-  rt.ref("impostazioni/calendario").get().then(s => { const v = s.val(); if (v && v.url) { calForm.url.value = v.url; calMsg("Calendario collegato."); } }).catch(() => {});
-  calForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const url = calForm.url.value.trim();
-    if (!APP_WEB.test(url)) { calMsg("L'indirizzo deve essere quello dell'App web: https://script.google.com/macros/s/…/exec"); return; }
-    rt.ref("impostazioni/calendario").set({ url, agg: new Date().toISOString(), da: auth.currentUser && auth.currentUser.email })
-      .then(() => calMsg("Salvato: riapri l'app sugli altri telefoni perché lo leggano. Ora tocca \"Prova\"."))
-      .catch(() => calMsg("Non salvato: solo gli amministratori possono cambiarlo."));
-  });
-  document.getElementById("calProva").addEventListener("click", async () => {
-    const url = calForm.url.value.trim(); if (!APP_WEB.test(url)) { calMsg("Prima incolla e salva l'indirizzo."); return; }
-    calMsg("Provo…");
-    try { const r = await (await fetch(url, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ azione: "prova" }) })).json(); calMsg(r.ok ? `Funziona: calendario "${r.calendario}" pronto.` : "Il programma risponde con un errore: " + (r.errore || "")); }
-    catch (err) { calMsg("Il programma non risponde: controlla l'indirizzo e che l'App web sia pubblicata per \"Chiunque\"."); }
-  });
-  document.getElementById("calTutti").addEventListener("click", async e => {
-    if (!window.tuttiAlCalendario) return;
-    e.currentTarget.disabled = true; calMsg("Mando i lavori con la data…");
-    const r = await window.tuttiAlCalendario(); e.currentTarget.disabled = false;
-    calMsg(`Fatto: ${r.fatti} lavori nel calendario` + (r.falliti ? `, ${r.falliti} non riusciti (riprova più tardi).` : "."));
   });
   document.getElementById("collAdd").addEventListener("submit", e => {
     e.preventDefault();
