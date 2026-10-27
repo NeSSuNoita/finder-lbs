@@ -302,6 +302,28 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 .cat b { font-size: 17px; font-family: var(--font-display); letter-spacing: .02em; }
 .cat p { margin: 0; }
 .cat .ap-row .btn { flex: 1 1 auto; justify-content: center; }
+/* cataloghi: sfondo ispirato al logo di ogni marchio (colori e nome in grande, in trasparenza) */
+.cat.marca { --mb: #333; --mf: #fff; position: relative; overflow: hidden; background: var(--mb); border-color: var(--mb); color: var(--mf); min-height: 150px; }
+.cat.marca > * { position: relative; z-index: 1; }
+.cat.marca .wm { position: absolute; z-index: 0; right: -6px; top: -8px; font-family: Arial Black, Arial, Helvetica, sans-serif; font-weight: 900; font-size: 74px; line-height: 1; letter-spacing: -.02em; color: var(--mf); opacity: .16; white-space: nowrap; pointer-events: none; }
+.cat.marca b { color: var(--mf); }
+.cat.marca .v-sub { color: var(--mf); opacity: .85; }
+.cat.marca .msub { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ma, var(--mf)); }
+.cat.marca .btn { background: transparent; border-color: var(--mf); color: var(--mf); }
+.cat.marca .btn.primary { background: var(--mf); border-color: var(--mf); color: var(--mb); font-weight: 700; }
+.cat.marca .tag { background: transparent; border-color: var(--mf); color: var(--mf); }
+.cat.marca.m-cmt { --mb: #f08a1c; --mf: #141414; }
+.cat.marca.m-cmt .wm { font-style: italic; }
+.cat.marca.m-freud { --mb: #d71920; --mf: #fff; }
+.cat.marca.m-freud .wm { text-transform: lowercase; font-family: "Arial Rounded MT Bold", "Arial Black", Arial, sans-serif; letter-spacing: -.03em; }
+.cat.marca.m-ake { --mb: #0e1724; --mf: #fff; --ma: #a6c83c; }
+.cat.marca.m-ake .wm { letter-spacing: .08em; -webkit-text-stroke: 2px #fff; color: transparent; opacity: .22; }
+.cat.marca.m-klein { --mb: #eaf6ee; --mf: #158c43; }
+.cat.marca.m-klein .btn.primary { color: #fff; }
+.cat.marca.m-klein .wm { opacity: .2; }
+.cat.marca.m-uc { --mb: #12203a; --mf: #fff; --ma: #e2342d; }
+.cat.marca.m-uc .wm { font-size: 24px; top: 8px; right: 8px; letter-spacing: .04em; opacity: .28; }
+.cat.marca.m-uc .wm::before { content: "◆ "; color: #e2342d; }
 @media (max-width: 900px) { .dz-grid { grid-template-columns: minmax(0, 1fr); } }
 .results { grid-area: list; display: grid; gap: 8px; min-width: 0; }
 #cards { display: grid; gap: 8px; min-width: 0; }
@@ -2689,12 +2711,21 @@ const CAT0 = [
 ];
 const CAT = {};
 let ctEdit = null;
+// sfondo ispirato al logo: classe dei colori, nome in grande e sottotitolo del marchio
+const MARCHI = {
+  "cmt": { cls: "cmt", wm: "CMT", sub: "Orange Tools" },
+  "freud": { cls: "freud", wm: "freud" },
+  "ache": { cls: "ake", wm: "AKE", sub: "Cutting & better" },
+  "klein": { cls: "klein", wm: "Klein" },
+  "klein-lame": { cls: "klein", wm: "Klein" },
+  "il-centro": { cls: "uc", wm: "UTENSIL CENTRO", sub: "Tools for wood" },
+};
 function renderCataloghi() {
   if ($("#vCataloghi").hidden) return;
   const l = CAT0.map(c => Object.assign({}, c, CAT[c.id] || {})).filter(c => !c.tolto).concat(Object.values(CAT).filter(c => !CAT0.some(x => x.id === c.id) && !c.tolto));
   const puo = db && canWrite;
-  $("#ctList").innerHTML = l.map(c => `<div class="cat" data-ct="${esc(c.id)}"><b>${esc(c.nome)}</b>${c.nota ? `<p class="v-sub">${esc(c.nota)}</p>` : ""}
-      <div class="ap-row">${/^https?:\/\//.test(c.url || "") ? `<a class="btn primary" href="${esc(c.url)}" target="_blank" rel="noopener">Apri il catalogo</a>` : `<span class="tag">catalogo da trovare</span>`}${puo ? `<button type="button" class="btn" data-cta="mod">${c.url ? "Modifica" : "Aggiungi il link"}</button>` : ""}</div></div>`).join("");
+  $("#ctList").innerHTML = l.map(c => { const m = MARCHI[c.id]; return `<div class="cat${m ? " marca m-" + m.cls : ""}" data-ct="${esc(c.id)}">${m ? `<span class="wm" aria-hidden="true">${esc(m.wm)}</span>` : ""}<b>${esc(c.nome)}</b>${m && m.sub ? `<span class="msub">${esc(m.sub)}</span>` : ""}${c.nota ? `<p class="v-sub">${esc(c.nota)}</p>` : ""}
+      <div class="ap-row">${/^https?:\/\//.test(c.url || "") ? `<a class="btn primary" href="${esc(c.url)}" target="_blank" rel="noopener">Apri il catalogo</a>` : `<span class="tag">catalogo da trovare</span>`}${puo ? `<button type="button" class="btn" data-cta="mod">${c.url ? "Modifica" : "Aggiungi il link"}</button>` : ""}</div></div>`; }).join("");
   $("#ctAdd").hidden = !puo;
 }
 function apriCat(c) {
