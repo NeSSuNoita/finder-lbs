@@ -329,6 +329,10 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 .wz-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .wz-thumb button { position: absolute; top: 3px; right: 3px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, .65); color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
 .foto-b { justify-content: center; min-height: 46px; font-size: 15px; cursor: pointer; }
+.wz-fb { display: flex; flex-wrap: wrap; gap: 8px; }
+.wz-fb .foto-b { flex: 1 1 140px; }
+.wz-foto textarea { min-height: 80px; }
+.ap-nota { margin: 0; font-size: 13.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
 /* microfonino in ogni campo di testo: un tocco acceso (rosso pieno), un tocco spento */
 .in-mic { position: relative; display: flex; align-items: center; min-width: 0; }
 .in-mic.grow { flex: 1 1 200px; }
@@ -786,8 +790,14 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <div class="wz-p" data-p="4" hidden>
         <div id="wzRiep"></div>
         <div class="wz-foto">
+          <label class="lab" for="wzNote">Note <span class="v-sub">(facoltative: vanno anche nel PDF)</span></label>
+          <div class="in-mic area"><textarea id="wzNote" placeholder="Scrivi o detta… es. consegna entro venerdì, ritiro in sede, affilatura a filo" aria-label="Note"></textarea><button type="button" class="mc" data-mic="wzNote" aria-label="Detta le note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
+          <div class="lab">Foto</div>
           <div class="wz-thumbs" id="wzThumbs"></div>
-          <label class="btn foto-b"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Aggiungi foto<input type="file" id="wzFotoIn" accept="image/*" capture="environment" hidden></label>
+          <div class="wz-fb">
+            <label class="btn foto-b"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Scatta foto<input type="file" id="wzFotoIn" accept="image/*" capture="environment" hidden></label>
+            <label class="btn foto-b"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg>Allega foto<input type="file" id="wzGalIn" accept="image/*" multiple hidden></label>
+          </div>
         </div>
       </div>
       <p class="v-sub" id="wzSt" aria-live="polite"></p>
@@ -2375,7 +2385,7 @@ function corpoLavoro(n, tutte) {
     ? `<ul class="ap-r">${r.slice(0, max).map(x => `<li>${x.q ? `<b>${esc(x.q)}</b> ` : ""}${esc(x.t)}</li>`).join("")}${r.length > max ? `<li class="v-sub">e altre ${r.length - max} righe</li>` : ""}</ul>`
     : n.testo ? `<p>${esc(n.testo)}</p>` : "";
   const nf = (n.foto || []).length;
-  return `<h3>${esc(etichettaLavoro(n))}</h3>${n.quando ? `<span class="ap-quando">${esc(fmtGiornoLungo(n.quando))}</span>` : ""}${corpo}${nf ? `<span class="ap-quando">📷 ${nf} ${nf === 1 ? "foto" : "foto"}</span>` : ""}`;
+  return `<h3>${esc(etichettaLavoro(n))}</h3>${n.quando ? `<span class="ap-quando">${esc(fmtGiornoLungo(n.quando))}</span>` : ""}${corpo}${n.note ? `<p class="ap-nota"><b>Note:</b> ${esc(n.note)}</p>` : ""}${nf ? `<span class="ap-quando">📷 ${nf} foto</span>` : ""}`;
 }
 function apCardHtml(n) {
   return `<article class="ap k-${tipoDi(n)}" data-ap="${esc(n.id)}">
@@ -2491,6 +2501,7 @@ function apriEditor(n, pre = {}) {
   W = n ? { id: n.id, priv: !!n._priv, tipo: tipoDi(n), az: n.az || "", cliente: n.cliente || "", righe: righeDi(n).map(x => ({ q: x.q || "", t: x.t })), testo: n.testo || "", quando: n.quando || "", t: n.t, da: n.da, foto: (n.foto || []).slice() }
     : { id: null, priv: false, tipo: "", az: pre.az || "", cliente: "", righe: [], testo: "", quando: "", foto: [] };
   W.nuove = []; W.via = []; W.cache = {}; // foto nuove {img, w, h}, foto salvate da togliere, foto salvate già scaricate
+  $("#wzNote").value = n ? n.note || "" : "";
   $("#wzTit").textContent = n ? "Modifica lavoro" : "Nuovo lavoro";
   $("#wzCli").value = ""; $("#wzSug").innerHTML = ""; $("#wzQ").value = ""; $("#wzT").value = ""; $("#wzSt").textContent = "";
   $("#wzTxt").value = W.testo; $("#wzQuando").value = W.quando;
@@ -2593,7 +2604,6 @@ function disegnaFoto() {
   const vecchie = W.foto.map(fid => `<div class="wz-thumb">${W.cache[fid] ? `<img src="${W.cache[fid].img}" alt="Foto salvata">` : ""}<button type="button" data-fx="${esc(fid)}" aria-label="Togli la foto">×</button></div>`);
   const nuove = W.nuove.map((f, i) => `<div class="wz-thumb"><img src="${f.img}" alt="Foto nuova"><button type="button" data-nx="${i}" aria-label="Togli la foto">×</button></div>`);
   $("#wzThumbs").innerHTML = vecchie.concat(nuove).join("");
-  $("#wzFotoIn").closest("label").lastChild.previousSibling.textContent = W.foto.length + W.nuove.length ? "Aggiungi un'altra foto" : "Aggiungi foto";
 }
 async function caricaFotoSalvate() {
   if (!db) return;
@@ -2602,15 +2612,18 @@ async function caricaFotoSalvate() {
     try { const s = await db.collection("foto").doc(fid).get(), d = s && s.exists ? s.data() : null; if (d && d.img && W) { W.cache[fid] = Object.assign({ img: d.img }, await dimImg(d.img)); disegnaFoto(); } } catch (e) {}
   }
 }
-$("#wzFotoIn").addEventListener("change", async e => {
+// "Scatta foto" apre la fotocamera, "Allega foto" la galleria (anche più foto insieme)
+async function aggiungiFoto(e) {
   const files = [...e.target.files]; e.target.value = "";
-  for (const f of files) {
-    $("#wzSt").textContent = "Preparo la foto…";
+  for (const [i, f] of files.entries()) {
+    $("#wzSt").textContent = files.length > 1 ? `Preparo le foto… ${i + 1} di ${files.length}` : "Preparo la foto…";
     const img = await comprimi(f);
     if (!img) { $("#wzSt").textContent = "Non riesco a leggere questa foto: riprova."; continue; }
     W.nuove.push(Object.assign({ img }, await dimImg(img))); disegnaFoto(); $("#wzSt").textContent = "";
   }
-});
+}
+$("#wzFotoIn").addEventListener("change", aggiungiFoto);
+$("#wzGalIn").addEventListener("change", aggiungiFoto);
 $("#wzThumbs").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.nx != null) W.nuove.splice(+b.dataset.nx, 1);
@@ -2619,8 +2632,9 @@ $("#wzThumbs").addEventListener("click", e => {
 });
 // pulsanti in fondo: indietro, avanti, salva, salva e invia
 function lavoroW() {
-  return isMateriale(W.tipo) ? { tipo: W.tipo, az: W.az, cliente: W.cliente, righe: W.righe.filter(r => r.t.trim()).map(r => ({ q: r.q.trim(), t: r.t.trim() })), t: W.t || new Date().toISOString(), da: W.da || apMio }
-    : { tipo: W.tipo, az: W.az, cliente: W.cliente, testo: $("#wzTxt").value.trim(), quando: $("#wzQuando").value, t: W.t || new Date().toISOString(), da: W.da || apMio };
+  const note = $("#wzNote").value.trim();
+  return isMateriale(W.tipo) ? { tipo: W.tipo, az: W.az, cliente: W.cliente, righe: W.righe.filter(r => r.t.trim()).map(r => ({ q: r.q.trim(), t: r.t.trim() })), note, t: W.t || new Date().toISOString(), da: W.da || apMio }
+    : { tipo: W.tipo, az: W.az, cliente: W.cliente, testo: $("#wzTxt").value.trim(), quando: $("#wzQuando").value, note, t: W.t || new Date().toISOString(), da: W.da || apMio };
 }
 $("#wzF").addEventListener("click", async e => {
   const b = e.target.closest("[data-wz]"); if (!b) return;
@@ -2679,6 +2693,13 @@ async function pdfLavoro(n, foto = []) {
     doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text(r.q || "", 20, y);
     doc.setFont("helvetica", "normal"); doc.text(righe, 38, y);
     y += righe.length * 6 + 2; doc.line(20, y - 3, 190, y - 3); y += 3;
+  }
+  // note sotto il materiale
+  if (n.note) {
+    const nr = doc.splitTextToSize(n.note, 170);
+    if (y + 10 + nr.length * 5.5 > 238) { doc.addPage(); y = 25; }
+    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(26, 26, 26); doc.text("Note", 20, y + 4); y += 11;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(11.5); doc.setTextColor(40, 40, 40); doc.text(nr, 20, y); y += nr.length * 5.5 + 6;
   }
   // foto sotto il materiale: larghe al massimo 170 mm e alte 110 mm, su più pagine se servono
   if (foto.length) {
