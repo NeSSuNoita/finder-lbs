@@ -200,6 +200,43 @@ button.link { border: 0; background: none; color: var(--steel); padding: 4px 6px
 .near { display: inline-flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
 .raggi { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .raggi .btn[aria-pressed="true"] { background: var(--steel); border-color: var(--steel); color: var(--on-steel); font-weight: 600; }
+/* promemoria, storico visite, giro del giorno */
+.chip .n { background: var(--conc); color: var(--panel); border-radius: 999px; font-size: 11px; font-weight: 600; padding: 0 6px; line-height: 17px; }
+.tags2 { margin-top: 4px; }
+.tag.rich { background: var(--p3-soft); border-color: var(--p3); color: var(--p3); }
+.tag.rich.scad { background: var(--conc-soft); border-color: var(--conc); color: var(--conc); font-weight: 600; }
+.tag.giro-t { background: var(--steel-soft); border-color: var(--steel); color: var(--steel); }
+.giro-b[aria-pressed="true"] { background: var(--steel-soft); border-color: var(--steel); color: var(--steel); font-weight: 600; }
+.ric { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ric input, .vform select, .vform input[type=date], .vform input[type=text] { font: inherit; font-size: 14px; min-height: 36px; padding: 4px 8px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--panel); color: var(--ink); }
+.vform input[type=text] { width: 100%; }
+.visite { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.visite h4 { margin: 0; }
+.visite .vn { font-size: 12px; color: var(--muted); font-weight: 500; }
+.vform { display: grid; gap: 6px; }
+.vr { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.vr label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+.vfile input { font-size: 13px; max-width: 230px; }
+.vlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.vlist li { font-size: 13.5px; line-height: 1.45; border-left: 3px solid var(--line-2); padding-left: 8px; }
+.vlist .vd { display: block; font-size: 12px; color: var(--muted); }
+.vfoto { display: block; }
+.vfoto img { display: block; max-width: min(100%, 420px); border-radius: 6px; margin-top: 6px; }
+.vdel { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.giro { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: grid; gap: 10px; }
+.giro[hidden] { display: none; }
+.giro-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.giro-h h2 { margin: 0; font-family: var(--font-display); font-size: 18px; }
+.giro-info, .giro-note { font-size: 12.5px; color: var(--muted); margin: 0; }
+.giro-l { list-style: none; margin: 0; padding: 0; display: grid; }
+.giro-l li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.gn { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--steel); color: var(--on-steel); display: grid; place-items: center; font-weight: 600; font-size: 13px; }
+.gt { flex: 1; min-width: 0; display: grid; }
+.gt .link { text-align: left; font-weight: 600; justify-self: start; }
+.gt small { color: var(--muted); font-size: 12px; }
+.gb { display: flex; gap: 4px; }
+.gb .btn { padding: 0 9px; min-width: 34px; justify-content: center; }
+.giro-act, .giro-maps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .results { grid-area: list; display: grid; gap: 8px; min-width: 0; }
 #cards { display: grid; gap: 8px; min-width: 0; }
 .more { justify-self: center; }
@@ -472,6 +509,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <button type="button" class="chip contact" data-q="cont" aria-pressed="true" title="Mostra o nascondi le aziende contattate o visitate">Contattate</button>
       <button type="button" class="chip gold" data-q="cli" aria-pressed="true" title="Mostra o nascondi le aziende già clienti (stato Cliente)">Già clienti</button>
       <button type="button" class="chip conc" data-q="conc" aria-pressed="true" title="Mostra o nascondi i concorrenti (aziende di affilatura, in una sezione a parte)">Concorrenti</button>
+      <button type="button" class="chip rich" data-q="rich" aria-pressed="false" title="Solo le aziende con il promemoria &quot;Ricontattare il&quot; per oggi o già scaduto">Da richiamare<span class="n" id="richN" hidden></span></button>
       <span class="sep" aria-hidden="true"></span>
       <div id="msBox" style="display:contents"></div>
     </div>
@@ -498,12 +536,23 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
           <select id="radius" hidden aria-hidden="true" tabindex="-1"><option value="0">ovunque</option><option value="1">1 km</option><option value="2.5">2,5 km</option><option value="5">5 km</option><option value="10">10 km</option><option value="15">15 km</option></select>
         </span>
         <button type="button" class="btn narrow-only" id="mapToggle" aria-expanded="false" aria-controls="mapbox">Mostra mappa</button>
+        <button type="button" class="btn" id="giroBtn" aria-expanded="false" aria-controls="giroPanel">Giro del giorno <span class="n" id="giroN">0</span></button>
         <button type="button" class="btn" id="export">Esporta CSV</button>
       </div>
     </div>
     <datalist id="comuniList"></datalist>
 
     <section class="results" aria-label="Aziende">
+      <section class="giro" id="giroPanel" aria-labelledby="giroTit" hidden>
+        <div class="giro-h"><h2 id="giroTit">Giro del giorno</h2><span class="giro-info" id="giroInfo"></span></div>
+        <ol class="giro-l" id="giroList"></ol>
+        <div class="giro-act">
+          <button type="button" class="btn primary" id="giroOrd">Ordina il percorso</button>
+          <span id="giroMaps" class="giro-maps"></span>
+          <button type="button" class="btn" id="giroSvuota">Svuota il giro</button>
+        </div>
+        <p class="giro-note" id="giroNote"></p>
+      </section>
       <div id="cards"></div>
       <button type="button" class="btn more" id="more" hidden>Mostra altre</button>
     </section>
@@ -554,16 +603,16 @@ const RANK = { 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0 };
 const MACRO = ["Legno e arredo", "Serramenti e infissi", "Da classificare", "Tipografie, stampa e packaging", "Plastica e nautica", "Allestimenti e stand", "Coibentati, pannelli e coperture", "Metalli e meccanica", "Ferramenta", "Edilizia, vetro e posa", "Concorrenti"];
 const PMACRO = { "Legno e arredo": 1, "Serramenti e infissi": 1, "Da classificare": 1, "Tipografie, stampa e packaging": 2, "Plastica e nautica": 3, "Allestimenti e stand": 3, "Coibentati, pannelli e coperture": 3, "Metalli e meccanica": 4, "Ferramenta": 5, "Edilizia, vetro e posa": 5 };
 const macroIdx = m => { const i = MACRO.indexOf(m); return i < 0 ? 99 : i; };
-const QL = { tel: "Con telefono", mail: "Con email", mach: "Con macchinari" };
+const QL = { tel: "Con telefono", mail: "Con email", mach: "Con macchinari", rich: "Da richiamare" };
 const PAGE = 100;
 const $ = s => document.querySelector(s);
 // fuori da claude.ai window.claude non esiste: la pagina resta in sola lettura
 const use = n => { try { return window.claude && window.claude.use ? Promise.resolve(window.claude.use(n)).catch(() => null) : Promise.resolve(null); } catch (e) { return Promise.resolve(null); } };
 
 let AZ = [], stato = {}, notaN = {}, db = null, userNs = null, canWrite = true, loaded = false;
-let LIST = [], shown = PAGE, selId = null, openId = null, pendingRender = false;
+let LIST = [], shown = PAGE, selId = null, openId = null, pendingRender = false, avvisoRich = false;
 let sortBy = "prio", ref = null, radius = 0;
-const quick = { tel: false, mail: false, mach: false };
+const quick = { tel: false, mail: false, mach: false, rich: false };
 let showConc = true; // interruttore "Concorrenti": acceso all'avvio
 let showCli = true; // interruttore "Già clienti" (stato Cliente): acceso all'avvio
 let showCont = true; // interruttore "Contattate" (stato Contattata o Visitata): acceso all'avvio
@@ -580,6 +629,8 @@ const I = {
   web: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
   pin: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
   dir: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg>',
+  wa: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c.3 2 2.2 4.2 4.5 4.8l1-1.2 2 .9-.4 1.6c-3.3.4-7.4-3.2-7.6-6.8l1.6-.5.9 2z"/></svg>',
+  car: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16h14v-4l-2-5H7l-2 5z"/><circle cx="8" cy="16.5" r="1.6"/><circle cx="16" cy="16.5" r="1.6"/><path d="M5 12h14"/></svg>',
 };
 
 function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
@@ -612,6 +663,11 @@ function isCont(a) { if (a._c) return false; const k = st(a); return k === "cont
 function sitoUrl(u) { return /^https?:\/\//i.test(u) ? u : "https://" + u; }
 function firstOf(s) { return String(s || "").split(/\s*[;,/]\s*/)[0].trim(); }
 function telHref(t) { return "tel:" + firstOf(t).replace(/[^\d+]/g, ""); }
+// WhatsApp solo per i cellulari italiani (3xx…): il primo tra i numeri della scheda, con il prefisso 39
+function waNum(t) {
+  for (const p of String(t || "").split(/\s*[;,/]\s*/)) { const d = p.replace(/[^\d+]/g, "").replace(/^(\+|00)39/, ""); if (/^3\d{8,9}$/.test(d)) return "39" + d; }
+  return "";
+}
 function km(p, a) { const k = Math.cos((p.lat + a._lat) / 2 * Math.PI / 180), dx = (a._lon - p.lon) * k, dy = a._lat - p.lat; return Math.sqrt(dx * dx + dy * dy) * 111.2; }
 function fmtKm(d) { return d < 10 ? d.toFixed(1).replace(".", ",") + " km" : Math.round(d) + " km"; }
 const isNarrow = () => matchMedia("(max-width: 720px)").matches;
@@ -844,6 +900,7 @@ function filtered(skipKey) {
     if (quick.mail && !a.email) continue;
     if (quick.mach && !a.macchinari) continue;
     if (quick.tel && !a.telefono) continue;
+    if (quick.rich && !daRichiamare(a)) continue;
     if (near && !(a._d <= near)) continue;
     if (tq.length) { const nn = notaN[a.id]; for (const t of tq) if (!a._s.includes(t) && !(nn && nn.includes(t))) continue outer; }
     out.push(a);
@@ -864,8 +921,12 @@ function refresh() {
   if (key === "agg") LIST.forEach(a => { const s = stato[a.id]; a._t = s && s.agg ? Date.parse(s.agg) || 0 : 0; });
   // i concorrenti stanno sempre in fondo, ordinati tra loro con lo stesso criterio
   const cmp = SORTS[key];
-  LIST.sort((x, y) => (x._c - y._c) || cmp(x, y));
-  renderCount(); renderCards(); scheduleMap();
+  // "Da richiamare": prima i promemoria più vecchi
+  const ric = quick.rich ? (x, y) => String(stato[x.id].richiamo).localeCompare(String(stato[y.id].richiamo)) : () => 0;
+  LIST.sort((x, y) => (x._c - y._c) || ric(x, y) || cmp(x, y));
+  const nr = AZ.reduce((t, a) => t + (!a._del && daRichiamare(a)), 0);
+  $("#richN").textContent = nr; $("#richN").hidden = !nr;
+  renderCount(); renderCards(); scheduleMap(); renderGiro();
 }
 function renderCount() {
   let p1 = 0, nc = 0, ng = 0, nb = 0;
@@ -940,6 +1001,7 @@ function cardHtml(a) {
         <div class="sub">${hl(a.comune)} (${esc(a.provincia)})${dist}${a.categoria_google ? " · " + hl(a.categoria_google) : ""}</div>
         <div class="tags">${tags}</div>
         ${s.nota && !open ? `<p class="nprev"><span>Nota</span>${hl(s.nota)}</p>` : ""}
+        ${s.richiamo || inGiro(a.id) || (VIS.get(a.id) || []).length ? `<div class="tags tags2">${s.richiamo ? `<span class="tag rich${s.richiamo <= oggi() ? " scad" : ""}">${s.richiamo <= oggi() ? "Da richiamare" : "Richiamare"} ${fmtGiorno(s.richiamo)}</span>` : ""}${inGiro(a.id) ? `<span class="tag giro-t">Giro · tappa ${giro.indexOf(a.id) + 1}</span>` : ""}${(VIS.get(a.id) || []).length ? `<span class="tag">${(VIS.get(a.id) || []).length} ${(VIS.get(a.id) || []).length === 1 ? "visita" : "visite"} · ultima ${fmtGiorno(VIS.get(a.id)[0].giorno)}</span>` : ""}</div>` : ""}
       </div>
       <div class="side">
         <span class="status s-${k}"><i aria-hidden="true"></i>${STATI[k]}</span>
@@ -981,16 +1043,18 @@ function emailHtml(a) {
 }
 function detailHtml(a, s, k, id) {
   const dis = canWrite && db ? "" : "disabled";
-  const mail = (emailList(a)[0] || {}).e || "";
+  const mail = (emailList(a)[0] || {}).e || "", wa = waNum(a.telefono);
   const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((a.nome || "") + " " + (a.indirizzo || ""))}`;
   const voto = parseFloat(a.voto);
   return `<div class="detail" id="d-${id}">
     <div class="actions">
       ${a.telefono ? `<a class="btn primary" href="${esc(telHref(a.telefono))}">${I.tel}Chiama</a>` : ""}
+      ${wa ? `<a class="btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">${I.wa}WhatsApp</a>` : ""}
+      ${a._ok ? `<a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=${a._lat},${a._lon}&travelmode=driving&dir_action=navigate" target="_blank" rel="noopener">${I.dir}Portami qui</a>` : ""}
+      ${a._c ? "" : `<button type="button" class="btn giro-b" data-act="giro" aria-pressed="${inGiro(a.id)}">${I.car}${inGiro(a.id) ? "Nel giro ✓" : "Aggiungi al giro"}</button>`}
       ${mail ? `<a class="btn" href="mailto:${esc(mail)}">${I.mail}Email</a>` : ""}
       ${a.sito ? `<a class="btn" href="${esc(sitoUrl(a.sito))}" target="_blank" rel="noopener">${I.web}Sito</a>` : ""}
       <a class="btn" href="${maps}" target="_blank" rel="noopener">${I.pin}Google Maps</a>
-      ${a._ok ? `<a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=${a._lat},${a._lon}" target="_blank" rel="noopener">${I.dir}Indicazioni</a>` : ""}
       ${prioMenu(a, id, dis)}
     </div>
     <div class="dgrid">
@@ -1005,6 +1069,12 @@ function detailHtml(a, s, k, id) {
         </div>
         <div class="row"><button type="button" class="btn primary" id="sv-${id}" data-act="salva" ${dis}>Salva nota</button><span class="who" data-who="${esc(s.da || "")}">${s.agg ? "Aggiornato il " + new Date(s.agg).toLocaleDateString("it-IT") : ""}</span></div>
         ${!db ? `<p class="who">Stato e note si salvano solo nella pagina pubblicata su claude.ai.</p>` : !canWrite ? `<p class="who">Puoi solo leggere: per modificare chiedi al titolare l'accesso da Contributor in su.</p>` : ""}
+        <div class="row ric">
+          <label class="lab" for="rc-${id}">Ricontattare il</label>
+          <input type="date" id="rc-${id}" value="${esc(s.richiamo || "")}" data-act="richiamo" ${dis}>
+          ${s.richiamo && !dis ? `<button type="button" class="link" data-act="norich">togli promemoria</button>` : ""}
+        </div>
+        ${visiteHtml(a, id, dis)}
       </div>
       <div>
         <h4>Contatti</h4>
@@ -1063,10 +1133,12 @@ function renderCards() {
 async function resolveWho() {
   if (!userNs || !userNs.profiles) return;
   const els = [...$("#cards").querySelectorAll("[data-who]")].filter(e => e.dataset.who && e.textContent);
-  if (!els.length) return;
+  const nom = [...$("#cards").querySelectorAll("[data-whon]")].filter(e => e.dataset.whon && !e.textContent); // nomi nello storico visite
+  if (!els.length && !nom.length) return;
   try {
-    const ps = await userNs.profiles([...new Set(els.map(e => e.dataset.who))]);
+    const ps = await userNs.profiles([...new Set(els.map(e => e.dataset.who).concat(nom.map(e => e.dataset.whon)))]);
     els.forEach(e => { const p = ps && ps[e.dataset.who], n = p && p.name; if (n && e.isConnected && !e.dataset.named) { e.textContent += " da " + n; e.dataset.named = "1"; } });
+    nom.forEach(e => { const p = ps && ps[e.dataset.whon]; if (e.isConnected) e.textContent = (p && p.name) || "un collega"; });
   } catch (e) {}
 }
 
@@ -1650,8 +1722,19 @@ $("#cards").addEventListener("click", e => {
     const el = document.querySelector(`.card[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ block: "nearest" });
   }
   if (act.dataset.act === "salva") salva(id, { nota: card.querySelector("textarea").value.trim() });
+  if (act.dataset.act === "giro") toggleGiro(id);
+  if (act.dataset.act === "norich") salva(id, {}, { quiet: true, drop: ["richiamo"] }).then(ok => ok && toast("Promemoria tolto."));
+  if (act.dataset.act === "registra") registraVisita(id, card, act);
+  if (act.dataset.act === "vfoto") mostraFoto(act);
+  if (act.dataset.act === "vdel") eliminaVisita(id, act.closest("li"), act);
 });
 $("#cards").addEventListener("change", e => {
+  if (e.target.dataset.act === "richiamo") {
+    const id = e.target.closest(".card").dataset.id, v = e.target.value;
+    if (v) salva(id, { richiamo: v }, { quiet: true }).then(ok => ok && toast(`Promemoria: ricontattare il ${fmtGiorno(v)}.`));
+    else salva(id, {}, { quiet: true, drop: ["richiamo"] });
+    return;
+  }
   if (e.target.dataset.act !== "stato") return;
   const card = e.target.closest(".card"), id = card.dataset.id, v = e.target.value;
   // piccola attesa: con le frecce da tastiera si salva solo la scelta finale
@@ -1660,7 +1743,229 @@ $("#cards").addEventListener("change", e => {
 $("#cards").addEventListener("keydown", e => {
   if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && e.target.matches("textarea")) { e.preventDefault(); const card = e.target.closest(".card"); salva(card.dataset.id, { nota: e.target.value.trim() }); }
 });
-$("#cards").addEventListener("focusout", e => { if (pendingRender && e.target.matches("textarea")) setTimeout(() => { if (pendingRender && !(document.activeElement && document.activeElement.matches("#cards textarea"))) { pendingRender = false; refresh(); } }, 200); });
+$("#cards").addEventListener("focusout", e => { if (pendingRender && e.target.matches("textarea, input, select")) setTimeout(() => { if (pendingRender && !scrive()) { pendingRender = false; refresh(); } }, 200); });
+
+/* ---------- promemoria "Ricontattare il" (stato/<id>.richiamo = AAAA-MM-GG) ---------- */
+function oggi() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+function fmtGiorno(g) { const p = String(g || "").split("-"); return p.length === 3 ? `${+p[2]}/${+p[1]}/${p[0]}` : ""; }
+function daRichiamare(a) { const r = stato[a.id] && stato[a.id].richiamo; return !!r && r <= oggi(); }
+
+/* ---------- storico visite (visite/<azienda>__v…) e foto (foto/<azienda>__f…, scaricate solo a richiesta) ---------- */
+const ESITI = { visita: "Visitata, interessata", visnon: "Visitata, non interessata", assente: "Non c'era nessuno", ripassare: "Da ripassare", preventivo: "Preventivo chiesto", telefonata: "Telefonata", utensili: "Ritiro o consegna utensili", foto: "Solo foto (biglietto, insegna)" };
+// lo stato della scheda segue l'esito, solo in avanti (un cliente resta cliente)
+const ESITO_STATO = { visita: "visitata", visnon: "non", assente: "contattata", ripassare: "visitata", preventivo: "visitata", telefonata: "contattata", utensili: "cliente" };
+const ST_RANK = { da: 0, non: 0, contattata: 1, visitata: 2, cliente: 3 };
+const VIS = new Map(); // azienda -> visite, dalla più recente
+const VDOC = {};
+function indicizzaVisite() {
+  VIS.clear();
+  for (const [vid, v] of Object.entries(VDOC)) { if (!v || !v.az) continue; if (!VIS.has(v.az)) VIS.set(v.az, []); VIS.get(v.az).push(Object.assign({ id: vid }, v)); }
+  VIS.forEach(l => l.sort((x, y) => String(y.giorno).localeCompare(String(x.giorno)) || String(y.t).localeCompare(String(x.t))));
+}
+function visiteHtml(a, id, dis) {
+  const l = VIS.get(a.id) || [];
+  const form = dis ? "" : `<div class="vform">
+      <div class="vr">
+        <label>Esito <select id="ve-${id}">${Object.entries(ESITI).map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join("")}</select></label>
+        <label>Giorno <input type="date" id="vg-${id}" value="${oggi()}"></label>
+      </div>
+      <input type="text" id="vn-${id}" maxlength="300" placeholder="Com'è andata? Es. parlato con Marco, usano lame Freud, ripassare a gennaio">
+      <div class="vr">
+        <label class="vfile">Foto <input type="file" id="vf-${id}" accept="image/*" capture="environment"></label>
+        <button type="button" class="btn primary" data-act="registra">Registra</button>
+      </div>
+    </div>`;
+  const li = l.map(v => `<li data-vid="${esc(v.id)}">
+      <span class="vd">${esc(fmtGiorno(v.giorno))} · <span data-whon="${esc(v.da || "")}"></span></span>
+      <b>${esc(ESITI[v.esito] || v.esito || "")}</b>${v.nota ? ` · ${hl(v.nota)}` : ""}
+      ${(v.foto || []).length ? `<button type="button" class="link" data-act="vfoto" data-f="${esc(v.foto.join(","))}">vedi ${v.foto.length === 1 ? "la foto" : v.foto.length + " foto"}</button><span class="vfoto"></span>` : ""}
+      ${dis ? "" : `<button type="button" class="link vdel" data-act="vdel">elimina</button>`}
+    </li>`).join("");
+  return `<div class="visite">
+      <h4>Visite e contatti${l.length ? ` <span class="vn">${l.length}</span>` : ""}</h4>
+      ${form}
+      ${l.length ? `<ol class="vlist">${li}</ol>` : `<p class="who">Nessuna visita registrata.</p>`}
+    </div>`;
+}
+// foto ridotta a JPEG (lato lungo fino a 1000 px) sotto i 230 mila caratteri: il database accetta 256 KB per documento
+function comprimi(file) {
+  return new Promise(res => {
+    const u = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(u);
+      for (const M of [1000, 800, 640, 480]) {
+        const s = Math.min(1, M / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+        c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        for (const q of [0.72, 0.6, 0.5, 0.4]) { const d = c.toDataURL("image/jpeg", q); if (d.length < 230000) return res(d); }
+      }
+      res(null);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); res(null); };
+    img.src = u;
+  });
+}
+const nuovoId = (id, t) => `${id}__${t}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+async function registraVisita(id, card, btn) {
+  const a = BYID.get(id); if (!a || !db) return;
+  const esito = $(`#ve-${CSS.escape(id)}`).value, giorno = $(`#vg-${CSS.escape(id)}`).value || oggi();
+  const nota = $(`#vn-${CSS.escape(id)}`).value.trim(), file = ($(`#vf-${CSS.escape(id)}`).files || [])[0];
+  if (esito === "foto" && !file) { toast("Scegli prima la foto."); return; }
+  btn.disabled = true; toast(file ? "Salvo la visita e la foto…" : "Salvo la visita…");
+  try {
+    const uid = userNs ? await userNs.id() : "", t = new Date().toISOString(), body = { az: id, giorno, t, da: uid || "", esito, nota };
+    if (file) {
+      const img = await comprimi(file);
+      if (!img) { toast("Non riesco a leggere questa foto: prova con un'altra."); btn.disabled = false; return; }
+      const fid = nuovoId(id, "f");
+      await db.collection("foto").doc(fid).set({ az: id, t, da: uid || "", img });
+      body.foto = [fid];
+    }
+    const vid = nuovoId(id, "v");
+    await db.collection("visite").doc(vid).set(body);
+    VDOC[vid] = body; indicizzaVisite();
+    const cur = st(a), ns = ESITO_STATO[esito];
+    if (ns && cur !== "cliente" && (ns === "non" || ST_RANK[ns] > ST_RANK[cur])) await salva(id, { stato: ns }, { quiet: true });
+    else refresh();
+    toast(ns && ns !== cur && cur !== "cliente" ? `Visita registrata. Stato: ${STATI[ns]}.` : "Visita registrata.");
+  } catch (e) {
+    toast(e && e.code === "quota_exceeded" ? "Archivio pieno: non riesco a salvare." : "Salvataggio non riuscito, riprova tra poco.");
+    btn.disabled = false;
+  }
+}
+async function mostraFoto(btn) {
+  const box = btn.nextElementSibling; if (!box) return;
+  if (box.childElementCount) { box.textContent = ""; btn.textContent = btn.dataset.lab; return; }
+  btn.dataset.lab = btn.textContent; btn.textContent = "carico…";
+  for (const fid of btn.dataset.f.split(",")) {
+    try {
+      const s = await db.collection("foto").doc(fid).get();
+      const d = s && s.exists ? s.data() : null;
+      if (d && /^data:image\/jpeg;base64,/.test(d.img || "")) { const im = document.createElement("img"); im.src = d.img; im.alt = "Foto della visita"; im.loading = "lazy"; box.append(im); }
+    } catch (e) {}
+  }
+  btn.textContent = box.childElementCount ? "nascondi foto" : "foto non disponibile";
+}
+async function eliminaVisita(id, li, btn) {
+  if (btn.dataset.ok !== "1") { btn.dataset.ok = "1"; btn.textContent = "tocca di nuovo per eliminare"; setTimeout(() => { if (btn.isConnected) { btn.dataset.ok = ""; btn.textContent = "elimina"; } }, 4000); return; }
+  const vid = li.dataset.vid, v = VDOC[vid];
+  try {
+    for (const fid of (v && v.foto) || []) await db.collection("foto").doc(fid).delete().catch(() => {});
+    await db.collection("visite").doc(vid).delete();
+    delete VDOC[vid]; indicizzaVisite(); refresh(); toast("Visita eliminata.");
+  } catch (e) { toast("Eliminazione non riuscita."); }
+}
+
+/* ---------- giro del giorno: tappe scelte, ordinate per strada più breve e aperte in Google Maps ---------- */
+// ognuno ha il suo giro (giri/<id persona>): preparato sul PC lo si ritrova sul telefono
+let giro = [], giroUid = "", giroQ = Promise.resolve();
+const GIRO_LS = "finder-giro";
+function inGiro(id) { return giro.includes(id); }
+function salvaGiro() {
+  try { localStorage.setItem(GIRO_LS, JSON.stringify(giro)); } catch (e) {}
+  if (db && canWrite && giroUid) { const ids = giro.slice(); giroQ = giroQ.then(() => db.collection("giri").doc(giroUid).set({ ids, agg: new Date().toISOString() })).catch(() => {}); }
+  refresh();
+}
+function toggleGiro(id) {
+  const a = BYID.get(id); if (!a) return;
+  if (inGiro(id)) { giro = giro.filter(x => x !== id); toast(`${a.nome}: tolta dal giro.`); }
+  else { giro.push(id); toast(`${a.nome}: aggiunta al giro (tappa ${giro.length}).`); }
+  salvaGiro();
+}
+// punto di partenza: la posizione GPS (nell'app), altrimenti il comune scritto in "da"
+function partenza() { const p = window.FINDER_POS && window.FINDER_POS(); return p ? { lat: p.lat, lon: p.lon, label: "la tua posizione" } : ref ? { lat: ref.lat, lon: ref.lon, label: ref.label } : null; }
+const dKm = (p, q) => { const k = Math.cos((p.lat + q.lat) / 2 * Math.PI / 180), dx = (q.lon - p.lon) * k, dy = q.lat - p.lat; return Math.sqrt(dx * dx + dy * dy) * 111.2; };
+function ordinaGiro() {
+  const st0 = partenza(), con = giro.map(id => BYID.get(id)).filter(a => a && a._ok), senza = giro.filter(id => !(BYID.get(id) || {})._ok);
+  if (con.length < 2) { toast("Servono almeno due tappe con l'indirizzo sulla mappa."); return; }
+  // vicino più vicino, poi scambi (2-opt) finché il percorso si accorcia; distanze in linea d'aria
+  const P = con.map(a => ({ id: a.id, lat: a._lat, lon: a._lon })), r = [];
+  let cur = st0 || P[0];
+  while (P.length) { let bi = 0, bd = Infinity; P.forEach((p, i) => { const d = dKm(cur, p); if (d < bd) { bd = d; bi = i; } }); cur = P.splice(bi, 1)[0]; r.push(cur); }
+  const R = st0 ? [st0, ...r] : r, f = st0 ? 1 : 0;
+  for (let giri = 0, meglio = true; meglio && giri < 50; giri++) {
+    meglio = false;
+    for (let i = Math.max(1, f); i < R.length - 1; i++) for (let k = i + 1; k < R.length; k++) {
+      const prima = dKm(R[i - 1], R[i]) + (k + 1 < R.length ? dKm(R[k], R[k + 1]) : 0);
+      const dopo = dKm(R[i - 1], R[k]) + (k + 1 < R.length ? dKm(R[i], R[k + 1]) : 0);
+      if (dopo < prima - 1e-6) { R.splice(i, k - i + 1, ...R.slice(i, k + 1).reverse()); meglio = true; }
+    }
+  }
+  giro = R.slice(f).map(p => p.id).concat(senza);
+  salvaGiro(); toast(st0 ? `Percorso ordinato partendo da ${st0.label}.` : "Percorso ordinato. Per partire da un punto preciso premi \"Dove sono\" o scrivi il comune in \"da\".");
+}
+// Google Maps apre al massimo 10 tappe per volta (9 intermedie + arrivo): oltre, il giro si divide in parti
+function linkMaps() {
+  const pts = giro.map(id => BYID.get(id)).filter(a => a && a._ok), out = [];
+  for (let i = 0; i < pts.length; i += 10) {
+    const c = pts.slice(i, i + 10), o = i ? pts[i - 1] : null, dest = c[c.length - 1], wp = c.slice(0, -1).map(a => `${a._lat},${a._lon}`);
+    const u = `https://www.google.com/maps/dir/?api=1${o ? `&origin=${o._lat},${o._lon}` : ""}&destination=${dest._lat},${dest._lon}${wp.length ? `&waypoints=${encodeURIComponent(wp.join("|"))}` : ""}&travelmode=driving`;
+    out.push(`<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${I.dir}${pts.length > 10 ? `Tappe ${i + 1}–${i + c.length} in Google Maps` : "Apri in Google Maps"}</a>`);
+  }
+  return out.join("");
+}
+function renderGiro() {
+  $("#giroN").textContent = giro.length;
+  const p = $("#giroPanel"); if (p.hidden) return;
+  const st0 = partenza(); let tot = 0, prev = st0;
+  $("#giroList").innerHTML = giro.map((id, i) => {
+    const a = BYID.get(id); if (!a) return "";
+    const d = prev && a._ok ? dKm(prev, { lat: a._lat, lon: a._lon }) : NaN; if (isFinite(d)) tot += d;
+    if (a._ok) prev = { lat: a._lat, lon: a._lon };
+    return `<li data-id="${esc(id)}"><span class="gn">${i + 1}</span><span class="gt"><button type="button" class="link" data-g="apri">${esc(a.nome)}</button><small>${esc(a.comune || "")}${isFinite(d) ? ` · ${fmtKm(d)}` : a._ok ? "" : " · senza posizione sulla mappa"}${daRichiamare(a) ? " · da richiamare" : ""}</small></span>
+      <span class="gb"><button type="button" class="btn" data-g="su" aria-label="Sposta prima" ${i ? "" : "disabled"}>↑</button><button type="button" class="btn" data-g="giu" aria-label="Sposta dopo" ${i < giro.length - 1 ? "" : "disabled"}>↓</button><button type="button" class="btn" data-g="via" aria-label="Togli dal giro">×</button></span></li>`;
+  }).join("");
+  $("#giroInfo").textContent = giro.length ? `${giro.length} ${giro.length === 1 ? "tappa" : "tappe"}${tot ? ` · circa ${fmtKm(tot)} in linea d'aria${st0 ? " da " + st0.label : ""}` : ""}` : "";
+  $("#giroMaps").innerHTML = giro.length ? linkMaps() : "";
+  $("#giroOrd").hidden = $("#giroSvuota").hidden = !giro.length;
+  $("#giroNote").textContent = giro.length ? "Su strada i chilometri sono di più: il percorso esatto lo calcola Google Maps." : "Il giro è vuoto: apri una scheda e tocca \"Aggiungi al giro\". Poi qui ordini le tappe e apri il percorso in Google Maps.";
+}
+$("#giroBtn").addEventListener("click", () => {
+  const p = $("#giroPanel"); p.hidden = !p.hidden; $("#giroBtn").setAttribute("aria-expanded", String(!p.hidden));
+  renderGiro(); if (!p.hidden) p.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("#giroOrd").addEventListener("click", ordinaGiro);
+$("#giroSvuota").addEventListener("click", e => {
+  const b = e.currentTarget;
+  if (b.dataset.ok !== "1") { b.dataset.ok = "1"; b.textContent = "Tocca di nuovo per svuotare"; setTimeout(() => { b.dataset.ok = ""; b.textContent = "Svuota il giro"; }, 4000); return; }
+  b.dataset.ok = ""; b.textContent = "Svuota il giro"; giro = []; salvaGiro(); toast("Giro svuotato.");
+});
+$("#giroList").addEventListener("click", e => {
+  const b = e.target.closest("[data-g]"); if (!b) return;
+  const id = b.closest("li").dataset.id, i = giro.indexOf(id);
+  if (b.dataset.g === "via") { giro.splice(i, 1); salvaGiro(); return; }
+  if (b.dataset.g === "su" && i > 0) { [giro[i - 1], giro[i]] = [giro[i], giro[i - 1]]; salvaGiro(); return; }
+  if (b.dataset.g === "giu" && i < giro.length - 1) { [giro[i + 1], giro[i]] = [giro[i], giro[i + 1]]; salvaGiro(); return; }
+  if (b.dataset.g === "apri") {
+    // apre la scheda nell'elenco: se i filtri la nascondono, li azzera
+    if (!LIST.some(a => a.id === id)) clearAll();
+    const k = LIST.findIndex(a => a.id === id); if (k >= shown) shown = Math.ceil((k + 1) / PAGE) * PAGE;
+    openId = id; selId = id; renderCards(); scheduleMap(); focusMap(BYID.get(id));
+    const el = document.querySelector(`.card[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
+async function avviaGiro() {
+  try { const g = JSON.parse(localStorage.getItem(GIRO_LS) || "[]"); if (Array.isArray(g)) giro = g.filter(id => BYID.has(id)); } catch (e) {}
+  renderGiro();
+  if (!db || !userNs) return;
+  try { giroUid = await userNs.id(); } catch (e) {}
+  if (!giroUid) return;
+  db.collection("giri").onSnapshot(snap => {
+    snap.docChanges().forEach(ch => {
+      if (ch.doc.id !== giroUid || ch.type === "removed") return;
+      const ids = (ch.doc.data() || {}).ids;
+      if (Array.isArray(ids)) { giro = ids.filter(id => BYID.has(id)); try { localStorage.setItem(GIRO_LS, JSON.stringify(giro)); } catch (e) {} }
+    });
+    if (!scrive()) refresh();
+  }, () => {});
+}
+// si sta scrivendo in una scheda (nota, visita, foto scelta): niente ridisegno fino all'uscita
+function scrive() {
+  const ae = document.activeElement;
+  if (ae && ae.matches("#cards textarea, #cards input, #cards select")) return true;
+  const f = document.querySelector(".card.open .vform");
+  return !!(f && (f.querySelector("input[type=text]").value || (f.querySelector("input[type=file]").files || []).length));
+}
 
 /* ---------- avvio ---------- */
 (async () => {
@@ -1715,11 +2020,24 @@ $("#cards").addEventListener("focusout", e => { if (pendingRender && e.target.ma
       const a = BYID.get(id); if (a) sync(a); // priorità o eliminazione cambiate da un collega
     });
     renderKpis();
-    // non ridisegnare mentre qualcuno sta scrivendo una nota: lo farà all'uscita dal campo
-    if (document.activeElement && document.activeElement.matches("#cards textarea")) { pendingRender = true; return; }
+    // non ridisegnare mentre qualcuno sta scrivendo una nota o una visita: lo farà all'uscita dal campo
+    if (scrive()) { pendingRender = true; return; }
     refresh();
     if (openMs) { openMs.c = counts(openMs.m); drawPop(); }
+    // all'apertura: avviso dei promemoria di oggi o scaduti
+    if (!avvisoRich) {
+      avvisoRich = true;
+      const n = AZ.reduce((t, a) => t + (!a._del && daRichiamare(a)), 0);
+      if (n) toast(`Oggi da richiamare: ${n} ${n === 1 ? "azienda" : "aziende"}.`, { label: "Mostra", fn: () => { quick.rich = true; changed(); } });
+    }
   }, () => {});
+  if (db) db.collection("visite").onSnapshot(snap => {
+    snap.docChanges().forEach(ch => { if (ch.type === "removed") delete VDOC[ch.doc.id]; else VDOC[ch.doc.id] = ch.doc.data(); });
+    indicizzaVisite();
+    if (scrive()) { pendingRender = true; return; }
+    refresh();
+  }, () => {});
+  avviaGiro();
   refresh();
   startLive();
 })();

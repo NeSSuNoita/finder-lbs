@@ -18,7 +18,12 @@
       <label class="ck"><input name="admin" type="checkbox"> può gestire i collaboratori</label>
       <button type="submit" class="btn primary">Aggiungi</button>
     </form>
-    <p class="note" id="collMsg" aria-live="polite"></p>`;
+    <p class="note" id="collMsg" aria-live="polite"></p>
+    <h2>Copia di sicurezza</h2>
+    <p class="note">Scarica in un file tutto quello che avete scritto: stati, note, promemoria, visite, foto, giri e collaboratori.
+      Fallo ogni tanto e prima delle modifiche importanti; per ripristinare si importa il file in Firebase (istruzioni in LEGGIMI.md).</p>
+    <button type="button" class="btn" id="backupBtn">Scarica copia di sicurezza</button>
+    <p class="note" id="backupMsg" aria-live="polite"></p>`;
   riga.after(panel);
   const msg = t => { document.getElementById("collMsg").textContent = t || ""; };
   document.getElementById("collBtn").addEventListener("click", e => {
@@ -49,6 +54,23 @@
       ul.append(li);
     });
   }
+  // copia di sicurezza: i nodi scritti dalle persone (l'elenco aziende "dati" si rifà dal PC con prepara-firebase.ps1)
+  document.getElementById("backupBtn").addEventListener("click", async e => {
+    const b = e.currentTarget, m = document.getElementById("backupMsg");
+    b.disabled = true; m.textContent = "Preparo la copia…";
+    const out = { esportato: new Date().toISOString(), da: auth.currentUser && auth.currentUser.email };
+    const nodi = ["autorizzati", "utenti", "stato", "visite", "foto", "giri"], mancano = [];
+    for (const n of nodi) { try { out[n] = (await rt.ref(n).get()).val() || {}; } catch (err) { mancano.push(n); } }
+    const d = new Date(), p = x => String(x).padStart(2, "0"); // ora italiana nel nome del file
+    const nome = `finder-copia-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], { type: "application/json" }));
+    a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    const cnt = k => Object.keys(out[k] || {}).length;
+    m.textContent = `Scaricato ${nome}: ${cnt("stato")} schede, ${cnt("visite")} visite, ${cnt("foto")} foto, ${cnt("autorizzati")} collaboratori.` + (mancano.length ? ` Non letti: ${mancano.join(", ")}.` : "");
+    b.disabled = false;
+  });
   document.getElementById("collAdd").addEventListener("submit", e => {
     e.preventDefault();
     const f = e.target, email = f.email.value.trim().toLowerCase(), nome = f.nome.value.trim();

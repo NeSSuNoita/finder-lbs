@@ -11,6 +11,7 @@
   let ultimoInvio = 0, ultimoInviato = null, ultimoRef = null, ultimoRefT = 0;
   let condividi = ls("gps-share") !== "0";
   const altri = new Map(); // uid -> { marker, el }
+  window.FINDER_POS = () => pos; // la pagina la usa come partenza per ordinare il giro del giorno
   // distanza in km tra due punti {lat, lon}
   const dist = (a, b) => { const k = Math.cos((a.lat + b.lat) / 2 * Math.PI / 180), dx = (b.lon - a.lon) * k, dy = b.lat - a.lat; return Math.sqrt(dx * dx + dy * dy) * 111.2; };
 

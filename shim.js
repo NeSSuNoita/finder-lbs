@@ -4,7 +4,8 @@
    Struttura del database: dati/aziende, dati/concorrenti (elenco), stato/<id> (stato e note),
    autorizzati/<email con le virgole> (nome, email, admin: chi può entrare, gestito dall'amministratore),
    utenti/<uid> (nome ed email, scritti da ciascuno al primo accesso), presenza/<uid> (chi ha l'app aperta),
-   posizioni/<uid> (GPS). Le regole del database fanno entrare solo chi è in autorizzati/. */
+   posizioni/<uid> (GPS), visite/<azienda>__v… (storico visite), foto/<azienda>__f… (foto delle visite),
+   giri/<uid> (giro del giorno di ciascuno). Le regole del database fanno entrare solo chi è in autorizzati/. */
 (function () {
   firebase.initializeApp(window.FIREBASE_CONFIG);
   const auth = firebase.auth(), rt = firebase.database();
@@ -40,7 +41,9 @@
       doc: id => ({
         // il database non accetta valori undefined: passano dal JSON
         set: body => ref.child(id).set(JSON.parse(JSON.stringify(body))),
-        delete: () => ref.child(id).remove()
+        delete: () => ref.child(id).remove(),
+        // lettura singola (le foto delle visite si scaricano solo quando si aprono)
+        get: async () => { const s = await ref.child(id).get(); const v = s.val(); return { id, exists: v != null, data: () => v }; }
       }),
       onSnapshot(cb, onErr) {
         let coda = [], t = 0;
