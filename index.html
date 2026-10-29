@@ -185,6 +185,12 @@ button.link { border: 0; background: none; color: var(--steel); padding: 4px 6px
 
 .active-filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .active-filters:empty { display: none; }
+/* sul computer le etichette restano in fila come prima; pulsante e pannello servono solo sul telefono */
+.af-open, .af-clear, .af-back, .af-h { display: none; }
+.af-sheet, .af-pills { display: contents; }
+/* la mappa resta sotto alla barra dei filtri, anche sui telefoni che la disegnano su un livello a parte */
+.mapbox, .gmap { isolation: isolate; }
+.gmap { position: relative; z-index: 0; }
 .pill { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; background: var(--steel-soft); color: var(--steel); border-radius: 4px; padding: 2px 2px 2px 8px; max-width: 100%; }
 .pill button { border: 0; background: none; color: inherit; padding: 0 6px; font-size: 15px; line-height: 1; cursor: pointer; min-height: 22px; }
 
@@ -642,6 +648,8 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
   .only-narrow { display: inline-flex !important; }
   .hint .kb { display: none; }
   .bar:not(.open) .filters, .bar:not(.open) .hint { display: none; }
+  /* pannello Filtri aperto: la barra scorre via con la pagina invece di restare sopra a mappa ed elenco */
+  .bar.open { position: relative; }
   .search input, .ms-top input, .tools select, .tools input, .work textarea { font-size: 16px; }
   .chip, .ms-btn, .btn, .tools select, .tools input, .seg span { height: 40px; }
   .filters .sep { display: none; }
@@ -652,6 +660,19 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
   .ms-list { max-height: none; min-height: 0; }
   .ms-list label { padding: 10px 6px; font-size: 14px; }
   .ms-back:not([hidden]) { display: block; }
+  /* filtri attivi: un pulsante "N filtri attivi" e "Azzera tutto"; le etichette in un pannello dal basso */
+  .af-open { display: inline-flex; height: 36px; font-weight: 600; color: var(--steel); background: var(--steel-soft); border-color: var(--steel); }
+  .af-clear { display: inline; font-size: 13px; }
+  .af-sheet { display: none; }
+  .active-filters.open .af-back { display: block; position: fixed; inset: 0; z-index: 44; background: var(--scrim); }
+  .active-filters.open .af-sheet { display: grid; gap: 12px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; max-height: 75vh; overflow-y: auto; overscroll-behavior: contain; background: var(--panel); border-top: 1px solid var(--line-2); border-radius: 12px 12px 0 0; box-shadow: var(--shadow); padding: 14px max(14px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+  /* con un pannello aperto la barra sale sopra la barra delle sezioni in basso */
+  body.af-on .bar, .bar:has(.active-filters.open), .bar:has(.ms-pop:not([hidden])) { z-index: 46; }
+  .af-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 15px; }
+  .af-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .af-sheet .pill { font-size: 14px; padding: 4px 2px 4px 10px; }
+  .af-sheet .pill button { min-height: 32px; min-width: 32px; font-size: 18px; }
+  .af-sheet > .link { justify-self: start; font-size: 14px; }
   .tools { width: 100%; }
   .tools input { width: 130px; flex: 1; }
   .card-head { grid-template-columns: 36px minmax(0, 1fr); grid-template-areas: "p info" "side side"; padding: 10px; gap: 8px 10px; }
@@ -1319,16 +1340,30 @@ function renderActive() {
   if (!showNeg) pills.push([negDist ? `Nascosti negozi e aziende oltre ${negDist < 1000 ? negDist + " m" : negDist / 1000 + " km"} dalle zone artigianali` : "Negozi nascosti", "neg", ""]);
   if (!showConc && NCONC) pills.push(["Concorrenti nascosti", "conc", ""]);
   if (ref && radius) pills.push([`Entro ${String(radius).replace(".", ",")} km da ${ref.label}`, "radius", ""]);
-  $("#active").innerHTML = pills.length ? pills.map(([t, k, v]) => `<span class="pill">${esc(t)}<button type="button" aria-label="Togli il filtro ${esc(t)}" data-k="${k}" data-v="${esc(v)}">×</button></span>`).join("") + `<button type="button" class="link" data-clear>Azzera tutto</button>` : "";
-  const n = pills.length; $("#fCount").textContent = n; $("#fCount").hidden = !n;
+  // sul telefono le etichette stanno in un pannello che sale dal basso, aperto da un pulsante solo:
+  // così la barra in alto resta bassa e non copre mappa ed elenco
+  const n = pills.length; if (!n) afOpen = false;
+  $("#active").classList.toggle("open", afOpen); document.body.classList.toggle("af-on", afOpen);
+  $("#active").innerHTML = n ? `<button type="button" class="btn af-open" data-afopen aria-haspopup="dialog" aria-expanded="${afOpen}" aria-controls="afSheet">${n} ${n === 1 ? "filtro attivo" : "filtri attivi"} <span aria-hidden="true">▾</span></button>`
+    + `<button type="button" class="link af-clear" data-clear>Azzera tutto</button>`
+    + `<div class="af-back" data-afclose></div><div class="af-sheet" id="afSheet" role="dialog" aria-label="Filtri attivi">`
+    + `<div class="af-h"><b>Filtri attivi</b><button type="button" class="btn" data-afclose>Chiudi</button></div>`
+    + `<div class="af-pills">${pills.map(([t, k, v]) => `<span class="pill">${esc(t)}<button type="button" aria-label="Togli il filtro ${esc(t)}" data-k="${k}" data-v="${esc(v)}">×</button></span>`).join("")}</div>`
+    + `<button type="button" class="link" data-clear>Azzera tutto</button></div>` : "";
+  $("#fCount").textContent = n; $("#fCount").hidden = !n;
   renderMore();
 }
 function clearAll() {
   MS.forEach(m => sel[m.key].clear()); Object.keys(quick).forEach(k => quick[k] = false); showConc = true; showNeg = true; showCli = true; showCont = true;
   radius = 0; $("#radius").value = "0"; $("#q").value = ""; savePref(); changed();
 }
+let afOpen = false; // pannello dei filtri attivi aperto (solo telefono)
+function setAf(on) { afOpen = on; renderActive(); if (on) { const b = $("#afSheet [data-afclose]"); if (b) b.focus(); } else { const b = $("#active [data-afopen]"); if (b) b.focus(); } }
+$("#active").addEventListener("keydown", e => { if (e.key === "Escape" && afOpen) { e.preventDefault(); setAf(false); } });
 $("#active").addEventListener("click", e => {
-  if (e.target.closest("[data-clear]")) { clearAll(); return; }
+  if (e.target.closest("[data-afopen]")) { setAf(!afOpen); return; }
+  if (e.target.closest("[data-afclose]")) { setAf(false); return; }
+  if (e.target.closest("[data-clear]")) { afOpen = false; clearAll(); return; }
   const b = e.target.closest("button[data-k]"); if (!b) return;
   const k = b.dataset.k, v = b.dataset.v;
   if (k.startsWith("grp:")) { const m = MS.find(x => x.key === k.slice(4)); groupVals(m, v).forEach(x => sel[m.key].delete(x)); } else if (k === "quick") quick[v] = false; else if (k === "conc") showConc = true; else if (k === "neg") showNeg = true; else if (k === "cli") showCli = true; else if (k === "cont") showCont = true; else if (k === "radius") { radius = 0; $("#radius").value = "0"; savePref(); } else sel[k].delete(v);

@@ -1,6 +1,6 @@
 /* FINDER app – funzionamento senza rete per la parte grafica (i dati arrivano da Firebase).
    VERSIONE cambia a ogni costruzione dell'app: così i telefoni scaricano l'aggiornamento. */
-const VERSIONE = "finder-app-20261029-094829"; // finder-app-<data>; la cache "finder-dati" (elenco aziende) non si tocca
+const VERSIONE = "finder-app-20261029-132815"; // finder-app-<data>; la cache "finder-dati" (elenco aziende) non si tocca
 const BASE = ["./", "index.html", "app.css", "shim.js", "gps.js", "collaboratori.js", "firebase-config.js", "manifest.webmanifest", "icons/logo-192.png", "icons/logo-512.png", "mappa/acque.geojson", "mappa/comuni.geojson", "mappa/etichette.geojson", "mappa/mare.geojson", "mappa/strade.geojson", "mappa/zone.geojson"];
 // "reload": i file si prendono da GitHub e non dalla memoria del browser (GitHub li fa tenere 10 minuti)
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSIONE).then(c => c.addAll(BASE.map(x => new Request(x, { cache: "reload" })))).then(() => self.skipWaiting())); });
