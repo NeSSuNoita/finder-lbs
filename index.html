@@ -519,6 +519,10 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 .sep-conc.sep-neg { color: var(--muted); }
 .sep-conc.sep-neg::after { background: var(--line-2); opacity: 1; }
 .count .neg-link { color: var(--muted); font-size: 13px; padding: 0 2px; }
+/* numeri per priorità sopra l'elenco: stessi colori dei pallini in mappa */
+.count .pcnt { font-weight: 600; white-space: nowrap; }
+.count .pcnt .pdot { width: 9px; height: 9px; margin-right: 4px; vertical-align: 0; }
+.count .pc1 { color: var(--p1); } .count .pc2 { color: var(--p2-ink); } .count .pc3 { color: var(--p3); } .count .pc4 { color: var(--p4-ink); } .count .pc5 { color: var(--muted); }
 .chip.neg .n { background: var(--p5); }
 .pm-it.pm-neg[aria-checked="true"]::after { content: "✓"; margin-left: auto; font-weight: 700; }
 /* già clienti: in oro, nell'elenco e sulla mappa */
@@ -1312,11 +1316,13 @@ function refresh() {
   renderCount(); renderCards(); scheduleMap(); renderGiro();
 }
 function renderCount() {
-  let p1 = 0, nc = 0, ng = 0, nb = 0, nn = 0;
-  for (const a of LIST) { if (a._c) nc++; else { if (a._pr === 1 && !a._n) p1++; if (isCli(a)) ng++; else if (isCont(a)) nb++; if (a._n) nn++; } }
+  // quante per priorità (negozi esclusi), sempre sull'elenco filtrato, nei colori della mappa
+  const pp = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  let nc = 0, ng = 0, nb = 0, nn = 0;
+  for (const a of LIST) { if (a._c) nc++; else { if (!a._n) pp[a._pr]++; if (isCli(a)) ng++; else if (isCont(a)) nb++; if (a._n) nn++; } }
   const n = LIST.length - nc;
   let h = `<b>${fmtN(n)}</b> ${n === 1 ? "azienda" : "aziende"}`;
-  if (n) h += ` · ${fmtN(p1)} nel core`;
+  if (n) h += [1, 2, 3, 4, 5].filter(p => pp[p] || p === 1).map(p => ` · <span class="pcnt pc${p}" title="${esc(PRIO[p])}"><i class="pdot pv${p}" aria-hidden="true"></i>${fmtN(pp[p])} ${p === 1 ? "core" : "prio " + p}</span>`).join("");
   if (nb) h += ` · <span class="contact-txt">${fmtN(nb)} ${nb === 1 ? "contattata" : "contattate"}</span>`;
   if (ng) h += ` · <span class="gold-txt">${fmtN(ng)} già ${ng === 1 ? "cliente" : "clienti"}</span>`;
   if (nn) h += ` · <button type="button" class="link neg-link" data-goneg>${fmtN(nn)} ${nn === 1 ? "negozio" : "negozi"} in fondo</button>`;
