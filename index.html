@@ -524,6 +524,11 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 .count .pcnt .pdot { width: 9px; height: 9px; margin-right: 4px; vertical-align: 0; }
 .count .pc1 { color: var(--p1); } .count .pc2 { color: var(--p2-ink); } .count .pc3 { color: var(--p3); } .count .pc4 { color: var(--p4-ink); } .count .pc5 { color: var(--muted); }
 .chip.neg .n { background: var(--p5); }
+/* tendina che compare spegnendo "Negozi": nasconde anche le aziende lontane dalle zone artigianali */
+.neg-sel { height: 34px; border: 1px dashed var(--p5); background: var(--p5-soft); color: var(--ink); border-radius: 6px; font: inherit; font-size: 13px; font-weight: 600; padding: 0 8px; max-width: 100%; cursor: pointer; }
+.neg-sel:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
+.count .lont-txt { color: var(--muted); font-style: italic; }
+.legend i.zona { width: 14px; height: 10px; border-radius: 2px; background: color-mix(in srgb, var(--p3) 22%, transparent); box-shadow: inset 0 0 0 1.5px var(--p3); vertical-align: -1px; }
 .pm-it.pm-neg[aria-checked="true"]::after { content: "✓"; margin-left: auto; font-weight: 700; }
 /* già clienti: in oro, nell'elenco e sulla mappa */
 .legend i.gold { background: var(--gold); box-shadow: 0 0 0 1.5px var(--gold-ring); }
@@ -715,6 +720,12 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <button type="button" class="chip contact" data-q="cont" aria-pressed="true" title="Mostra o nascondi le aziende contattate o visitate">Contattate</button>
       <button type="button" class="chip gold" data-q="cli" aria-pressed="true" title="Mostra o nascondi le aziende già clienti (stato Cliente)">Già clienti</button>
       <button type="button" class="chip neg" data-q="neg" aria-pressed="true" title="Mostra o nascondi i negozi (segnati a mano come &quot;non produce&quot;, in grigio in fondo all'elenco)">Negozi<span class="n" id="negN" hidden></span></button>
+      <select class="neg-sel" id="negDist" hidden aria-label="Nascondi anche le aziende lontane dalle zone artigianali" title="Nasconde anche le aziende lontane dalle zone artigianali (già clienti, contattate e Top restano sempre)">
+        <option value="0">Solo i negozi segnati</option>
+        <option value="500">+ oltre 500 m dalle zone artigianali</option>
+        <option value="1000">+ oltre 1 km dalle zone artigianali</option>
+        <option value="2000">+ oltre 2 km dalle zone artigianali</option>
+      </select>
       <button type="button" class="chip conc" data-q="conc" aria-pressed="true" title="Mostra o nascondi i concorrenti (aziende di affilatura, in una sezione a parte)">Concorrenti</button>
       <button type="button" class="chip rich" data-q="rich" aria-pressed="false" title="Solo le aziende con il promemoria &quot;Ricontattare il&quot; per oggi o già scaduto">Da richiamare<span class="n" id="richN" hidden></span></button>
       <span class="sep" aria-hidden="true"></span>
@@ -777,7 +788,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
         <div class="map-tip" id="mapTip" hidden></div>
       </div>
       <p class="note warn" id="mapWarn" hidden></p>
-      <div class="legend"><span><i style="background:var(--p1)"></i>1 core: legno, serramenti</span><span><i style="background:var(--p2)"></i>2 tipografie e packaging</span><span><i style="background:var(--p3)"></i>3 plastica, nautica, stand, coibentati</span><span><i style="background:var(--p4)"></i>4 metalli</span><span><i style="background:var(--p5)"></i>5 ferramenta, edilizia, da verificare</span><span><i class="contact"></i>contattate</span><span><i class="gold"></i>già clienti</span><span><i class="neg"></i>negozi</span><span><i class="conc"></i>concorrenti</span><span><svg class="lg-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>top</span><span class="gl-only"><i class="cl"></i>gruppo di aziende</span></div>
+      <div class="legend"><span><i style="background:var(--p1)"></i>1 core: legno, serramenti</span><span><i style="background:var(--p2)"></i>2 tipografie e packaging</span><span><i style="background:var(--p3)"></i>3 plastica, nautica, stand, coibentati</span><span><i style="background:var(--p4)"></i>4 metalli</span><span><i style="background:var(--p5)"></i>5 ferramenta, edilizia, da verificare</span><span><i class="contact"></i>contattate</span><span><i class="gold"></i>già clienti</span><span><i class="neg"></i>negozi</span><span id="lgZona" hidden><i class="zona"></i>zone artigianali</span><span><i class="conc"></i>concorrenti</span><span><svg class="lg-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>top</span><span class="gl-only"><i class="cl"></i>gruppo di aziende</span></div>
       <p class="note gl-only" id="glNote">Trascina per spostarti, rotellina o pizzico per lo zoom. Un cerchio numerato raggruppa più aziende: toccalo per avvicinarti; tocca un punto per aprire la scheda.</p>
       <p class="note" id="cvNote" hidden>Schema in coordinate reali, senza sfondo cartografico: si adatta alle aziende filtrate. Tocca un punto per aprire la scheda.</p>
     </aside>
@@ -993,6 +1004,7 @@ let showConc = true; // interruttore "Concorrenti": acceso all'avvio
 let showCli = true; // interruttore "Già clienti" (stato Cliente): acceso all'avvio
 let showCont = true; // interruttore "Contattate" (stato Contattata o Visitata): acceso all'avvio
 let showNeg = true; // interruttore "Negozi" (segnati come non produce): acceso all'avvio
+let negDist = 0; // spento "Negozi": nasconde anche le aziende oltre questi metri da una zona artigianale (0 = solo i negozi)
 let NCLI = 0, NCONC = 0; // quante aziende clienti e quanti concorrenti sono caricati
 const COMUNI = new Map();
 let GB = null;
@@ -1041,6 +1053,57 @@ function sync(a) {
 function isTop(a) { return !!(stato[a.id] && stato[a.id].top); }
 // negozio: segnato a mano "non produce" (stato/<id>.negozio, condiviso); resta nella sua priorità ma va in fondo, in grigio
 function isNeg(a) { return !a._c && !!(stato[a.id] && stato[a.id].negozio); }
+// lontana dalle zone artigianali oltre la distanza scelta; già clienti, contattate e Top restano sempre
+function isLontana(a) { return negDist > 0 && !showNeg && a._z > negDist && !a._c && !isCli(a) && !isCont(a) && !isTop(a); }
+
+// zone artigianali (OpenStreetMap, landuse=industrial, in mappa/zone.geojson): distanza in metri dalla zona
+// più vicina per ogni azienda (a._z), calcolata una volta sola quando serve; oltre 2,5 km vale Infinity
+let ZONE = null;
+const ZKX = 111320 * Math.cos(44.3 * Math.PI / 180), ZKY = 110540; // metri per grado, abbastanza precisi per pochi km
+function distAnello(x, y, r) {
+  let dentro = false, best = Infinity;
+  for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+    const [xi, yi] = r[i], [xj, yj] = r[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) dentro = !dentro;
+    const dx = xi - xj, dy = yi - yj, L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((x - xj) * dx + (y - yj) * dy) / L)) : 0;
+    best = Math.min(best, Math.hypot(x - xj - t * dx, y - yj - t * dy));
+  }
+  return dentro ? 0 : best;
+}
+function caricaZone() {
+  if (ZONE) return ZONE;
+  ZONE = fetch(U("mappa/zone.geojson")).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(gj => {
+    const P = [], grid = new Map(), C = 1000, MAX = 2500;
+    for (const f of gj.features) {
+      const g = f.geometry; if (!g) continue;
+      for (const poly of g.type === "Polygon" ? [g.coordinates] : g.coordinates) {
+        const r = poly[0].map(([lo, la]) => [lo * ZKX, la * ZKY]);
+        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+        for (const [x, y] of r) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+        const i = P.push({ r, x0, y0, x1, y1 }) - 1;
+        for (let cx = Math.floor(x0 / C); cx <= Math.floor(x1 / C); cx++) for (let cy = Math.floor(y0 / C); cy <= Math.floor(y1 / C); cy++) {
+          const k = cx + "," + cy; if (!grid.has(k)) grid.set(k, []); grid.get(k).push(i);
+        }
+      }
+    }
+    const R = Math.ceil(MAX / C);
+    for (const a of AZ) {
+      if (!a._ok) { a._z = 0; continue; } // senza posizione: resta sempre visibile
+      const x = a._lon * ZKX, y = a._lat * ZKY, cx = Math.floor(x / C), cy = Math.floor(y / C), visti = new Set();
+      let best = Infinity;
+      cerca: for (let dx = -R; dx <= R; dx++) for (let dy = -R; dy <= R; dy++) for (const i of grid.get((cx + dx) + "," + (cy + dy)) || []) {
+        if (visti.has(i)) continue; visti.add(i);
+        const p = P[i];
+        if (Math.hypot(Math.max(p.x0 - x, 0, x - p.x1), Math.max(p.y0 - y, 0, y - p.y1)) >= best) continue;
+        best = Math.min(best, distAnello(x, y, p.r));
+        if (!best) break cerca;
+      }
+      a._z = best <= MAX ? best : Infinity;
+    }
+    return gj;
+  }).catch(e => { ZONE = null; throw e; });
+  return ZONE;
+}
 // contattata: azienda (non concorrente) con stato "contattata" o "visitata", in blu
 function isCont(a) { if (a._c) return false; const k = st(a); return k === "contattata" || k === "visitata"; }
 function sitoUrl(u) { return /^https?:\/\//i.test(u) ? u : "https://" + u; }
@@ -1224,12 +1287,23 @@ $("#filters").addEventListener("click", e => {
   // caselle Priorità 3/2/1: si sommano tra loro, come le voci della tendina Priorità
   if (/^p[123]$/.test(q)) { const v = q[1]; sel.prio.has(v) ? sel.prio.delete(v) : sel.prio.add(v); } else if (STQ[q]) { const v = STQ[q]; sel.stato.has(v) ? sel.stato.delete(v) : sel.stato.add(v); } else if (q === "conc") showConc = !showConc; else if (q === "neg") showNeg = !showNeg; else if (q === "cli") showCli = !showCli; else if (q === "cont") showCont = !showCont; else quick[q] = !quick[q];
   changed();
+  // spegnendo "Negozi" compare la tendina delle distanze dalle zone artigianali, già aperta dove si può
+  if (q === "neg" && !showNeg) { const s = $("#negDist"); s.focus(); try { s.showPicker(); } catch (e) {} }
+});
+$("#negDist").addEventListener("change", async e => {
+  const v = +e.target.value;
+  if (v) {
+    try { await caricaZone(); } catch (err) { toast("Zone artigianali non disponibili: riprova tra poco."); e.target.value = String(negDist); return; }
+  }
+  negDist = v; changed();
+  if (v) toast(`${fmtN(LIST.lont || 0)} aziende nascoste perché a più di ${v < 1000 ? v + " m" : v / 1000 + " km"} da una zona artigianale.`);
 });
 function renderQuick() {
   document.querySelectorAll("#filters [data-q]").forEach(b => {
     const q = b.dataset.q; b.setAttribute("aria-pressed", /^p[123]$/.test(q) ? sel.prio.has(q[1]) : STQ[q] ? sel.stato.has(STQ[q]) : q === "conc" ? showConc : q === "neg" ? showNeg : q === "cli" ? showCli : q === "cont" ? showCont : quick[q]);
   });
   $("#filters [data-q=conc]").hidden = !NCONC; // senza file dei concorrenti l'interruttore non serve
+  $("#negDist").hidden = showNeg; $("#negDist").value = String(negDist);
 }
 function renderActive() {
   const pills = [];
@@ -1242,7 +1316,7 @@ function renderActive() {
   Object.keys(quick).forEach(k => quick[k] && pills.push([QL[k], "quick", k]));
   if (!showCont) pills.push(["Contattate nascoste", "cont", ""]);
   if (!showCli) pills.push(["Già clienti nascosti", "cli", ""]);
-  if (!showNeg) pills.push(["Negozi nascosti", "neg", ""]);
+  if (!showNeg) pills.push([negDist ? `Nascosti negozi e aziende oltre ${negDist < 1000 ? negDist + " m" : negDist / 1000 + " km"} dalle zone artigianali` : "Negozi nascosti", "neg", ""]);
   if (!showConc && NCONC) pills.push(["Concorrenti nascosti", "conc", ""]);
   if (ref && radius) pills.push([`Entro ${String(radius).replace(".", ",")} km da ${ref.label}`, "radius", ""]);
   $("#active").innerHTML = pills.length ? pills.map(([t, k, v]) => `<span class="pill">${esc(t)}<button type="button" aria-label="Togli il filtro ${esc(t)}" data-k="${k}" data-v="${esc(v)}">×</button></span>`).join("") + `<button type="button" class="link" data-clear>Azzera tutto</button>` : "";
@@ -1271,6 +1345,7 @@ let tCache = { q: null, t: [] };
 function terms() { const q = $("#q").value; if (q !== tCache.q) tCache = { q, t: norm(q).split(/\s+/).filter(Boolean) }; return tCache.t; }
 function filtered(skipKey) {
   const tq = terms(), act = MS.filter(m => m.key !== skipKey && sel[m.key].size), out = [];
+  let lont = 0;
   const near = ref && radius ? radius : 0;
   outer: for (const a of AZ) {
     if (a._del) continue; // eliminati: fuori da elenco, mappa, tendine e CSV
@@ -1289,8 +1364,10 @@ function filtered(skipKey) {
     if (quick.top && !isTop(a)) continue;
     if (near && !(a._d <= near)) continue;
     if (tq.length) { const nn = notaN[a.id]; for (const t of tq) if (!a._s.includes(t) && !(nn && nn.includes(t))) continue outer; }
+    if (isLontana(a)) { lont++; continue; } // per ultimo: conta quante ne toglie la distanza dalle zone
     out.push(a);
   }
+  out.lont = lont;
   return out;
 }
 const SORTS = {
@@ -1325,6 +1402,7 @@ function renderCount() {
   if (n) h += [1, 2, 3, 4, 5].filter(p => pp[p] || p === 1).map(p => ` · <span class="pcnt pc${p}" title="${esc(PRIO[p])}"><i class="pdot pv${p}" aria-hidden="true"></i>${fmtN(pp[p])} ${p === 1 ? "core" : "prio " + p}</span>`).join("");
   if (nb) h += ` · <span class="contact-txt">${fmtN(nb)} ${nb === 1 ? "contattata" : "contattate"}</span>`;
   if (ng) h += ` · <span class="gold-txt">${fmtN(ng)} già ${ng === 1 ? "cliente" : "clienti"}</span>`;
+  if (LIST.lont) h += ` · <span class="lont-txt">${fmtN(LIST.lont)} lontane dalle zone artigianali nascoste</span>`;
   if (nn) h += ` · <button type="button" class="link neg-link" data-goneg>${fmtN(nn)} ${nn === 1 ? "negozio" : "negozi"} in fondo</button>`;
   if (nc && !n) h = `<b>${fmtN(nc)}</b> ${nc === 1 ? "concorrente" : "concorrenti"}`;
   else if (nc) h += ` · <button type="button" class="link conc-link" data-goconc>${fmtN(nc)} ${nc === 1 ? "concorrente" : "concorrenti"} in fondo</button>`;
@@ -1594,6 +1672,7 @@ const PAINT = [["bg", "background-color", "land"], ["sea", "fill-color", "sea"],
   ["gold-pt", "circle-color", "gold"], ["gold-pt", "circle-stroke-color", "goldRing"],
   ["cont-pt", "circle-color", "contact"], ["cont-pt", "circle-stroke-color", "contactRing"],
   ["neg-pt", "circle-color", "panel"], ["neg-pt", "circle-stroke-color", "p5"],
+  ["zone-fill", "fill-color", "p3"], ["zone-line", "line-color", "p3"],
   ["ref-pt", "circle-color", "steel"], ["ref-pt", "circle-stroke-color", "panel"]];
 function applyMapTheme() {
   if (!GL.ready) return;
@@ -1618,6 +1697,7 @@ function glStyle(c) {
       gold: { type: "geojson", data: EMPTY() }, // già clienti: mai raggruppati
       cont: { type: "geojson", data: EMPTY() }, // contattate: mai raggruppate
       neg: { type: "geojson", data: EMPTY() }, // negozi: cerchietti grigi vuoti, sotto a tutto
+      zone: { type: "geojson", data: EMPTY() }, // zone artigianali: si vedono solo col filtro della distanza
       top: { type: "geojson", data: EMPTY() }, // Top: stelline bianche, sopra a tutto
       sel: { type: "geojson", data: EMPTY() },
       ref: { type: "geojson", data: EMPTY() },
@@ -1634,6 +1714,8 @@ function glStyle(c) {
       road("r-m-case", "m", c.rmc, z(6, 1.6, 10, 3.3, 13, 6.2, 16, 13)),
       road("r-m", "m", c.rm, z(6, 0.7, 10, 1.8, 13, 4, 16, 10)),
       { id: "prov", type: "line", source: "prov", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": c.prov, "line-width": z(7, 1.1, 12, 2.2) } },
+      { id: "zone-fill", type: "fill", source: "zone", paint: { "fill-color": c.p3, "fill-opacity": 0.16 } },
+      { id: "zone-line", type: "line", source: "zone", minzoom: 9, paint: { "line-color": c.p3, "line-width": 1, "line-opacity": 0.7 } },
       { id: "ref-fill", type: "fill", source: "ref", filter: isPoly, paint: { "fill-color": c.steel, "fill-opacity": 0.07 } },
       { id: "ref-line", type: "line", source: "ref", filter: isPoly, paint: { "line-color": c.steel, "line-width": 1.6, "line-dasharray": [3, 2] } },
       { id: "neg-pt", type: "circle", source: "neg", paint: { "circle-color": c.panel, "circle-opacity": 0.85, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3, 12, 4.5, 16, 6.5], "circle-stroke-width": 1.8, "circle-stroke-color": c.p5 } },
@@ -1736,6 +1818,9 @@ function updateGL() {
     GL.counts.forEach(mk => mk.remove()); GL.counts.clear(); // i numeri si rifanno quando i gruppi sono pronti
     setMapCount(feats.length + cfeats.length + gfeats.length + bfeats.length + tfeats.length + nfeats.length);
   }
+  // zone artigianali disegnate solo mentre il filtro della distanza è attivo
+  const zv = negDist > 0 && !showNeg;
+  if (GL.zone !== zv) { GL.zone = zv; ZONE && ZONE.then(gj => { if (GL.map && GL.zone === zv) m.getSource("zone").setData(zv ? gj : EMPTY()); }, () => {}); $("#lgZona").hidden = !zv; }
   if (GL.sel !== selId) { GL.sel = selId; const a = selId && BYID.get(selId); m.getSource("sel").setData({ type: "FeatureCollection", features: a && a._ok ? [a._f] : [] }); }
   const rk = ref ? `${ref.lat},${ref.lon},${radius}` : "";
   if (GL.refKey !== rk) {
