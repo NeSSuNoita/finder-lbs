@@ -432,6 +432,18 @@ body[data-vista]:not([data-vista="finder"]) .plate-side, body[data-vista]:not([d
 mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1px; }
 .side { grid-area: side; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+/* stellina Top: spenta = contorno; accesa = stella bianca su tondo scuro, come sulla mappa */
+.side-r { display: flex; align-items: center; gap: 8px; }
+.star-b { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line-2); background: var(--panel); color: var(--muted); cursor: pointer; padding: 0; }
+.star-b svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.star-b.on { background: #23292e; border-color: #23292e; color: #fff; }
+.star-b.on svg { fill: #fff; stroke: #fff; }
+.star-b:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
+.chip.top::before { display: none; }
+.chip.top svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; vertical-align: -2px; margin-right: 4px; }
+.chip.top[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--panel); }
+.chip.top[aria-pressed="true"] svg { fill: currentColor; }
+.legend .lg-star { width: 13px; height: 13px; fill: #fff; stroke: #23292e; stroke-width: 2; stroke-linejoin: round; vertical-align: -2px; margin-right: 5px; }
 .status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .status.s-da i { background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
 .s-da { color: var(--st-da); } .s-contattata { color: var(--contact-ink); } .s-visitata { color: var(--contact-ink); } .s-cliente { color: var(--gold-ink); } .s-non { color: var(--st-no); }
@@ -682,6 +694,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
     <p class="hint" id="qHint">Più parole: devono esserci tutte. Accenti e maiuscole non contano.<span class="kb"> Premi / per cercare.</span></p>
     <div class="filters" id="filters" role="group" aria-label="Filtri">
       <div class="ms-back" id="msBack" hidden></div>
+      <button type="button" class="chip top" data-q="top" aria-pressed="false" title="Solo le aziende Top (con la stellina)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>Top<span class="n" id="topN" hidden></span></button>
       <button type="button" class="chip contact" data-q="cont" aria-pressed="true" title="Mostra o nascondi le aziende contattate o visitate">Contattate</button>
       <button type="button" class="chip gold" data-q="cli" aria-pressed="true" title="Mostra o nascondi le aziende già clienti (stato Cliente)">Già clienti</button>
       <button type="button" class="chip conc" data-q="conc" aria-pressed="true" title="Mostra o nascondi i concorrenti (aziende di affilatura, in una sezione a parte)">Concorrenti</button>
@@ -746,7 +759,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
         <div class="map-tip" id="mapTip" hidden></div>
       </div>
       <p class="note warn" id="mapWarn" hidden></p>
-      <div class="legend"><span><i style="background:var(--p1)"></i>1 core: legno, serramenti</span><span><i style="background:var(--p2)"></i>2 tipografie e packaging</span><span><i style="background:var(--p3)"></i>3 plastica, nautica, stand, coibentati</span><span><i style="background:var(--p4)"></i>4 metalli</span><span><i style="background:var(--p5)"></i>5 ferramenta, edilizia, da verificare</span><span><i class="contact"></i>contattate</span><span><i class="gold"></i>già clienti</span><span><i class="conc"></i>concorrenti</span><span class="gl-only"><i class="cl"></i>gruppo di aziende</span></div>
+      <div class="legend"><span><i style="background:var(--p1)"></i>1 core: legno, serramenti</span><span><i style="background:var(--p2)"></i>2 tipografie e packaging</span><span><i style="background:var(--p3)"></i>3 plastica, nautica, stand, coibentati</span><span><i style="background:var(--p4)"></i>4 metalli</span><span><i style="background:var(--p5)"></i>5 ferramenta, edilizia, da verificare</span><span><i class="contact"></i>contattate</span><span><i class="gold"></i>già clienti</span><span><i class="conc"></i>concorrenti</span><span><svg class="lg-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>top</span><span class="gl-only"><i class="cl"></i>gruppo di aziende</span></div>
       <p class="note gl-only" id="glNote">Trascina per spostarti, rotellina o pizzico per lo zoom. Un cerchio numerato raggruppa più aziende: toccalo per avvicinarti; tocca un punto per aprire la scheda.</p>
       <p class="note" id="cvNote" hidden>Schema in coordinate reali, senza sfondo cartografico: si adatta alle aziende filtrate. Tocca un punto per aprire la scheda.</p>
     </aside>
@@ -948,7 +961,7 @@ const RANK = { 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0 };
 const MACRO = ["Legno e arredo", "Serramenti e infissi", "Da classificare", "Tipografie, stampa e packaging", "Plastica e nautica", "Allestimenti e stand", "Coibentati, pannelli e coperture", "Metalli e meccanica", "Ferramenta", "Edilizia, vetro e posa", "Concorrenti"];
 const PMACRO = { "Legno e arredo": 1, "Serramenti e infissi": 1, "Da classificare": 1, "Tipografie, stampa e packaging": 2, "Plastica e nautica": 3, "Allestimenti e stand": 3, "Coibentati, pannelli e coperture": 3, "Metalli e meccanica": 4, "Ferramenta": 5, "Edilizia, vetro e posa": 5 };
 const macroIdx = m => { const i = MACRO.indexOf(m); return i < 0 ? 99 : i; };
-const QL = { tel: "Con telefono", mail: "Con email", mach: "Con macchinari", rich: "Da richiamare" };
+const QL = { tel: "Con telefono", mail: "Con email", mach: "Con macchinari", rich: "Da richiamare", top: "Solo Top" };
 const PAGE = 100;
 const $ = s => document.querySelector(s);
 // fuori da claude.ai window.claude non esiste: la pagina resta in sola lettura
@@ -957,7 +970,7 @@ const use = n => { try { return window.claude && window.claude.use ? Promise.res
 let AZ = [], stato = {}, notaN = {}, db = null, userNs = null, canWrite = true, loaded = false;
 let LIST = [], shown = PAGE, selId = null, openId = null, pendingRender = false, avvisoRich = false;
 let sortBy = "prio", ref = null, radius = 0;
-const quick = { tel: false, mail: false, mach: false, rich: false };
+const quick = { tel: false, mail: false, mach: false, rich: false, top: false };
 let showConc = true; // interruttore "Concorrenti": acceso all'avvio
 let showCli = true; // interruttore "Già clienti" (stato Cliente): acceso all'avvio
 let showCont = true; // interruttore "Contattate" (stato Contattata o Visitata): acceso all'avvio
@@ -977,6 +990,7 @@ const I = {
   wa: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c.3 2 2.2 4.2 4.5 4.8l1-1.2 2 .9-.4 1.6c-3.3.4-7.4-3.2-7.6-6.8l1.6-.5.9 2z"/></svg>',
   car: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16h14v-4l-2-5H7l-2 5z"/><circle cx="8" cy="16.5" r="1.6"/><circle cx="16" cy="16.5" r="1.6"/><path d="M5 12h14"/></svg>',
   nota: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h4"/></svg>',
+  star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>',
 };
 
 function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
@@ -1004,6 +1018,8 @@ function sync(a) {
   a._pr = p; a._p = String(p); a._rk = RANK[p]; a._c = p === 6;
   if (a._f) { a._f.properties.pr = p; a._f.properties.rk = a._rk; }
 }
+// Top: aziende segnate con la stellina (stato/<id>.top, condiviso con i collaboratori)
+function isTop(a) { return !!(stato[a.id] && stato[a.id].top); }
 // contattata: azienda (non concorrente) con stato "contattata" o "visitata", in blu
 function isCont(a) { if (a._c) return false; const k = st(a); return k === "contattata" || k === "visitata"; }
 function sitoUrl(u) { return /^https?:\/\//i.test(u) ? u : "https://" + u; }
@@ -1247,6 +1263,7 @@ function filtered(skipKey) {
     if (quick.mach && !a.macchinari) continue;
     if (quick.tel && !a.telefono) continue;
     if (quick.rich && !daRichiamare(a)) continue;
+    if (quick.top && !isTop(a)) continue;
     if (near && !(a._d <= near)) continue;
     if (tq.length) { const nn = notaN[a.id]; for (const t of tq) if (!a._s.includes(t) && !(nn && nn.includes(t))) continue outer; }
     out.push(a);
@@ -1325,6 +1342,8 @@ function renderKpis() {
   const k = [[NCLI, "aziende"], [p1, "core"], [cont, "contattate", "contact"], [cli, "clienti", "gold"]];
   if (NCONC) k.push([NCONC, "concorrenti", "conc"]);
   $("#kpis").innerHTML = k.map(([v, l, c]) => `<div class="kpi${c ? " " + c : ""}"><dt>${l}</dt><dd>${fmtN(v)}</dd></div>`).join("");
+  // quante aziende Top (sul pulsante "Top" dei filtri)
+  const nt = AZ.reduce((n, a) => n + (!a._del && isTop(a) ? 1 : 0), 0); $("#topN").textContent = nt; $("#topN").hidden = !nt;
 }
 
 /* ---------- schede ---------- */
@@ -1350,7 +1369,7 @@ function cardHtml(a) {
         ${s.richiamo || inGiro(a.id) || (VIS.get(a.id) || []).length ? `<div class="tags tags2">${s.richiamo ? `<span class="tag rich${s.richiamo <= oggi() ? " scad" : ""}">${s.richiamo <= oggi() ? "Da richiamare" : "Richiamare"} ${fmtGiorno(s.richiamo)}</span>` : ""}${inGiro(a.id) ? `<span class="tag giro-t">Giro · tappa ${giro.indexOf(a.id) + 1}</span>` : ""}${(VIS.get(a.id) || []).length ? `<span class="tag">${(VIS.get(a.id) || []).length} ${(VIS.get(a.id) || []).length === 1 ? "visita" : "visite"} · ultima ${fmtGiorno(VIS.get(a.id)[0].giorno)}</span>` : ""}</div>` : ""}
       </div>
       <div class="side">
-        <span class="status s-${k}"><i aria-hidden="true"></i>${STATI[k]}</span>
+        <div class="side-r"><span class="status s-${k}"><i aria-hidden="true"></i>${STATI[k]}</span><button type="button" class="star-b${isTop(a) ? " on" : ""}" data-act="top" aria-pressed="${isTop(a)}" aria-label="${isTop(a) ? "Togli dai Top" : "Metti tra i Top"}: ${esc(a.nome)}" title="${isTop(a) ? "Top: tocca per togliere" : "Metti tra i Top"}">${I.star}</button></div>
         ${a.telefono ? `<a class="tel" href="${esc(telHref(a.telefono))}" aria-label="Chiama ${esc(a.nome)}: ${esc(firstOf(a.telefono))}">${I.tel}${esc(firstOf(a.telefono))}</a>` : ""}
       </div>
     </div>`;
@@ -1566,6 +1585,7 @@ function glStyle(c) {
       conc: { type: "geojson", data: EMPTY() }, // concorrenti: mai raggruppati
       gold: { type: "geojson", data: EMPTY() }, // già clienti: mai raggruppati
       cont: { type: "geojson", data: EMPTY() }, // contattate: mai raggruppate
+      top: { type: "geojson", data: EMPTY() }, // Top: stelline bianche, sopra a tutto
       sel: { type: "geojson", data: EMPTY() },
       ref: { type: "geojson", data: EMPTY() },
     },
@@ -1588,10 +1608,23 @@ function glStyle(c) {
       { id: "cont-pt", type: "circle", source: "cont", paint: { "circle-color": c.contact, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4.5, 12, 6.5, 16, 8.5], "circle-stroke-width": 2, "circle-stroke-color": c.contactRing } },
       { id: "gold-pt", type: "circle", source: "gold", paint: { "circle-color": c.gold, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 5, 12, 7, 16, 9], "circle-stroke-width": 2, "circle-stroke-color": c.goldRing } },
       { id: "conc-pt", type: "circle", source: "conc", paint: { "circle-color": c.conc, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4.5, 12, 6.5, 16, 8.5], "circle-stroke-width": 2, "circle-stroke-color": c.concRing } },
+      { id: "top-pt", type: "symbol", source: "top", layout: { "icon-image": "stella", "icon-size": ["interpolate", ["linear"], ["zoom"], 7, 0.7, 12, 0.85, 16, 1.05], "icon-allow-overlap": true, "icon-ignore-placement": true } },
       { id: "sel", type: "circle", source: "sel", paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 8, 12, 10, 16, 12], "circle-color": c.ink, "circle-opacity": 0, "circle-stroke-width": 3, "circle-stroke-color": c.ink } },
       { id: "ref-pt", type: "circle", source: "ref", filter: ["==", ["geometry-type"], "Point"], paint: { "circle-radius": 6, "circle-color": c.steel, "circle-stroke-width": 2.5, "circle-stroke-color": c.panel } },
     ],
   };
+}
+// stellina dei Top: a 5 punte, centrata in (x, y), raggio esterno R
+function pathStella(g, x, y, R) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? R * 0.44 : R; g.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)); }
+  g.closePath();
+}
+// immagine della stellina per la mappa: bianca con il bordo scuro, si vede sia sul chiaro sia sullo scuro
+function imgStella() {
+  const S = 56, cv = document.createElement("canvas"); cv.width = cv.height = S; const g = cv.getContext("2d");
+  pathStella(g, S / 2, S / 2 + 2, S / 2 - 5); g.lineJoin = "round"; g.lineWidth = 6; g.strokeStyle = "#23292e"; g.stroke(); g.fillStyle = "#fff"; g.fill();
+  return { width: S, height: S, data: new Uint8Array(g.getImageData(0, 0, S, S).data.buffer) };
 }
 function createGL() {
   const bounds = resultBounds();
@@ -1609,6 +1642,8 @@ function createGL() {
   m.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   m.addControl(new maplibregl.ScaleControl({ maxWidth: 110, unit: "metric" }), "top-left");
   m.addControl(new maplibregl.AttributionControl({ compact: false, customAttribution: ATTR }), "bottom-right");
+  // la stellina si (ri)carica anche quando cambia il tema della mappa
+  m.on("styleimagemissing", e => { if (e.id === "stella" && !m.hasImage("stella")) m.addImage("stella", imgStella(), { pixelRatio: 2 }); });
   m.on("load", () => { GL.ready = true; updateGL(); loadBase(); updLabels(); updGm(); });
   // controllo di sicurezza: se la mappa non parte (es. worker bloccato) torna allo schema su canvas
   setTimeout(() => {
@@ -1629,9 +1664,11 @@ function createGL() {
   m.on("mousemove", "conc-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`Concorrente · ${a.nome} · ${a.comune} · ${a.tipo || ""}`, e.point.x, e.point.y); });
   m.on("click", "gold-pt", e => { showTip(""); selectFromMap(e.features[0].properties.id); });
   m.on("mousemove", "gold-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`Già cliente · ${a.nome} · ${a.comune}`, e.point.x, e.point.y); });
+  m.on("click", "top-pt", e => { showTip(""); selectFromMap(e.features[0].properties.id); });
+  m.on("mousemove", "top-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`Top · ${a.nome} · ${a.comune}${a._c ? " · concorrente" : isCli(a) ? " · già cliente" : isCont(a) ? " · " + STATI[st(a)].toLowerCase() : ""}`, e.point.x, e.point.y); });
   m.on("click", "cont-pt", e => { showTip(""); selectFromMap(e.features[0].properties.id); });
   m.on("mousemove", "cont-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`${STATI[st(a)]} · ${a.nome} · ${a.comune}`, e.point.x, e.point.y); });
-  ["az-cl", "az-pt", "cont-pt", "gold-pt", "conc-pt"].forEach(l => {
+  ["az-cl", "az-pt", "cont-pt", "gold-pt", "conc-pt", "top-pt"].forEach(l => {
     m.on("mouseenter", l, () => { m.getCanvas().style.cursor = "pointer"; });
     m.on("mouseleave", l, () => { m.getCanvas().style.cursor = ""; showTip(""); });
   });
@@ -1650,14 +1687,16 @@ function updateGL() {
   if (GL.list !== LIST) {
     GL.list = LIST;
     // tre sorgenti: clienti da trovare (a gruppi), già clienti (oro) e concorrenti (rosso)
-    const feats = [], cfeats = [], gfeats = [], bfeats = [];
-    for (const a of LIST) if (a._ok) (a._c ? cfeats : isCli(a) ? gfeats : isCont(a) ? bfeats : feats).push(a._f);
+    // i Top hanno la loro stellina al posto del pallino
+    const feats = [], cfeats = [], gfeats = [], bfeats = [], tfeats = [];
+    for (const a of LIST) if (a._ok) (isTop(a) ? tfeats : a._c ? cfeats : isCli(a) ? gfeats : isCont(a) ? bfeats : feats).push(a._f);
+    m.getSource("top").setData({ type: "FeatureCollection", features: tfeats });
     m.getSource("az").setData({ type: "FeatureCollection", features: feats });
     m.getSource("cont").setData({ type: "FeatureCollection", features: bfeats });
     m.getSource("gold").setData({ type: "FeatureCollection", features: gfeats });
     m.getSource("conc").setData({ type: "FeatureCollection", features: cfeats });
     GL.counts.forEach(mk => mk.remove()); GL.counts.clear(); // i numeri si rifanno quando i gruppi sono pronti
-    setMapCount(feats.length + cfeats.length + gfeats.length + bfeats.length);
+    setMapCount(feats.length + cfeats.length + gfeats.length + bfeats.length + tfeats.length);
   }
   if (GL.sel !== selId) { GL.sel = selId; const a = selId && BYID.get(selId); m.getSource("sel").setData({ type: "FeatureCollection", features: a && a._ok ? [a._f] : [] }); }
   const rk = ref ? `${ref.lat},${ref.lon},${radius}` : "";
@@ -1813,6 +1852,9 @@ function drawMap() {
     if (big) { g.strokeStyle = C(ring[p]); g.lineWidth = 1.5; g.stroke(); }
     else if (r > 2.5) { g.strokeStyle = C("--sunk"); g.lineWidth = 1; g.stroke(); }
   });
+  // i Top: stellina bianca con il bordo scuro, sopra al loro pallino
+  g.lineJoin = "round";
+  for (const q of MAP.pts) if (isTop(q.a)) { pathStella(g, q.x, q.y, 8); g.lineWidth = 2.5; g.strokeStyle = "#23292e"; g.stroke(); g.fillStyle = "#fff"; g.fill(); }
   const sq = MAP.pts.find(q => q.a.id === selId);
   if (sq) { g.beginPath(); g.arc(sq.x, sq.y, 8, 0, Math.PI * 2); g.lineWidth = 2.5; g.strokeStyle = C("--ink"); g.stroke(); g.beginPath(); g.arc(sq.x, sq.y, 4.5, 0, Math.PI * 2); g.fillStyle = pcol(sq.g ? "g" : sq.b ? "b" : sq.a._pr); g.fill(); }
   // nomi dei comuni con più aziende, senza sovrapposizioni
@@ -2063,6 +2105,11 @@ $("#cards").addEventListener("click", e => {
   if (act.dataset.act === "setprio") { setPrio(id, +act.dataset.p); return; }
   if (act.dataset.act === "setcat") { setCat(id, act.dataset.m); return; }
   if (act.dataset.act === "askdel") { closePm(); askDelete(id); return; }
+  if (act.dataset.act === "top") {
+    const a = BYID.get(id), on = !(a && isTop(a)); if (!a) return;
+    salva(id, on ? { top: true } : {}, { quiet: true, drop: on ? [] : ["top"] }).then(ok => ok && toast(on ? `${a.nome}: tra i Top.` : `${a.nome}: tolta dai Top.`));
+    return;
+  }
   if (act.dataset.act === "toggle") {
     if (act.classList.contains("card-head") && String(getSelection())) return; // sta selezionando del testo
     openId = openId === id ? null : id; selId = id; renderCards(); scheduleMap();
