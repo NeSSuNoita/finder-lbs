@@ -508,6 +508,19 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 .chip.conc[aria-pressed="true"] { background: var(--conc-soft); border-color: var(--conc); color: var(--conc); }
 .chip.conc[aria-pressed="true"]::before { background: var(--conc); border-color: var(--conc); box-shadow: inset 0 0 0 2px var(--conc-soft); }
 .kpi.conc dd, .kpi.conc dt { color: var(--conc-plate); }
+/* negozi (segnati a mano: non producono): grigi e sbiaditi, in fondo prima dei concorrenti; in mappa cerchietto vuoto */
+.card.neg, .card.neg.open { border-left-color: var(--line-2); border-left-style: dashed; }
+.card.neg:not(.open) .info, .card.neg:not(.open) .prio { opacity: .62; }
+.neg .prio { background: var(--sunk); color: var(--muted); box-shadow: inset 0 0 0 1px var(--line-2); }
+.tag.ntag { background: var(--sunk); color: var(--muted); border: 1px dashed var(--line-2); font-weight: 600; }
+.legend i.neg { background: var(--panel); box-shadow: inset 0 0 0 2px var(--p5); }
+.chip.neg[aria-pressed="true"] { background: var(--p5-soft); border-color: var(--p5); color: var(--ink); }
+.chip.neg[aria-pressed="true"]::before { background: var(--p5); border-color: var(--p5); box-shadow: inset 0 0 0 2px var(--p5-soft); }
+.sep-conc.sep-neg { color: var(--muted); }
+.sep-conc.sep-neg::after { background: var(--line-2); opacity: 1; }
+.count .neg-link { color: var(--muted); font-size: 13px; padding: 0 2px; }
+.chip.neg .n { background: var(--p5); }
+.pm-it.pm-neg[aria-checked="true"]::after { content: "✓"; margin-left: auto; font-weight: 700; }
 /* già clienti: in oro, nell'elenco e sulla mappa */
 .legend i.gold { background: var(--gold); box-shadow: 0 0 0 1.5px var(--gold-ring); }
 .card.gold, .card.gold.open { border-left-color: var(--gold); }
@@ -697,6 +710,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
       <button type="button" class="chip top" data-q="top" aria-pressed="false" title="Solo le aziende Top (con la stellina)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>Top<span class="n" id="topN" hidden></span></button>
       <button type="button" class="chip contact" data-q="cont" aria-pressed="true" title="Mostra o nascondi le aziende contattate o visitate">Contattate</button>
       <button type="button" class="chip gold" data-q="cli" aria-pressed="true" title="Mostra o nascondi le aziende già clienti (stato Cliente)">Già clienti</button>
+      <button type="button" class="chip neg" data-q="neg" aria-pressed="true" title="Mostra o nascondi i negozi (segnati a mano come &quot;non produce&quot;, in grigio in fondo all'elenco)">Negozi<span class="n" id="negN" hidden></span></button>
       <button type="button" class="chip conc" data-q="conc" aria-pressed="true" title="Mostra o nascondi i concorrenti (aziende di affilatura, in una sezione a parte)">Concorrenti</button>
       <button type="button" class="chip rich" data-q="rich" aria-pressed="false" title="Solo le aziende con il promemoria &quot;Ricontattare il&quot; per oggi o già scaduto">Da richiamare<span class="n" id="richN" hidden></span></button>
       <span class="sep" aria-hidden="true"></span>
@@ -759,7 +773,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
         <div class="map-tip" id="mapTip" hidden></div>
       </div>
       <p class="note warn" id="mapWarn" hidden></p>
-      <div class="legend"><span><i style="background:var(--p1)"></i>1 core: legno, serramenti</span><span><i style="background:var(--p2)"></i>2 tipografie e packaging</span><span><i style="background:var(--p3)"></i>3 plastica, nautica, stand, coibentati</span><span><i style="background:var(--p4)"></i>4 metalli</span><span><i style="background:var(--p5)"></i>5 ferramenta, edilizia, da verificare</span><span><i class="contact"></i>contattate</span><span><i class="gold"></i>già clienti</span><span><i class="conc"></i>concorrenti</span><span><svg class="lg-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>top</span><span class="gl-only"><i class="cl"></i>gruppo di aziende</span></div>
+      <div class="legend"><span><i style="background:var(--p1)"></i>1 core: legno, serramenti</span><span><i style="background:var(--p2)"></i>2 tipografie e packaging</span><span><i style="background:var(--p3)"></i>3 plastica, nautica, stand, coibentati</span><span><i style="background:var(--p4)"></i>4 metalli</span><span><i style="background:var(--p5)"></i>5 ferramenta, edilizia, da verificare</span><span><i class="contact"></i>contattate</span><span><i class="gold"></i>già clienti</span><span><i class="neg"></i>negozi</span><span><i class="conc"></i>concorrenti</span><span><svg class="lg-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.6 9 21.5 9.5 16.2 14 17.9 20.7 12 17 6.1 20.7 7.8 14 2.5 9.5 9.4 9z"/></svg>top</span><span class="gl-only"><i class="cl"></i>gruppo di aziende</span></div>
       <p class="note gl-only" id="glNote">Trascina per spostarti, rotellina o pizzico per lo zoom. Un cerchio numerato raggruppa più aziende: toccalo per avvicinarti; tocca un punto per aprire la scheda.</p>
       <p class="note" id="cvNote" hidden>Schema in coordinate reali, senza sfondo cartografico: si adatta alle aziende filtrate. Tocca un punto per aprire la scheda.</p>
     </aside>
@@ -974,6 +988,7 @@ const quick = { tel: false, mail: false, mach: false, rich: false, top: false };
 let showConc = true; // interruttore "Concorrenti": acceso all'avvio
 let showCli = true; // interruttore "Già clienti" (stato Cliente): acceso all'avvio
 let showCont = true; // interruttore "Contattate" (stato Contattata o Visitata): acceso all'avvio
+let showNeg = true; // interruttore "Negozi" (segnati come non produce): acceso all'avvio
 let NCLI = 0, NCONC = 0; // quante aziende clienti e quanti concorrenti sono caricati
 const COMUNI = new Map();
 let GB = null;
@@ -1020,6 +1035,8 @@ function sync(a) {
 }
 // Top: aziende segnate con la stellina (stato/<id>.top, condiviso con i collaboratori)
 function isTop(a) { return !!(stato[a.id] && stato[a.id].top); }
+// negozio: segnato a mano "non produce" (stato/<id>.negozio, condiviso); resta nella sua priorità ma va in fondo, in grigio
+function isNeg(a) { return !a._c && !!(stato[a.id] && stato[a.id].negozio); }
 // contattata: azienda (non concorrente) con stato "contattata" o "visitata", in blu
 function isCont(a) { if (a._c) return false; const k = st(a); return k === "contattata" || k === "visitata"; }
 function sitoUrl(u) { return /^https?:\/\//i.test(u) ? u : "https://" + u; }
@@ -1201,12 +1218,12 @@ $("#filters").addEventListener("click", e => {
   const b = e.target.closest("[data-q]"); if (!b) return;
   const q = b.dataset.q;
   // caselle Priorità 3/2/1: si sommano tra loro, come le voci della tendina Priorità
-  if (/^p[123]$/.test(q)) { const v = q[1]; sel.prio.has(v) ? sel.prio.delete(v) : sel.prio.add(v); } else if (STQ[q]) { const v = STQ[q]; sel.stato.has(v) ? sel.stato.delete(v) : sel.stato.add(v); } else if (q === "conc") showConc = !showConc; else if (q === "cli") showCli = !showCli; else if (q === "cont") showCont = !showCont; else quick[q] = !quick[q];
+  if (/^p[123]$/.test(q)) { const v = q[1]; sel.prio.has(v) ? sel.prio.delete(v) : sel.prio.add(v); } else if (STQ[q]) { const v = STQ[q]; sel.stato.has(v) ? sel.stato.delete(v) : sel.stato.add(v); } else if (q === "conc") showConc = !showConc; else if (q === "neg") showNeg = !showNeg; else if (q === "cli") showCli = !showCli; else if (q === "cont") showCont = !showCont; else quick[q] = !quick[q];
   changed();
 });
 function renderQuick() {
   document.querySelectorAll("#filters [data-q]").forEach(b => {
-    const q = b.dataset.q; b.setAttribute("aria-pressed", /^p[123]$/.test(q) ? sel.prio.has(q[1]) : STQ[q] ? sel.stato.has(STQ[q]) : q === "conc" ? showConc : q === "cli" ? showCli : q === "cont" ? showCont : quick[q]);
+    const q = b.dataset.q; b.setAttribute("aria-pressed", /^p[123]$/.test(q) ? sel.prio.has(q[1]) : STQ[q] ? sel.stato.has(STQ[q]) : q === "conc" ? showConc : q === "neg" ? showNeg : q === "cli" ? showCli : q === "cont" ? showCont : quick[q]);
   });
   $("#filters [data-q=conc]").hidden = !NCONC; // senza file dei concorrenti l'interruttore non serve
 }
@@ -1221,6 +1238,7 @@ function renderActive() {
   Object.keys(quick).forEach(k => quick[k] && pills.push([QL[k], "quick", k]));
   if (!showCont) pills.push(["Contattate nascoste", "cont", ""]);
   if (!showCli) pills.push(["Già clienti nascosti", "cli", ""]);
+  if (!showNeg) pills.push(["Negozi nascosti", "neg", ""]);
   if (!showConc && NCONC) pills.push(["Concorrenti nascosti", "conc", ""]);
   if (ref && radius) pills.push([`Entro ${String(radius).replace(".", ",")} km da ${ref.label}`, "radius", ""]);
   $("#active").innerHTML = pills.length ? pills.map(([t, k, v]) => `<span class="pill">${esc(t)}<button type="button" aria-label="Togli il filtro ${esc(t)}" data-k="${k}" data-v="${esc(v)}">×</button></span>`).join("") + `<button type="button" class="link" data-clear>Azzera tutto</button>` : "";
@@ -1228,14 +1246,14 @@ function renderActive() {
   renderMore();
 }
 function clearAll() {
-  MS.forEach(m => sel[m.key].clear()); Object.keys(quick).forEach(k => quick[k] = false); showConc = true; showCli = true; showCont = true;
+  MS.forEach(m => sel[m.key].clear()); Object.keys(quick).forEach(k => quick[k] = false); showConc = true; showNeg = true; showCli = true; showCont = true;
   radius = 0; $("#radius").value = "0"; $("#q").value = ""; savePref(); changed();
 }
 $("#active").addEventListener("click", e => {
   if (e.target.closest("[data-clear]")) { clearAll(); return; }
   const b = e.target.closest("button[data-k]"); if (!b) return;
   const k = b.dataset.k, v = b.dataset.v;
-  if (k.startsWith("grp:")) { const m = MS.find(x => x.key === k.slice(4)); groupVals(m, v).forEach(x => sel[m.key].delete(x)); } else if (k === "quick") quick[v] = false; else if (k === "conc") showConc = true; else if (k === "cli") showCli = true; else if (k === "cont") showCont = true; else if (k === "radius") { radius = 0; $("#radius").value = "0"; savePref(); } else sel[k].delete(v);
+  if (k.startsWith("grp:")) { const m = MS.find(x => x.key === k.slice(4)); groupVals(m, v).forEach(x => sel[m.key].delete(x)); } else if (k === "quick") quick[v] = false; else if (k === "conc") showConc = true; else if (k === "neg") showNeg = true; else if (k === "cli") showCli = true; else if (k === "cont") showCont = true; else if (k === "radius") { radius = 0; $("#radius").value = "0"; savePref(); } else sel[k].delete(v);
   changed();
 });
 $("#fToggle").addEventListener("click", () => { const on = $("#bar").classList.toggle("open"); $("#fToggle").setAttribute("aria-expanded", on); });
@@ -1253,6 +1271,7 @@ function filtered(skipKey) {
   outer: for (const a of AZ) {
     if (a._del) continue; // eliminati: fuori da elenco, mappa, tendine e CSV
     if (a._c && !showConc) continue;
+    if (!showNeg && isNeg(a)) continue;
     if (!showCli && isCli(a)) continue;
     if (!showCont && isCont(a)) continue;
     for (const m of act) {
@@ -1282,23 +1301,25 @@ function refresh() {
   LIST = filtered();
   const key = sortBy === "dist" && !ref ? "prio" : sortBy;
   if (key === "agg") LIST.forEach(a => { const s = stato[a.id]; a._t = s && s.agg ? Date.parse(s.agg) || 0 : 0; });
-  // i concorrenti stanno sempre in fondo, ordinati tra loro con lo stesso criterio
+  // i concorrenti stanno sempre in fondo e i negozi subito prima, ordinati tra loro con lo stesso criterio
   const cmp = SORTS[key];
+  LIST.forEach(a => { a._n = isNeg(a); });
   // "Da richiamare": prima i promemoria più vecchi
   const ric = quick.rich ? (x, y) => String(stato[x.id].richiamo).localeCompare(String(stato[y.id].richiamo)) : () => 0;
-  LIST.sort((x, y) => (x._c - y._c) || ric(x, y) || cmp(x, y));
+  LIST.sort((x, y) => (x._c - y._c) || (x._n - y._n) || ric(x, y) || cmp(x, y));
   const nr = AZ.reduce((t, a) => t + (!a._del && daRichiamare(a)), 0);
   $("#richN").textContent = nr; $("#richN").hidden = !nr;
   renderCount(); renderCards(); scheduleMap(); renderGiro();
 }
 function renderCount() {
-  let p1 = 0, nc = 0, ng = 0, nb = 0;
-  for (const a of LIST) { if (a._c) nc++; else { if (a._pr === 1) p1++; if (isCli(a)) ng++; else if (isCont(a)) nb++; } }
+  let p1 = 0, nc = 0, ng = 0, nb = 0, nn = 0;
+  for (const a of LIST) { if (a._c) nc++; else { if (a._pr === 1 && !a._n) p1++; if (isCli(a)) ng++; else if (isCont(a)) nb++; if (a._n) nn++; } }
   const n = LIST.length - nc;
   let h = `<b>${fmtN(n)}</b> ${n === 1 ? "azienda" : "aziende"}`;
   if (n) h += ` · ${fmtN(p1)} nel core`;
   if (nb) h += ` · <span class="contact-txt">${fmtN(nb)} ${nb === 1 ? "contattata" : "contattate"}</span>`;
   if (ng) h += ` · <span class="gold-txt">${fmtN(ng)} già ${ng === 1 ? "cliente" : "clienti"}</span>`;
+  if (nn) h += ` · <button type="button" class="link neg-link" data-goneg>${fmtN(nn)} ${nn === 1 ? "negozio" : "negozi"} in fondo</button>`;
   if (nc && !n) h = `<b>${fmtN(nc)}</b> ${nc === 1 ? "concorrente" : "concorrenti"}`;
   else if (nc) h += ` · <button type="button" class="link conc-link" data-goconc>${fmtN(nc)} ${nc === 1 ? "concorrente" : "concorrenti"} in fondo</button>`;
   if (ref && sortBy === "dist") h += ` · ordinate per distanza da ${esc(ref.label)}`;
@@ -1334,7 +1355,7 @@ function renderKpis() {
   for (const a of AZ) {
     if (a._del) { ndel++; continue; }
     if (a._c) { nconc++; continue; }
-    ncli++; const k = st(a); if (a._pr === 1) p1++; if (k === "contattata" || k === "visitata") cont++; else if (k === "cliente") cli++;
+    ncli++; const k = st(a); if (a._pr === 1 && !isNeg(a)) p1++; if (k === "contattata" || k === "visitata") cont++; else if (k === "cliente") cli++;
   }
   NCLI = ncli; NCONC = nconc;
   const dl = $("#delLink"); dl.hidden = !ndel; dl.textContent = `Eliminati (${fmtN(ndel)})`;
@@ -1342,8 +1363,9 @@ function renderKpis() {
   const k = [[NCLI, "aziende"], [p1, "core"], [cont, "contattate", "contact"], [cli, "clienti", "gold"]];
   if (NCONC) k.push([NCONC, "concorrenti", "conc"]);
   $("#kpis").innerHTML = k.map(([v, l, c]) => `<div class="kpi${c ? " " + c : ""}"><dt>${l}</dt><dd>${fmtN(v)}</dd></div>`).join("");
-  // quante aziende Top (sul pulsante "Top" dei filtri)
+  // quante aziende Top e quanti negozi (sui pulsanti dei filtri)
   const nt = AZ.reduce((n, a) => n + (!a._del && isTop(a) ? 1 : 0), 0); $("#topN").textContent = nt; $("#topN").hidden = !nt;
+  const nn = AZ.reduce((n, a) => n + (!a._del && isNeg(a) ? 1 : 0), 0); $("#negN").textContent = nn; $("#negN").hidden = !nn;
 }
 
 /* ---------- schede ---------- */
@@ -1357,7 +1379,7 @@ function cardHtml(a) {
     ? `<span class="tag ctag">Concorrente (segnato a mano)</span>${lbs}<span class="tag sett">${hl(a.settore)}</span>`
     : a._c
     ? `<span class="tag ctag">Concorrente</span>${lbs}<span class="tag tipo">${hl(a.tipo)}</span>${list(a.servizi, "mach")}${a.prova ? `<span class="tag prova">${hl(a.prova)}</span>` : ""}`
-    : `${lbs}${isCli(a) && !a.cliente_lbs ? `<span class="tag gtag">Già cliente</span>` : isCont(a) ? `<span class="tag btag">${STATI[k]}</span>` : ""}<span class="tag sett" title="${esc(a.settore || "")}">${hl(a.macro && a.sotto && a.sotto !== a.macro ? a.macro + " › " + a.sotto : a.macro || a.settore || a.tipo || "—")}</span>${a._cf ? "" : a.produzione === "confermata" ? `<span class="tag prod" title="${esc(a.prova_produzione)}">produzione confermata</span>` : `<span class="tag ver">produzione da verificare</span>`}${list(a.macchinari, "mach")}`;
+    : `${isNeg(a) ? `<span class="tag ntag">Negozio · non produce</span>` : ""}${lbs}${isCli(a) && !a.cliente_lbs ? `<span class="tag gtag">Già cliente</span>` : isCont(a) ? `<span class="tag btag">${STATI[k]}</span>` : ""}<span class="tag sett" title="${esc(a.settore || "")}">${hl(a.macro && a.sotto && a.sotto !== a.macro ? a.macro + " › " + a.sotto : a.macro || a.settore || a.tipo || "—")}</span>${a._cf ? "" : a.produzione === "confermata" ? `<span class="tag prod" title="${esc(a.prova_produzione)}">produzione confermata</span>` : `<span class="tag ver">produzione da verificare</span>`}${list(a.macchinari, "mach")}`;
   const dist = ref && isFinite(a._d) ? ` · <span class="km">${fmtKm(a._d)}</span>` : "";
   const head = `<div class="card-head" data-act="toggle">
       <div class="prio" title="${esc(PRIO[a._pr])}"><small aria-hidden="true">${a._c ? "CONC" : "PRIO"}</small><b aria-hidden="true">${a._c ? "C" : a._pr}</b><span class="sr">${a._c ? "Concorrente" : "Priorità " + a._pr}</span></div>
@@ -1373,7 +1395,7 @@ function cardHtml(a) {
         ${a.telefono ? `<a class="tel" href="${esc(telHref(a.telefono))}" aria-label="Chiama ${esc(a.nome)}: ${esc(firstOf(a.telefono))}">${I.tel}${esc(firstOf(a.telefono))}</a>` : ""}
       </div>
     </div>`;
-  return `<article class="card p${a._pr}${a._c ? " conc" : isCli(a) ? " gold" : isCont(a) ? " contact" : ""}${selId === a.id ? " sel" : ""}${open ? " open" : ""}" data-id="${id}">${head}${open ? detailHtml(a, s, k, id) : ""}</article>`;
+  return `<article class="card p${a._pr}${a._c ? " conc" : isCli(a) ? " gold" : isCont(a) ? " contact" : ""}${isNeg(a) ? " neg" : ""}${selId === a.id ? " sel" : ""}${open ? " open" : ""}" data-id="${id}">${head}${open ? detailHtml(a, s, k, id) : ""}</article>`;
 }
 // menu della scheda: cambia priorità (1-5 o concorrente), sposta in un'altra categoria o elimina il contatto
 function prioMenu(a, id, dis) {
@@ -1386,6 +1408,8 @@ function prioMenu(a, id, dis) {
       <div class="pm-pop" id="pmp-${id}" role="menu" aria-label="Priorità, categoria e contatto" hidden>
         ${[1, 2, 3, 4, 5, 6].map(p => `<button type="button" role="menuitemradio" aria-checked="${p === a._pr}" class="pm-it pv${p}${p === a._pr ? " cur" : ""}" data-act="setprio" data-p="${p}" tabindex="-1"><i class="pdot pv${p}" aria-hidden="true"></i>${esc(lab[p])}</button>`).join("")}
         ${cats}
+        ${a._c ? "" : `<div class="pm-sep" role="separator"></div>
+        <button type="button" role="menuitemcheckbox" aria-checked="${isNeg(a)}" class="pm-it pv5 pm-neg" data-act="negozio" tabindex="-1" title="In grigio in fondo all'elenco, per tutti i collaboratori; resta nella sua priorità"><i class="pdot" style="background:var(--panel);box-shadow:inset 0 0 0 2px var(--p5)" aria-hidden="true"></i>Negozio · non produce</button>`}
         <div class="pm-sep" role="separator"></div>
         <button type="button" role="menuitem" class="pm-it pm-del" data-act="askdel" tabindex="-1">Elimina contatto</button>
       </div>
@@ -1485,9 +1509,10 @@ function detailHtml(a, s, k, id) {
 }
 function renderCards() {
   const ae = document.activeElement, fid = ae && ae.id && $("#cards").contains(ae) ? ae.id : "";
-  const part = LIST.slice(0, shown), nc = LIST.reduce((t, a) => t + a._c, 0);
-  // titolo di separazione prima del primo concorrente
-  const html = part.map((a, i) => (a._c && (i === 0 || !part[i - 1]._c)
+  const part = LIST.slice(0, shown), nc = LIST.reduce((t, a) => t + a._c, 0), nn = LIST.reduce((t, a) => t + a._n, 0);
+  // titoli di separazione prima del primo negozio e del primo concorrente
+  const html = part.map((a, i) => (a._n && (i === 0 || !part[i - 1]._n)
+    ? `<h2 class="sep-conc sep-neg" id="negStart">Negozi <span>${fmtN(nn)} · segnati a mano come "non produce": restano nella loro priorità, tolto il segno tornano al loro posto</span></h2>` : "") + (a._c && (i === 0 || !part[i - 1]._c)
     ? `<h2 class="sep-conc" id="concStart">Concorrenti <span>${fmtN(nc)} · aziende che fanno affilatura: non sono clienti da contattare, servono a sapere chi lavora in zona e che servizi offre</span></h2>` : "") + cardHtml(a)).join("");
   $("#cards").innerHTML = LIST.length ? html
     : `<div class="empty">Nessuna azienda con questi filtri. Togli qualche filtro o cambia la ricerca.<button type="button" class="btn" data-act="clear">Azzera filtri e ricerca</button></div>`;
@@ -1562,6 +1587,7 @@ const PAINT = [["bg", "background-color", "land"], ["sea", "fill-color", "sea"],
   ["conc-pt", "circle-color", "conc"], ["conc-pt", "circle-stroke-color", "concRing"],
   ["gold-pt", "circle-color", "gold"], ["gold-pt", "circle-stroke-color", "goldRing"],
   ["cont-pt", "circle-color", "contact"], ["cont-pt", "circle-stroke-color", "contactRing"],
+  ["neg-pt", "circle-color", "panel"], ["neg-pt", "circle-stroke-color", "p5"],
   ["ref-pt", "circle-color", "steel"], ["ref-pt", "circle-stroke-color", "panel"]];
 function applyMapTheme() {
   if (!GL.ready) return;
@@ -1585,6 +1611,7 @@ function glStyle(c) {
       conc: { type: "geojson", data: EMPTY() }, // concorrenti: mai raggruppati
       gold: { type: "geojson", data: EMPTY() }, // già clienti: mai raggruppati
       cont: { type: "geojson", data: EMPTY() }, // contattate: mai raggruppate
+      neg: { type: "geojson", data: EMPTY() }, // negozi: cerchietti grigi vuoti, sotto a tutto
       top: { type: "geojson", data: EMPTY() }, // Top: stelline bianche, sopra a tutto
       sel: { type: "geojson", data: EMPTY() },
       ref: { type: "geojson", data: EMPTY() },
@@ -1603,6 +1630,7 @@ function glStyle(c) {
       { id: "prov", type: "line", source: "prov", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": c.prov, "line-width": z(7, 1.1, 12, 2.2) } },
       { id: "ref-fill", type: "fill", source: "ref", filter: isPoly, paint: { "fill-color": c.steel, "fill-opacity": 0.07 } },
       { id: "ref-line", type: "line", source: "ref", filter: isPoly, paint: { "line-color": c.steel, "line-width": 1.6, "line-dasharray": [3, 2] } },
+      { id: "neg-pt", type: "circle", source: "neg", paint: { "circle-color": c.panel, "circle-opacity": 0.85, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3, 12, 4.5, 16, 6.5], "circle-stroke-width": 1.8, "circle-stroke-color": c.p5 } },
       { id: "az-cl", type: "circle", source: "az", filter: ["has", "point_count"], paint: { "circle-color": c.steel, "circle-opacity": 0.92, "circle-radius": ["step", ["get", "point_count"], 13, 10, 16, 50, 20, 200, 25, 1000, 31], "circle-stroke-width": 2, "circle-stroke-color": c.panel } },
       { id: "az-pt", type: "circle", source: "az", filter: ["!", ["has", "point_count"]], layout: { "circle-sort-key": ["get", "rk"] }, paint: { "circle-color": ptColor(c), "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 6, 16, 8], "circle-stroke-width": 1.5, "circle-stroke-color": c.panel } },
       { id: "cont-pt", type: "circle", source: "cont", paint: { "circle-color": c.contact, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4.5, 12, 6.5, 16, 8.5], "circle-stroke-width": 2, "circle-stroke-color": c.contactRing } },
@@ -1666,9 +1694,11 @@ function createGL() {
   m.on("mousemove", "gold-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`Già cliente · ${a.nome} · ${a.comune}`, e.point.x, e.point.y); });
   m.on("click", "top-pt", e => { showTip(""); selectFromMap(e.features[0].properties.id); });
   m.on("mousemove", "top-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`Top · ${a.nome} · ${a.comune}${a._c ? " · concorrente" : isCli(a) ? " · già cliente" : isCont(a) ? " · " + STATI[st(a)].toLowerCase() : ""}`, e.point.x, e.point.y); });
+  m.on("click", "neg-pt", e => { showTip(""); selectFromMap(e.features[0].properties.id); });
+  m.on("mousemove", "neg-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`Negozio · ${a.nome} · ${a.comune} · priorità ${a._pr}`, e.point.x, e.point.y); });
   m.on("click", "cont-pt", e => { showTip(""); selectFromMap(e.features[0].properties.id); });
   m.on("mousemove", "cont-pt", e => { const a = BYID.get(e.features[0].properties.id); if (a) showTip(`${STATI[st(a)]} · ${a.nome} · ${a.comune}`, e.point.x, e.point.y); });
-  ["az-cl", "az-pt", "cont-pt", "gold-pt", "conc-pt", "top-pt"].forEach(l => {
+  ["az-cl", "az-pt", "neg-pt", "cont-pt", "gold-pt", "conc-pt", "top-pt"].forEach(l => {
     m.on("mouseenter", l, () => { m.getCanvas().style.cursor = "pointer"; });
     m.on("mouseleave", l, () => { m.getCanvas().style.cursor = ""; showTip(""); });
   });
@@ -1688,15 +1718,17 @@ function updateGL() {
     GL.list = LIST;
     // tre sorgenti: clienti da trovare (a gruppi), già clienti (oro) e concorrenti (rosso)
     // i Top hanno la loro stellina al posto del pallino
-    const feats = [], cfeats = [], gfeats = [], bfeats = [], tfeats = [];
-    for (const a of LIST) if (a._ok) (isTop(a) ? tfeats : a._c ? cfeats : isCli(a) ? gfeats : isCont(a) ? bfeats : feats).push(a._f);
+    // i negozi sono cerchietti grigi vuoti, fuori dai gruppi
+    const feats = [], cfeats = [], gfeats = [], bfeats = [], tfeats = [], nfeats = [];
+    for (const a of LIST) if (a._ok) (isTop(a) ? tfeats : a._c ? cfeats : isCli(a) ? gfeats : isCont(a) ? bfeats : a._n ? nfeats : feats).push(a._f);
     m.getSource("top").setData({ type: "FeatureCollection", features: tfeats });
+    m.getSource("neg").setData({ type: "FeatureCollection", features: nfeats });
     m.getSource("az").setData({ type: "FeatureCollection", features: feats });
     m.getSource("cont").setData({ type: "FeatureCollection", features: bfeats });
     m.getSource("gold").setData({ type: "FeatureCollection", features: gfeats });
     m.getSource("conc").setData({ type: "FeatureCollection", features: cfeats });
     GL.counts.forEach(mk => mk.remove()); GL.counts.clear(); // i numeri si rifanno quando i gruppi sono pronti
-    setMapCount(feats.length + cfeats.length + gfeats.length + bfeats.length + tfeats.length);
+    setMapCount(feats.length + cfeats.length + gfeats.length + bfeats.length + tfeats.length + nfeats.length);
   }
   if (GL.sel !== selId) { GL.sel = selId; const a = selId && BYID.get(selId); m.getSource("sel").setData({ type: "FeatureCollection", features: a && a._ok ? [a._f] : [] }); }
   const rk = ref ? `${ref.lat},${ref.lon},${radius}` : "";
@@ -1840,14 +1872,18 @@ function drawMap() {
   if (ref && radius) { g.setLineDash([5, 4]); g.strokeStyle = C("--steel"); g.lineWidth = 1.5; g.beginPath(); g.arc(X(ref.lon), Y(ref.lat), radius / 111.2 * s, 0, Math.PI * 2); g.stroke(); g.setLineDash([]); }
   // punti: prima la priorità 1, sopra la 3
   const r = pts.length > 3000 ? 2.2 : pts.length > 800 ? 3 : 4.3;
-  MAP.pts = pts.map(a => ({ a, x: X(a._lon), y: Y(a._lat), g: isCli(a), b: isCont(a) }));
+  MAP.pts = pts.map(a => ({ a, x: X(a._lon), y: Y(a._lat), g: isCli(a), b: isCont(a), n: isNeg(a) && !isCli(a) && !isCont(a) }));
+  // negozi: cerchietti grigi vuoti, sotto a tutti
+  g.beginPath();
+  for (const q of MAP.pts) if (q.n) { g.moveTo(q.x + r, q.y); g.arc(q.x, q.y, r, 0, Math.PI * 2); }
+  g.fillStyle = C("--sunk"); g.fill(); g.strokeStyle = C("--p5"); g.lineWidth = 1.5; g.stroke();
   const pcol = p => C(p === 6 ? "--conc" : p === "g" ? "--gold" : p === "b" ? "--contact" : `--p${p}`);
   const ring = { 6: "--conc-ring", g: "--gold-ring", b: "--contact-ring" };
   // priorità 5-1, poi contattate in blu, già clienti in oro e concorrenti in rosso, sopra a tutti e con bordo
   [5, 4, 3, 2, 1, "b", "g", 6].forEach(p => { // dal meno importante: il core (1) resta sopra
     const big = !!ring[p], rr = big ? Math.max(r, 3.8) : r;
     g.beginPath();
-    for (const q of MAP.pts) if (p === "g" ? q.g : p === "b" ? q.b : q.a._pr === p && !q.g && !q.b) { g.moveTo(q.x + rr, q.y); g.arc(q.x, q.y, rr, 0, Math.PI * 2); }
+    for (const q of MAP.pts) if (p === "g" ? q.g : p === "b" ? q.b : q.a._pr === p && !q.g && !q.b && !q.n) { g.moveTo(q.x + rr, q.y); g.arc(q.x, q.y, rr, 0, Math.PI * 2); }
     g.fillStyle = pcol(p); g.fill();
     if (big) { g.strokeStyle = C(ring[p]); g.lineWidth = 1.5; g.stroke(); }
     else if (r > 2.5) { g.strokeStyle = C("--sunk"); g.lineWidth = 1; g.stroke(); }
@@ -1896,7 +1932,7 @@ $("#map").addEventListener("pointermove", e => {
   if (e.pointerType !== "mouse") return;
   const a = hitTest(e), cv = $("#map"), r = cv.getBoundingClientRect();
   cv.style.cursor = a ? "pointer" : "";
-  showTip(a ? (isCli(a) ? `Già cliente · ${a.nome} · ${a.comune}` : isCont(a) ? `${STATI[st(a)]} · ${a.nome} · ${a.comune}` : `${a.nome} · ${a.comune} · ${a._c ? "concorrente" : "priorità " + a._pr}`) : "", e.clientX - r.left, e.clientY - r.top);
+  showTip(a ? (isCli(a) ? `Già cliente · ${a.nome} · ${a.comune}` : isCont(a) ? `${STATI[st(a)]} · ${a.nome} · ${a.comune}` : `${a.nome} · ${a.comune} · ${a._c ? "concorrente" : (isNeg(a) ? "negozio · " : "") + "priorità " + a._pr}`) : "", e.clientX - r.left, e.clientY - r.top);
 });
 $("#map").addEventListener("pointerleave", () => showTip(""));
 new ResizeObserver(() => { const w = $("#mapWrap").clientWidth; if (w !== MAP.lastW) { MAP.lastW = w; scheduleMap(); } }).observe($("#mapWrap"));
@@ -2018,6 +2054,13 @@ async function setPrio(id, p) {
   if (ok) toast(p === 6 ? `${a.nome}: segnato come concorrente, ora è in fondo all'elenco.` : a._cf ? `${a.nome}: priorità ${p}, non più tra i concorrenti.` : `Priorità ${p} salvata.`);
 }
 
+// negozio sì/no in stato/<id>.negozio; togliendolo l'azienda torna esattamente com'era
+async function setNegozio(id, on) {
+  const a = BYID.get(id); if (!a || a._c) return;
+  const ok = await salva(id, on ? { negozio: true } : {}, { quiet: true, drop: on ? [] : ["negozio"] });
+  if (ok) toast(on ? `${a.nome}: tra i negozi, in grigio in fondo all'elenco.` : `${a.nome}: non più tra i negozi.`, { label: "Annulla", fn: () => setNegozio(id, !on) });
+}
+
 // nuova categoria in stato/<id>.macro (toglie la priorità messa a mano: vale quella della categoria)
 async function setCat(id, m) {
   const a = BYID.get(id); closePm(true);
@@ -2089,10 +2132,10 @@ $("#export").addEventListener("click", esporta);
 let stT = {};
 // "N concorrenti in fondo": mostra le schede fino al primo concorrente e ci porta lì
 $("#count").addEventListener("click", e => {
-  if (!e.target.closest("[data-goconc]")) return;
-  const i = LIST.findIndex(a => a._c); if (i < 0) return;
+  const neg = !!e.target.closest("[data-goneg]"); if (!neg && !e.target.closest("[data-goconc]")) return;
+  const i = LIST.findIndex(a => neg ? a._n : a._c); if (i < 0) return;
   if (i >= shown) { shown = Math.ceil((i + 1) / PAGE) * PAGE; renderCards(); }
-  const h = $("#concStart"); if (h) h.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  const h = $(neg ? "#negStart" : "#concStart"); if (h) h.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
 });
 $("#cards").addEventListener("click", e => {
   if (e.target.closest("[data-act=clear]")) { clearAll(); return; }
@@ -2110,6 +2153,7 @@ $("#cards").addEventListener("click", e => {
     salva(id, on ? { top: true } : {}, { quiet: true, drop: on ? [] : ["top"] }).then(ok => ok && toast(on ? `${a.nome}: tra i Top.` : `${a.nome}: tolta dai Top.`));
     return;
   }
+  if (act.dataset.act === "negozio") { closePm(true); setNegozio(id, !isNeg(BYID.get(id) || {})); return; }
   if (act.dataset.act === "toggle") {
     if (act.classList.contains("card-head") && String(getSelection())) return; // sta selezionando del testo
     openId = openId === id ? null : id; selId = id; renderCards(); scheduleMap();
