@@ -1141,7 +1141,20 @@ const isNarrow = () => matchMedia("(max-width: 720px)").matches;
 
 // preferenze personali (solo in questo browser): ordinamento, comune di partenza, raggio
 function loadPref() { try { return JSON.parse(localStorage.getItem("finder-pref")) || {}; } catch (e) { return {}; } }
-function savePref() { try { localStorage.setItem("finder-pref", JSON.stringify({ sortBy, radius, ref: ref && !ref.geo ? ref.label : "" })); } catch (e) {} }
+// anche i filtri restano salvati su questo dispositivo: riaprendo l'app (o se si chiude per sbaglio) si ritrovano
+function savePref() {
+  const f = { sel: {}, quick, conc: showConc, neg: showNeg, cli: showCli, cont: showCont, negDist, q: $("#q").value };
+  MS.forEach(m => { if (sel[m.key].size) f.sel[m.key] = [...sel[m.key]]; });
+  try { localStorage.setItem("finder-pref", JSON.stringify({ sortBy, radius, ref: ref && !ref.geo ? ref.label : "", f })); } catch (e) {}
+}
+function restoreFiltri(f) {
+  if (!f || typeof f !== "object") return;
+  MS.forEach(m => { const v = f.sel && f.sel[m.key]; if (Array.isArray(v)) v.forEach(x => typeof x === "string" && sel[m.key].add(x)); });
+  Object.keys(quick).forEach(k => { quick[k] = !!(f.quick && f.quick[k]); });
+  showConc = f.conc !== false; showNeg = f.neg !== false; showCli = f.cli !== false; showCont = f.cont !== false;
+  if ([500, 1000, 2000].includes(f.negDist)) negDist = f.negDist;
+  if (typeof f.q === "string") $("#q").value = f.q;
+}
 
 /* ---------- tendine a selezione multipla ---------- */
 // giri "Agente · Giorno …": ordinati per agente, poi per giorno della settimana
@@ -1371,7 +1384,7 @@ $("#active").addEventListener("click", e => {
 });
 $("#fToggle").addEventListener("click", () => { const on = $("#bar").classList.toggle("open"); $("#fToggle").setAttribute("aria-expanded", on); });
 function changed() {
-  shown = PAGE; MS.forEach(updateMsBtn); renderQuick(); renderActive(); syncRaggi(); refresh();
+  shown = PAGE; MS.forEach(updateMsBtn); renderQuick(); renderActive(); syncRaggi(); refresh(); savePref();
   if (openMs) { openMs.c = counts(openMs.m); drawPop(); }
 }
 
@@ -2251,7 +2264,7 @@ async function esporta() {
 }
 
 /* ---------- eventi ---------- */
-let qT; $("#q").addEventListener("input", () => { clearTimeout(qT); qT = setTimeout(() => { shown = PAGE; refresh(); }, 160); });
+let qT; $("#q").addEventListener("input", () => { clearTimeout(qT); qT = setTimeout(() => { shown = PAGE; refresh(); savePref(); }, 160); });
 $("#q").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); clearTimeout(qT); shown = PAGE; refresh(); } });
 $("#more").addEventListener("click", () => { shown += PAGE; renderCards(); });
 $("#export").addEventListener("click", esporta);
@@ -3611,6 +3624,7 @@ try { const v0 = localStorage.getItem("finder-vista"); if (v0 && v0 !== "finder"
   const pref = loadPref();
   if (SORTS[pref.sortBy] && [...$("#sort").options].some(o => o.value === pref.sortBy)) { sortBy = pref.sortBy; $("#sort").value = sortBy; }
   if ([1, 2.5, 5, 10, 15].includes(pref.radius)) { radius = pref.radius; $("#radius").value = String(radius); }
+  restoreFiltri(pref.f); // prima di setRef, che salva le preferenze
   try {
     // i concorrenti sono facoltativi: se il file manca o non è valido la pagina va avanti senza
     const concP = fetch("dati/concorrenti.json").then(r => r.ok ? r.json() : []).then(j => Array.isArray(j) ? j : []).catch(() => []);
@@ -3644,7 +3658,9 @@ try { const v0 = localStorage.getItem("finder-vista"); if (v0 && v0 !== "finder"
     const date = [...new Set(AZ.map(a => a.data).filter(Boolean))].sort();
     $("#foot").textContent = `Fonti: Google Maps e siti aziendali, raccolta del ${date.map(d => new Date(d).toLocaleDateString("it-IT")).join(", ")}. Solo produttori: esclusi negozi, rivenditori senza produzione interna e attività di sola vendita. Priorità decise sui clienti LBS: 1 = core (legno e arredo, serramenti e infissi); 2 = tipografie, stampa e packaging; 3 = plastica e nautica, allestimenti e stand, coibentati, pannelli e coperture; 4 = metalli e meccanica; 5 = ferramenta, edilizia e aziende con produzione da verificare.${NCONC ? " I concorrenti (aziende di affilatura) sono in una sezione a parte, in fondo all'elenco." : ""} Dipendenti e fatturato sono stime per fascia, salvo dove indicato.`;
     msBox("giro").hidden = !AZ.some(a => a.giri && a.giri.length); // senza giri nei dati la tendina non serve
-    loaded = true; renderQuick(); renderActive(); renderKpis(); refresh();
+    loaded = true; renderKpis(); changed();
+    // filtro della distanza ritrovato: servono le zone artigianali (se non arrivano, si torna ai soli negozi)
+    if (negDist && !showNeg) caricaZone().then(() => changed(), () => { negDist = 0; changed(); });
   } catch (e) { $("#count").textContent = "Elenco aziende non disponibile: ricarica la pagina."; }
   userNs = await use("user");
   if (userNs) { try { const c = await userNs.can("data.write"); if (c === false) canWrite = false; } catch (e) {} }
