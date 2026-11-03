@@ -1,7 +1,7 @@
 /* FINDER app – login Firebase e "ponte" tra la pagina (scritta per claude.ai) e Firebase.
    La pagina chiede claude.use("db" | "user" | "room" | "downloads") e i file dati/*.json:
    qui le stesse richieste vengono servite dal Realtime Database, protetto dal login.
-   Struttura del database: dati/aziende, dati/concorrenti (elenco), stato/<id> (stato e note),
+   Struttura del database: dati/aziende, dati/concorrenti (elenco), stato/<id> (stato e note), nuove/<id> (aziende aggiunte a mano),
    autorizzati/<email con le virgole> (nome, email, admin: chi può entrare, gestito dall'amministratore),
    utenti/<uid> (nome ed email, scritti da ciascuno al primo accesso), presenza/<uid> (chi ha l'app aperta),
    posizioni/<uid> (GPS), visite/<azienda>__v… (storico visite), foto/<azienda>__f… (foto delle visite),

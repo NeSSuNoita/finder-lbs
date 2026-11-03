@@ -530,6 +530,21 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 .count .pcnt .pdot { width: 9px; height: 9px; margin-right: 4px; vertical-align: 0; }
 .count .pc1 { color: var(--p1); } .count .pc2 { color: var(--p2-ink); } .count .pc3 { color: var(--p3); } .count .pc4 { color: var(--p4-ink); } .count .pc5 { color: var(--muted); }
 .chip.neg .n { background: var(--p5); }
+/* nuova azienda aggiunta a mano */
+.tag.man { background: var(--steel-soft); color: var(--steel); border-color: var(--steel); font-weight: 600; }
+.dlg.nz { width: min(580px, 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; border-top-color: var(--steel); }
+.nz-g { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.nz-g label { display: grid; gap: 3px; font-size: 13px; font-weight: 600; min-width: 0; }
+.nz-g label[hidden] { display: none; }
+.nz-g .nz-w { grid-column: 1 / -1; }
+.nz-g input, .nz-g select, .nz-g textarea { width: 100%; min-width: 0; min-height: 40px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--panel); color: var(--ink); font: inherit; font-size: 16px; font-weight: 400; padding: 6px 9px; }
+.nz-g input:focus, .nz-g select:focus, .nz-g textarea:focus { outline: 2px solid var(--steel); outline-offset: 1px; }
+.nz-g textarea { resize: vertical; }
+.nz-pos { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); background: var(--sunk); border-radius: 6px; padding: 8px 10px; }
+.nz-pos span { flex: 1 1 200px; min-width: 0; }
+.nz-msg { font-size: 13.5px; background: var(--p3-soft); color: var(--ink); border: 1px solid var(--p3); border-radius: 6px; padding: 8px 10px; overflow-wrap: anywhere; }
+.nz-az { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+@media (max-width: 480px) { .nz-g { grid-template-columns: minmax(0, 1fr); } }
 /* tendina che compare spegnendo "Negozi": nasconde anche le aziende lontane dalle zone artigianali */
 .neg-sel { height: 34px; border: 1px dashed var(--p5); background: var(--p5-soft); color: var(--ink); border-radius: 6px; font: inherit; font-size: 13px; font-weight: 600; padding: 0 8px; max-width: 100%; cursor: pointer; }
 .neg-sel:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
@@ -759,6 +774,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
     <div class="res-head">
       <p class="count" id="count" aria-live="polite">Caricamento elenco aziende…</p>
       <div class="tools">
+        <button type="button" class="btn primary" id="nzBtn">+ Nuova azienda</button>
         <label class="field">Ordina
           <select id="sort">
             <option value="prio">Priorità</option>
@@ -995,6 +1011,28 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
     <p id="dlgD"></p>
     <div class="dlg-row"><button type="button" class="btn" id="dlgNo">Annulla</button><button type="button" class="btn danger" id="dlgYes">Elimina</button></div>
   </div>
+</div>
+<!-- nuova azienda aggiunta a mano -->
+<div class="dlg-back" id="nz" hidden>
+  <form class="dlg nz" id="nzForm" role="dialog" aria-modal="true" aria-labelledby="nzT" novalidate>
+    <h2 id="nzT">Nuova azienda</h2>
+    <div class="nz-g">
+      <label class="nz-w">Nome azienda *<input id="nzNome" autocomplete="off"></label>
+      <label>Comune *<input id="nzComune" list="comuniList" autocomplete="off"></label>
+      <label>Provincia<select id="nzProv"></select></label>
+      <label class="nz-w">Indirizzo<input id="nzInd" placeholder="Via e numero civico" autocomplete="off"></label>
+      <label>Telefono<input id="nzTel" type="tel" autocomplete="off"></label>
+      <label>Email<input id="nzMail" type="email" autocomplete="off"></label>
+      <label class="nz-w">Sito<input id="nzSito" inputmode="url" placeholder="www.azienda.it" autocomplete="off"></label>
+      <label class="nz-solo">Categoria<select id="nzCat"></select></label>
+      <label class="nz-solo">Priorità<select id="nzPrio"></select></label>
+      <label class="nz-solo">Stato<select id="nzStato"></select></label>
+      <label class="nz-w nz-solo">Nota<textarea id="nzNota" rows="2"></textarea></label>
+    </div>
+    <div class="nz-pos"><span id="nzPosT"></span><button type="button" class="btn" id="nzGps">Usa la mia posizione</button></div>
+    <div class="nz-msg" id="nzMsg" role="alert" hidden></div>
+    <div class="dlg-row"><button type="button" class="btn" id="nzNo">Annulla</button><button type="submit" class="btn primary" id="nzSi">Salva azienda</button></div>
+  </form>
 </div>
 
 
@@ -1511,7 +1549,7 @@ function cardHtml(a) {
     ? `<span class="tag ctag">Concorrente (segnato a mano)</span>${lbs}<span class="tag sett">${hl(a.settore)}</span>`
     : a._c
     ? `<span class="tag ctag">Concorrente</span>${lbs}<span class="tag tipo">${hl(a.tipo)}</span>${list(a.servizi, "mach")}${a.prova ? `<span class="tag prova">${hl(a.prova)}</span>` : ""}`
-    : `${isNeg(a) ? `<span class="tag ntag">Negozio · non produce</span>` : ""}${lbs}${isCli(a) && !a.cliente_lbs ? `<span class="tag gtag">Già cliente</span>` : isCont(a) ? `<span class="tag btag">${STATI[k]}</span>` : ""}<span class="tag sett" title="${esc(a.settore || "")}">${hl(a.macro && a.sotto && a.sotto !== a.macro ? a.macro + " › " + a.sotto : a.macro || a.settore || a.tipo || "—")}</span>${a._cf ? "" : a.produzione === "confermata" ? `<span class="tag prod" title="${esc(a.prova_produzione)}">produzione confermata</span>` : `<span class="tag ver">produzione da verificare</span>`}${a.recuperata ? `<span class="tag ver" title="${esc(a.recuperata)}">${String(a.recuperata).startsWith("falegname") ? "falegname recuperato" : "era scartata come negozio"}</span>` : ""}${list(a.macchinari, "mach")}`;
+    : `${isNeg(a) ? `<span class="tag ntag">Negozio · non produce</span>` : ""}${a.manuale ? `<span class="tag man">aggiunta a mano</span>` : ""}${lbs}${isCli(a) && !a.cliente_lbs ? `<span class="tag gtag">Già cliente</span>` : isCont(a) ? `<span class="tag btag">${STATI[k]}</span>` : ""}<span class="tag sett" title="${esc(a.settore || "")}">${hl(a.macro && a.sotto && a.sotto !== a.macro ? a.macro + " › " + a.sotto : a.macro || a.settore || a.tipo || "—")}</span>${a._cf ? "" : a.produzione === "confermata" ? `<span class="tag prod" title="${esc(a.prova_produzione)}">produzione confermata</span>` : `<span class="tag ver">produzione da verificare</span>`}${a.recuperata ? `<span class="tag ver" title="${esc(a.recuperata)}">${String(a.recuperata).startsWith("falegname") ? "falegname recuperato" : "era scartata come negozio"}</span>` : ""}${list(a.macchinari, "mach")}`;
   const dist = ref && isFinite(a._d) ? ` · <span class="km">${fmtKm(a._d)}</span>` : "";
   const head = `<div class="card-head" data-act="toggle">
       <div class="prio" title="${esc(PRIO[a._pr])}"><small aria-hidden="true">${a._c ? "CONC" : "PRIO"}</small><b aria-hidden="true">${a._c ? "C" : a._pr}</b><span class="sr">${a._c ? "Concorrente" : "Priorità " + a._pr}</span></div>
@@ -1577,6 +1615,7 @@ function detailHtml(a, s, k, id) {
       ${mail ? `<a class="btn" href="mailto:${esc(mail)}">${I.mail}Email</a>` : ""}
       ${a.sito ? `<a class="btn" href="${esc(sitoUrl(a.sito))}" target="_blank" rel="noopener">${I.web}Sito</a>` : ""}
       <a class="btn" href="${maps}" target="_blank" rel="noopener">${I.pin}Google Maps</a>
+      ${a.manuale ? `<button type="button" class="btn" data-act="nzMod" ${dis}>Modifica dati</button>` : ""}
       ${prioMenu(a, id, dis)}
     </div>
     <div class="dgrid">
@@ -2292,6 +2331,7 @@ $("#cards").addEventListener("click", e => {
     salva(id, on ? { top: true } : {}, { quiet: true, drop: on ? [] : ["top"] }).then(ok => ok && toast(on ? `${a.nome}: tra i Top.` : `${a.nome}: tolta dai Top.`));
     return;
   }
+  if (act.dataset.act === "nzMod") { apriNz(id); return; }
   if (act.dataset.act === "negozio") { closePm(true); setNegozio(id, !isNeg(BYID.get(id) || {})); return; }
   if (act.dataset.act === "toggle") {
     if (act.classList.contains("card-head") && String(getSelection())) return; // sta selezionando del testo
@@ -3616,6 +3656,152 @@ function avviaCataloghi() {
 // la sezione aperta l'ultima volta
 try { const v0 = localStorage.getItem("finder-vista"); if (v0 && v0 !== "finder") vista(v0, { resta: true }); else document.body.dataset.vista = "finder"; } catch (e) { document.body.dataset.vista = "finder"; }
 
+/* ---------- scheda pronta per elenco, mappa e ricerca (anche quelle aggiunte a mano) ---------- */
+function preparaAz(a, i) {
+  if (!a.macro) a.macro = "Da classificare";
+  a._m0 = a.macro; a._so0 = a.sotto || "";
+  a._i = i; a._pr = a._c ? 6 : [1, 2, 3, 4, 5].includes(+a.priorita) ? +a.priorita : 5; a._p = String(a._pr); a._rk = RANK[a._pr]; a._p0 = a._pr; a._cf = a._c; a._del = false;
+  a._lat = parseFloat(a.lat); a._lon = parseFloat(a.lon); a._ok = isFinite(a._lat) && isFinite(a._lon) && !(a._lat === 0 && a._lon === 0); a._d = Infinity;
+  BYID.set(a.id, a);
+  // punto per la mappa, creato una volta sola
+  if (a._ok) a._f = { type: "Feature", geometry: { type: "Point", coordinates: [a._lon, a._lat] }, properties: { id: a.id, pr: a._pr, rk: a._rk } };
+  // testo di ricerca precalcolato, senza accenti
+  a._s = norm([a.nome, a.comune, a.provincia, PROV[a.provincia], a.macro, a.sotto, a.settore, a.settori, a.categoria_google, a.macchinari, a.segnali_serie, a.piva, a.indirizzo, a.telefono, a.email, a.sito, a.prova_produzione, a.tipo, a.servizi, a.prova, a._c ? "concorrente concorrenti" : "", (a.giri || []).join(" "), (a.codici || []).join(" "), a.cliente_lbs ? "cliente lbs" : "", a.recuperata ? "recuperata recuperate scartata come negozio" : "", a.manuale ? "aggiunta a mano nuova" : ""].join(" "));
+  if (a._ok) {
+    if (!GB) GB = { minLa: a._lat, maxLa: a._lat, minLo: a._lon, maxLo: a._lon };
+    GB.minLa = Math.min(GB.minLa, a._lat); GB.maxLa = Math.max(GB.maxLa, a._lat); GB.minLo = Math.min(GB.minLo, a._lon); GB.maxLo = Math.max(GB.maxLo, a._lon);
+  }
+}
+
+/* ---------- nuova azienda, aggiunta a mano (collection "nuove", condivisa; stato e note restano in stato/<id>) ---------- */
+function applicaNuova(id, d) {
+  const old = BYID.get(id);
+  if (old) { AZ.splice(AZ.indexOf(old), 1); BYID.delete(id); }
+  if (!d) return;
+  const a = { ...d, id, _c: false, manuale: true };
+  preparaAz(a, AZ.length); AZ.push(a);
+  if (ref && a._ok) a._d = km(ref, a);
+  sync(a);
+  if (a._ok && a.comune && !COMUNI.has(norm(a.comune))) {
+    COMUNI.set(norm(a.comune), { nome: a.comune, lat: a._lat, lon: a._lon });
+    const o = document.createElement("option"); o.value = a.comune; $("#comuniList").append(o);
+  }
+}
+const tel9 = t => String(t || "").split(/[;,/]/).map(x => x.replace(/\D/g, "")).filter(x => x.length >= 6).map(x => x.slice(-9));
+const nomeChiave = n => norm(n).replace(/[^a-z0-9 ]/g, " ").replace(/\b(srls?|snc|sas|spa|di|e|c)\b/g, " ").replace(/\s+/g, " ").trim();
+// la stessa azienda è già in elenco? stesso telefono, oppure stesso nome nello stesso comune (eliminate comprese)
+function doppione(nome, comune, tel, ignora) {
+  const ts = new Set(tel9(tel)), nk = nomeChiave(nome), c = norm(comune);
+  return AZ.find(a => a.id !== ignora && ((ts.size && tel9(a.telefono).some(t => ts.has(t))) || (nomeChiave(a.nome) === nk && norm(a.comune) === c)));
+}
+// posizione: quella del telefono, poi l'indirizzo cercato su OpenStreetMap, poi il centro del comune
+async function trovaPos(indirizzo, comune, provincia) {
+  const cerca = async q => {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
+    try {
+      const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it,sm&q=" + encodeURIComponent(q), { signal: ctl.signal });
+      const j = r.ok ? await r.json() : [];
+      return j[0] ? { lat: +j[0].lat, lon: +j[0].lon } : null;
+    } catch (e) { return null; } finally { clearTimeout(t); }
+  };
+  const dove = [comune, PROV[provincia] || provincia, "Italia"].filter(Boolean).join(", ");
+  if (indirizzo) { const p = await cerca(indirizzo + ", " + dove); if (p) return { ...p, pos: "indirizzo" }; }
+  const c = COMUNI.get(norm(comune));
+  if (c) return { lat: c.lat, lon: c.lon, pos: "comune" };
+  const p = await cerca(dove);
+  return p ? { ...p, pos: "comune" } : { lat: "", lon: "", pos: "" };
+}
+let nzId = null, nzGps = null, nzForza = false, nzPrioMano = false, nzProvMano = false;
+function nzMsg(html) { const m = $("#nzMsg"); m.innerHTML = html || ""; m.hidden = !html; if (html) m.scrollIntoView({ block: "nearest" }); }
+function apriNz(id) {
+  if (!db) { toast("Le aziende si aggiungono solo nell'app o nella pagina pubblicata su claude.ai."); return; }
+  if (!canWrite) { toast("Puoi solo leggere: per aggiungere aziende chiedi al titolare l'accesso da Contributor in su."); return; }
+  const a = id ? BYID.get(id) : null;
+  nzId = a ? id : null; nzGps = null; nzForza = false; nzPrioMano = false; nzProvMano = !!(a && a.provincia);
+  $("#nzT").textContent = a ? "Modifica azienda" : "Nuova azienda";
+  $("#nzSi").textContent = a ? "Salva modifiche" : "Salva azienda";
+  document.querySelectorAll("#nz .nz-solo").forEach(e => { e.hidden = !!a; });
+  $("#nzProv").innerHTML = `<option value="">—</option>` + Object.entries(PROV).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+  $("#nzCat").innerHTML = MACRO.filter(m => PMACRO[m]).map(m => `<option>${esc(m)}</option>`).join("");
+  $("#nzPrio").innerHTML = [1, 2, 3, 4, 5].map(p => `<option value="${p}">${esc(PRIO[p])}</option>`).join("");
+  $("#nzStato").innerHTML = SK.map(k => `<option value="${k}">${esc(STATI[k])}</option>`).join("");
+  const v = { nzNome: "nome", nzComune: "comune", nzInd: "indirizzo", nzTel: "telefono", nzMail: "email", nzSito: "sito" };
+  Object.entries(v).forEach(([f, k]) => { $("#" + f).value = a ? a[k] || "" : ""; });
+  $("#nzProv").value = a ? a.provincia || "" : ""; $("#nzNota").value = ""; $("#nzStato").value = "da";
+  $("#nzCat").value = "Da classificare"; $("#nzPrio").value = String(PMACRO["Da classificare"]);
+  $("#nzPosT").textContent = a && a._ok ? (a.pos === "gps" ? "Posizione presa dal telefono." : "Posizione già sulla mappa: si ricalcola se cambi indirizzo o comune.") : "La posizione si ricava da indirizzo e comune, oppure dal telefono se sei lì.";
+  nzMsg(""); $("#nzSi").disabled = false; $("#nz").hidden = false; $("#nzNome").focus();
+}
+function chiudiNz() { const id = nzId; $("#nz").hidden = true; nzId = null; const r = (id && document.getElementById("t-" + id)) || $("#nzBtn"); if (r) r.focus(); }
+function mostraScheda(id, nome) {
+  if (LIST.some(a => a.id === id)) { selectFromMap(id); return; }
+  toast(`${nome} è nascosta dai filtri attivi.`, { label: "Mostrala", fn: () => { clearAll(); $("#q").value = nome; changed(); selectFromMap(id); } });
+}
+$("#nzBtn").addEventListener("click", () => apriNz());
+$("#nzNo").addEventListener("click", chiudiNz);
+$("#nz").addEventListener("click", e => { if (e.target.id === "nz") chiudiNz(); });
+$("#nz").addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); chiudiNz(); } });
+// comune già noto: la provincia si compila da sola; la categoria propone la priorità finché non la scegli tu
+$("#nzComune").addEventListener("change", () => { if (nzProvMano) return; const c = norm($("#nzComune").value), a = AZ.find(x => norm(x.comune) === c && x.provincia); $("#nzProv").value = a ? a.provincia : ""; });
+$("#nzProv").addEventListener("change", () => { nzProvMano = true; });
+$("#nzCat").addEventListener("change", () => { if (!nzPrioMano) $("#nzPrio").value = String(PMACRO[$("#nzCat").value] || 5); });
+$("#nzPrio").addEventListener("change", () => { nzPrioMano = true; });
+$("#nzGps").addEventListener("click", () => {
+  if (!navigator.geolocation) { $("#nzPosT").textContent = "Posizione non disponibile qui: si userà indirizzo o comune."; return; }
+  $("#nzPosT").textContent = "Cerco la tua posizione…";
+  navigator.geolocation.getCurrentPosition(p => { nzGps = { lat: p.coords.latitude, lon: p.coords.longitude, pos: "gps" }; $("#nzPosT").textContent = "Posizione presa dal telefono: l'azienda va dove sei adesso."; },
+    () => { $("#nzPosT").textContent = "Posizione non disponibile qui: si userà indirizzo o comune."; }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+});
+$("#nzMsg").addEventListener("click", e => {
+  const b = e.target.closest("[data-nz]"); if (!b) return;
+  if (b.dataset.nz === "forza") { nzForza = true; $("#nzForm").dispatchEvent(new Event("submit", { cancelable: true })); return; }
+  const d = BYID.get(b.dataset.id); if (!d) return;
+  chiudiNz();
+  if (b.dataset.nz === "ripristina") restore(d.id);
+  setTimeout(() => mostraScheda(d.id, d.nome), b.dataset.nz === "ripristina" ? 500 : 0);
+});
+$("#nzForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const val = id => $("#" + id).value.trim(), nome = val("nzNome"), comune = val("nzComune"), tel = val("nzTel"), a = nzId ? BYID.get(nzId) : null;
+  if (!nome || !comune) { nzMsg("Servono almeno il <b>nome</b> e il <b>comune</b>."); $(!nome ? "#nzNome" : "#nzComune").focus(); return; }
+  if (!nzForza) {
+    const d = doppione(nome, comune, tel, nzId);
+    if (d) {
+      nzMsg(d._del
+        ? `<b>${esc(d.nome)}</b> (${esc(d.comune)}) è tra le aziende eliminate. <span class="nz-az"><button type="button" class="btn" data-nz="ripristina" data-id="${esc(d.id)}">Ripristina quella</button><button type="button" class="btn" data-nz="forza">Salva comunque</button></span>`
+        : `<b>${esc(d.nome)}</b> (${esc(d.comune)}) è già in elenco. <span class="nz-az"><button type="button" class="btn" data-nz="apri" data-id="${esc(d.id)}">Apri quella scheda</button><button type="button" class="btn" data-nz="forza">Salva comunque</button></span>`);
+      return;
+    }
+  }
+  nzForza = false; nzMsg(""); $("#nzSi").disabled = true;
+  const ind = val("nzInd"), prov = $("#nzProv").value;
+  // in modifica la posizione resta quella di prima, se indirizzo e comune non cambiano
+  const fermo = a && a._ok && ind === (a.indirizzo || "") && comune === (a.comune || "");
+  const p = nzGps || (fermo ? { lat: a.lat, lon: a.lon, pos: a.pos || "" } : await trovaPos(ind, comune, prov));
+  const uid = userNs ? await userNs.id() : "", ora = new Date().toISOString();
+  const id = nzId || "m-" + (norm(nome + "-" + comune).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80) || "azienda") + "-" + Date.now().toString(36);
+  const macro = a ? a._m0 : $("#nzCat").value;
+  const body = { nome, comune, provincia: prov, indirizzo: ind, telefono: tel, email: val("nzMail"), sito: val("nzSito"), macro, sotto: "aggiunta a mano", produzione: "da verificare", priorita: a ? a._p0 : +$("#nzPrio").value, lat: p.lat, lon: p.lon, pos: p.pos, da: a ? a.da || "" : uid || "", creata: a ? a.creata || ora : ora, agg: ora };
+  try {
+    await db.collection("nuove").doc(id).set(body);
+  } catch (err) {
+    $("#nzSi").disabled = false;
+    nzMsg("Salvataggio non riuscito: controlla la connessione e riprova. Se l'errore resta, avvisa il titolare.");
+    return;
+  }
+  applicaNuova(id, body);
+  if (!a) {
+    const st = $("#nzStato").value, nota = val("nzNota"), patch = {};
+    if (st !== "da") patch.stato = st;
+    if (nota) patch.nota = nota;
+    if (Object.keys(patch).length) await salva(id, patch, { quiet: true });
+  }
+  nzId = null; $("#nz").hidden = true; renderKpis(); refresh();
+  const dove = p.pos === "gps" ? "sulla mappa dove sei adesso" : p.pos === "indirizzo" ? "sulla mappa all'indirizzo trovato" : p.pos === "comune" ? "sulla mappa al centro del comune: se hai l'indirizzo, aggiungilo con Modifica dati" : "senza posizione sulla mappa: aggiungila con Modifica dati";
+  toast(a ? `${nome}: modifiche salvate.` : `${nome} aggiunta, ${dove}.`);
+  mostraScheda(id, nome);
+});
+
 /* ---------- avvio ---------- */
 (async () => {
   buildMs();
@@ -3636,20 +3822,8 @@ try { const v0 = localStorage.getItem("finder-vista"); if (v0 && v0 !== "finder"
     AZ = cli.concat(conc);
     const cm = new Map();
     AZ.forEach((a, i) => {
-      if (!a.macro) a.macro = "Da classificare";
-      a._m0 = a.macro; a._so0 = a.sotto || "";
-      a._i = i; a._pr = a._c ? 6 : [1, 2, 3, 4, 5].includes(+a.priorita) ? +a.priorita : 5; a._p = String(a._pr); a._rk = RANK[a._pr]; a._p0 = a._pr; a._cf = a._c; a._del = false;
-      a._lat = parseFloat(a.lat); a._lon = parseFloat(a.lon); a._ok = isFinite(a._lat) && isFinite(a._lon) && !(a._lat === 0 && a._lon === 0); a._d = Infinity;
-      BYID.set(a.id, a);
-      // punto per la mappa, creato una volta sola
-      if (a._ok) a._f = { type: "Feature", geometry: { type: "Point", coordinates: [a._lon, a._lat] }, properties: { id: a.id, pr: a._pr, rk: a._rk } };
-      // testo di ricerca precalcolato, senza accenti
-      a._s = norm([a.nome, a.comune, a.provincia, PROV[a.provincia], a.macro, a.sotto, a.settore, a.settori, a.categoria_google, a.macchinari, a.segnali_serie, a.piva, a.indirizzo, a.telefono, a.email, a.sito, a.prova_produzione, a.tipo, a.servizi, a.prova, a._c ? "concorrente concorrenti" : "", (a.giri || []).join(" "), (a.codici || []).join(" "), a.cliente_lbs ? "cliente lbs" : "", a.recuperata ? "recuperata recuperate scartata come negozio" : ""].join(" "));
-      if (a._ok) {
-        if (!GB) GB = { minLa: a._lat, maxLa: a._lat, minLo: a._lon, maxLo: a._lon };
-        GB.minLa = Math.min(GB.minLa, a._lat); GB.maxLa = Math.max(GB.maxLa, a._lat); GB.minLo = Math.min(GB.minLo, a._lon); GB.maxLo = Math.max(GB.maxLo, a._lon);
-        if (a.comune) { const c = cm.get(a.comune) || { nome: a.comune, la: 0, lo: 0, n: 0 }; c.la += a._lat; c.lo += a._lon; c.n++; cm.set(a.comune, c); }
-      }
+      preparaAz(a, i);
+      if (a._ok && a.comune) { const c = cm.get(a.comune) || { nome: a.comune, la: 0, lo: 0, n: 0 }; c.la += a._lat; c.lo += a._lon; c.n++; cm.set(a.comune, c); }
     });
     cm.forEach(c => COMUNI.set(norm(c.nome), { nome: c.nome, lat: c.la / c.n, lon: c.lo / c.n }));
     $("#comuniList").innerHTML = [...cm.keys()].sort(coll.compare).map(c => `<option value="${esc(c)}"></option>`).join("");
@@ -3665,6 +3839,13 @@ try { const v0 = localStorage.getItem("finder-vista"); if (v0 && v0 !== "finder"
   userNs = await use("user");
   if (userNs) { try { const c = await userNs.can("data.write"); if (c === false) canWrite = false; } catch (e) {} }
   db = await use("db");
+  // aziende aggiunte a mano dai collaboratori: arrivano e si aggiornano dal vivo
+  if (db) db.collection("nuove").onSnapshot(snap => {
+    snap.docChanges().forEach(ch => applicaNuova(ch.doc.id, ch.type === "removed" ? null : ch.doc.data()));
+    renderKpis();
+    if (scrive()) { pendingRender = true; return; }
+    refresh();
+  }, () => {});
   if (db) db.collection("stato").onSnapshot(snap => {
     snap.docChanges().forEach(ch => {
       const id = ch.doc.id;
